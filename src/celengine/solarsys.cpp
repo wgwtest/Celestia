@@ -38,6 +38,7 @@
 #include <celutil/tokenizer.h>
 #include "atmosphere.h"
 #include "body.h"
+#include "bodyrenderassets.h"
 #include "category.h"
 #include "frame.h"
 #include "frametree.h"
@@ -1204,8 +1205,8 @@ ReadMesh(const AssociativeArray& planetData,
         geometryHandle = engine::GeometryHandle::Empty;
     }
 
-    body.setGeometry(geometryHandle);
-    body.setGeometryScale(geometryScale);
+    BodyRenderAssets::setGeometry(&body, geometryHandle);
+    BodyRenderAssets::setGeometryScale(&body, geometryScale);
 }
 
 void ReadAtmosphere(Body* body,
@@ -1320,7 +1321,7 @@ void ReadRings(Body* body,
     if (auto textureName = GetFilename(*ringsData, "Texture"sv, "Invalid filename in rings Texture\n");
         textureName.has_value())
     {
-        rings->texture = texturePaths.getHandle(*textureName, path);
+        BodyRenderAssets::setRingTexture(rings, texturePaths.getHandle(*textureName, path));
     }
 
     if (newRings != nullptr)
@@ -1526,16 +1527,16 @@ Body* CreateBody(const std::string& name,
        body->setDensity(*density);
 
     if (auto orientation = planetData->getRotation("Orientation"); orientation.has_value())
-        body->setGeometryOrientation(*orientation);
+        BodyRenderAssets::setGeometryOrientation(body, *orientation);
 
     Surface surface;
     if (disposition == DataDisposition::Modify)
-        surface = body->getSurface();
+        surface = BodyRenderAssets::getSurface(body);
     else
         surface.color = Color(1.0f, 1.0f, 1.0f);
 
     FillinSurface(planetData, &surface, path, texturePaths);
-    body->setSurface(surface);
+    BodyRenderAssets::setSurface(body, surface);
 
     ReadMesh(*planetData, *body, path, geometryPaths);
 
@@ -1818,7 +1819,7 @@ bool LoadSolarSystemObjects(std::istream& in,
             surface->color = Color(1.0f, 1.0f, 1.0f);
             FillinSurface(objectData, surface.get(), directory, texturePaths);
             if (parent.body() != nullptr)
-                GetBodyFeaturesManager()->addAlternateSurface(parent.body(), primaryName, std::move(surface));
+                BodyRenderAssets::setAlternateSurface(parent.body(), primaryName, std::move(surface));
             else
                 sscError(tokenizer, _("bad alternate surface"));
         }

@@ -20,7 +20,6 @@
 #include <Eigen/Geometry>
 
 #include "astroobj.h"
-#include "renderflags.h"
 
 class Galaxy;
 class Globular;
@@ -28,7 +27,6 @@ struct Matrices;
 class Nebula;
 class OpenCluster;
 class Selection;
-class Renderer;
 
 namespace celestia
 {
@@ -93,17 +91,11 @@ public:
 
     virtual DeepSkyObjectType getObjType() const = 0;
 
-    virtual bool pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                      double& distanceToPicker,
-                      double& cosAngleToBoundCenter) const;
     bool load(const celestia::util::AssociativeArray*,
               const std::filesystem::path& resPath,
               celestia::engine::GeometryPaths& geometryPaths,
               std::string_view name,
               celestia::engine::UrlManager& urlManager);
-
-    virtual RenderFlags getRenderMask() const { return RenderFlags::ShowNothing; }
-    virtual RenderLabels getLabelMask() const { return RenderLabels::NoLabels; }
 
     AstroCatalog::IndexNumber getIndex() const { return indexNumber; }
     void setIndex(AstroCatalog::IndexNumber idx) { indexNumber = idx; }

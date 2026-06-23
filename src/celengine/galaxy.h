@@ -20,10 +20,8 @@
 #include <Eigen/Geometry>
 
 #include "deepskyobj.h"
-#include "renderflags.h"
 
 struct Matrices;
-class Renderer;
 
 namespace celestia
 {
@@ -61,8 +59,6 @@ enum class GalaxyType
 class Galaxy final : public DeepSkyObject
 {
 public:
-    constexpr static float kMaxSpiralThickness = 0.06f;
-
     const char* getType() const override;
     void setType(const std::string&) override;
     std::string getDescription() const override;
@@ -70,17 +66,10 @@ public:
     float getDetail() const;
     void setDetail(float);
 
-    bool pick(const Eigen::ParametrizedLine<double, 3>& ray,
-              double& distanceToPicker,
-              double& cosAngleToBoundCenter) const override;
-
     static void  increaseLightGain();
     static void  decreaseLightGain();
     static float getLightGain();
     static void  setLightGain(float);
-
-    RenderFlags getRenderMask() const override;
-    RenderLabels getLabelMask() const override;
 
     DeepSkyObjectType getObjType() const override;
 
@@ -96,10 +85,6 @@ protected:
                      celestia::engine::GeometryPaths&) override;
 
 private:
-    // TODO: This value is just a guess.
-    // To be optimal, it should actually be computed:
-    constexpr static float kRadiusCorrection = 0.025f;
-
     void setForm(const std::filesystem::path&, const std::filesystem::path& = {});
 
     float       detail{ 1.0f };

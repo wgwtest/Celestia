@@ -44,6 +44,7 @@
 #include <celengine/asterism.h>
 #include <celengine/axisarrow.h>
 #include <celengine/body.h>
+#include <celengine/bodyrenderassets.h>
 #include <celengine/boundaries.h>
 #include <celengine/console.h>
 #include <celengine/framebuffer.h>
@@ -54,6 +55,8 @@
 #include <celengine/perspectiveprojectionmode.h>
 #include <celengine/planetgrid.h>
 #include <celengine/starname.h>
+#include <celengine/starrenderassets.h>
+#include <celengine/selectionpicker.h>
 #include <celengine/textlayout.h>
 #include <celengine/timeline.h>
 #include <celengine/timelinephase.h>
@@ -370,7 +373,7 @@ void showSelectionInfo(const Selection& sel)
     if (const DeepSkyObject* dso = sel.deepsky(); dso != nullptr)
         orientation = sel.deepsky()->getOrientation();
     else if (sel.body() != nullptr)
-        orientation = sel.body()->getGeometryOrientation();
+        orientation = BodyRenderAssets::getGeometryOrientation(sel.body());
     else
         return;
 
@@ -480,6 +483,18 @@ void CelestiaCore::mouseButtonUp(float x, float y, int button)
     // mouse was dragged and ignore the event.
     if (mouseMotion < DragThreshold)
     {
+        auto pickSelection = [this, obsPickTolerance](const Eigen::Vector3f& pickRay)
+        {
+            const Observer* observer = sim->getActiveObserver();
+            SelectionPicker picker(*sim->getUniverse(), *geometryManager);
+            return picker.pick(observer->getPosition(),
+                               observer->getOrientationf().conjugate() * pickRay,
+                               observer->getTime(),
+                               renderer->getRenderFlags(),
+                               sim->getFaintestVisible(),
+                               obsPickTolerance);
+        };
+
         if (button == LeftButton)
         {
             viewManager->pickView(sim.get(), metrics, x, y);
@@ -487,7 +502,7 @@ void CelestiaCore::mouseButtonUp(float x, float y, int button)
             Vector3f pickRay = getPickRay(x, y, viewManager->activeView());
 
             Selection oldSel = sim->getSelection();
-            Selection newSel = sim->pickObject(pickRay, renderer->getRenderFlags(), obsPickTolerance);
+            Selection newSel = pickSelection(pickRay);
             addToHistory();
             sim->setSelection(newSel);
             if (!oldSel.empty() && oldSel == newSel)
@@ -497,7 +512,7 @@ void CelestiaCore::mouseButtonUp(float x, float y, int button)
         {
             Eigen::Vector3f pickRay = getPickRay(x, y, viewManager->activeView());
 
-            Selection sel = sim->pickObject(pickRay, renderer->getRenderFlags(), obsPickTolerance);
+            Selection sel = pickSelection(pickRay);
             if (!sel.empty())
             {
                 if (contextMenuHandler != nullptr)
@@ -607,7 +622,7 @@ void CelestiaCore::mouseMove(float dx, float dy, int modifiers)
             if (sel.getType() == SelectionType::DeepSky)
                 q = sel.deepsky()->getOrientation();
             else if (sel.getType() == SelectionType::Body)
-                q = sel.body()->getGeometryOrientation();
+                q = BodyRenderAssets::getGeometryOrientation(sel.body());
 
             q = math::XRotation(dy / static_cast<float>(metrics.height)) *
                 math::YRotation(dx / static_cast<float>(metrics.width)) * q;
@@ -615,7 +630,7 @@ void CelestiaCore::mouseMove(float dx, float dy, int modifiers)
             if (sel.getType() == SelectionType::DeepSky)
                 sel.deepsky()->setOrientation(q);
             else if (sel.getType() == SelectionType::Body)
-                sel.body()->setGeometryOrientation(q);
+                BodyRenderAssets::setGeometryOrientation(sel.body(), q);
         }
         else if (editMode && checkMask(modifiers, RightButton | ShiftKey | ControlKey))
         {
@@ -2059,9 +2074,19 @@ void CelestiaCore::draw(View* view)
     renderer->setRenderRegion(process ? 0 : x, process ? 0 : y, viewWidth, viewHeight, !view->isRootView());
 
     if (view->isRootView())
-        sim->render(*renderer);
+    {
+        renderer->render(*sim->getActiveObserver(),
+                         *sim->getUniverse(),
+                         sim->getFaintestVisible(),
+                         sim->getSelection());
+    }
     else
-        sim->render(*renderer, *view->observer);
+    {
+        renderer->render(*view->observer,
+                         *sim->getUniverse(),
+                         sim->getFaintestVisible(),
+                         sim->getSelection());
+    }
 
     if (process)
     {
@@ -2529,11 +2554,11 @@ bool CelestiaCore::initSimulation(const std::filesystem::path& configFileName,
 
     auto geometryPaths = std::make_shared<engine::GeometryPaths>();
     geometryManager = std::make_shared<engine::GeometryManager>(geometryPaths, texturePaths);
-    auto universe = std::make_unique<Universe>(geometryManager, std::make_unique<engine::UrlManager>());
+    auto universe = std::make_unique<Universe>(std::make_unique<engine::UrlManager>());
 
     /***** Load star catalogs *****/
 
-    StarDetails::SetStarTextures(config->starTextures);
+    StarRenderAssets::setStarTextures(config->starTextures);
 
     std::unique_ptr<StarDatabase> starCatalog = loadStars(*config, progressNotifier, *geometryPaths, *texturePaths, *universe->getUrlManager());
     if (starCatalog == nullptr)

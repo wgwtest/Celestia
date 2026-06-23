@@ -16,7 +16,9 @@
 #include <celutil/logger.h>
 #include <celutil/stringutils.h>
 #include <fmt/format.h>
+#include "meshmanager.h"
 #include "nebula.h"
+#include "nebularenderassets.h"
 #include "rendcontext.h"
 #include "render.h"
 
@@ -48,6 +50,11 @@ constexpr std::array NebulaTypeNames =
 
 }
 
+Nebula::~Nebula()
+{
+    NebulaRenderAssets::remove(this);
+}
+
 const char*
 Nebula::getType() const
 {
@@ -68,18 +75,6 @@ std::string
 Nebula::getDescription() const
 {
     return fmt::format(_("Nebula: {}"), getType());
-}
-
-engine::GeometryHandle
-Nebula::getGeometry() const
-{
-    return geometry;
-}
-
-void
-Nebula::setGeometry(engine::GeometryHandle _geometry)
-{
-    geometry = _geometry;
 }
 
 DeepSkyObjectType
@@ -106,22 +101,10 @@ Nebula::loadDetails(const util::AssociativeArray* params,
         }
 
         auto geometryHandle = geometryPaths.getHandle(*geometryFileName, resPath);
-        setGeometry(geometryHandle);
+        NebulaRenderAssets::setGeometry(this, geometryHandle);
     }
 
     return true;
-}
-
-RenderFlags
-Nebula::getRenderMask() const
-{
-    return RenderFlags::ShowNebulae;
-}
-
-RenderLabels
-Nebula::getLabelMask() const
-{
-    return RenderLabels::NebulaLabels;
 }
 
 Nebula::Type

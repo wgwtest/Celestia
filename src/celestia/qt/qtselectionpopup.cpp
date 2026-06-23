@@ -27,6 +27,7 @@
 #include <QString>
 
 #include <celengine/body.h>
+#include <celengine/bodyrenderassets.h>
 #include <celengine/frametree.h>
 #include <celengine/marker.h>
 #include <celengine/render.h>
@@ -337,8 +338,8 @@ SelectionPopup::createReferenceVectorMenu()
 QMenu*
 SelectionPopup::createAlternateSurfacesMenu()
 {
-    auto altSurfaces = GetBodyFeaturesManager()->getAlternateSurfaceNames(selection.body());
-    if (!altSurfaces.has_value() || altSurfaces->empty())
+    auto altSurfaces = BodyRenderAssets::getAlternateSurfaceNames(selection.body());
+    if (altSurfaces.empty())
         return nullptr;
 
     QMenu* surfacesMenu = new QMenu(_("&Alternate Surfaces"), this);
@@ -347,7 +348,7 @@ SelectionPopup::createAlternateSurfacesMenu()
     surfacesMenu->addAction(normalAct);
     connect(normalAct, SIGNAL(triggered()), this, SLOT(slotSelectAlternateSurface()));
 
-    for (const auto& surface : *altSurfaces)
+    for (const auto& surface : altSurfaces)
     {
         QString surfaceName(surface.c_str());
         QAction* act = new QAction(surfaceName, surfacesMenu);

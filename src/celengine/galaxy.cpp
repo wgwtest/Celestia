@@ -11,8 +11,6 @@
 #include <algorithm>
 #include <fmt/format.h>
 
-#include <celmath/intersect.h>
-#include <celmath/ray.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include <celutil/stringutils.h>
@@ -110,33 +108,6 @@ int Galaxy::getFormId() const
     return form;
 }
 
-bool Galaxy::pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                  double& distanceToPicker,
-                  double& cosAngleToBoundCenter) const
-{
-    const auto* galacticForm = GalacticFormManager::get()->getForm(form);
-    if (galacticForm == nullptr || !isVisible())
-        return false;
-
-    // The ellipsoid should be slightly larger to compensate for the fact
-    // that blobs are considered points when galaxies are built, but have size
-    // when they are drawn.
-    float yscale = (type > GalaxyType::Irr && type < GalaxyType::E0)
-        ? kMaxSpiralThickness
-        : galacticForm->scale.y() + kRadiusCorrection;
-    Eigen::Vector3d ellipsoidAxes(getRadius()*(galacticForm->scale.x() + kRadiusCorrection),
-                                  getRadius()* yscale,
-                                  getRadius()*(galacticForm->scale.z() + kRadiusCorrection));
-    Eigen::Matrix3d rotation = getOrientation().cast<double>().toRotationMatrix();
-
-    return math::testIntersection(
-        math::transformRay(Eigen::ParametrizedLine<double, 3>(ray.origin() - getPosition(), ray.direction()),
-                           rotation),
-        math::Ellipsoidd(ellipsoidAxes),
-        distanceToPicker,
-        cosAngleToBoundCenter);
-}
-
 bool
 Galaxy::loadDetails(const util::AssociativeArray* params,
                     const std::filesystem::path& resPath,
@@ -182,16 +153,6 @@ float Galaxy::getBrightnessCorrection(const Eigen::Vector3f &offset) const
     if (celestia::gl::sRGBRendering)
         btot /= 7.0f; // sRGB rendering causes galaxies to appear excessively bright; scale down to match original appearance
     return (4.0f * lightGain + 1.0f) * btot * brightness_corr;
-}
-
-RenderFlags Galaxy::getRenderMask() const
-{
-    return RenderFlags::ShowGalaxies;
-}
-
-RenderLabels Galaxy::getLabelMask() const
-{
-    return RenderLabels::GalaxyLabels;
 }
 
 void Galaxy::increaseLightGain()

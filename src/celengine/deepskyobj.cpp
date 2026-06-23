@@ -16,8 +16,7 @@
 #include <fmt/format.h>
 
 #include <celastro/astro.h>
-#include <celmath/intersect.h>
-#include <celmath/sphere.h>
+#include <celmath/mathlib.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include <celutil/infourl.h>
@@ -78,17 +77,6 @@ std::string
 DeepSkyObject::getDescription() const
 {
     return {};
-}
-
-bool
-DeepSkyObject::pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                    double& distanceToPicker,
-                    double& cosAngleToBoundCenter) const
-{
-    return isVisible() && math::testIntersection(ray,
-                                                 math::Sphered(position, static_cast<double>(radius)),
-                                                 distanceToPicker,
-                                                 cosAngleToBoundCenter);
 }
 
 bool

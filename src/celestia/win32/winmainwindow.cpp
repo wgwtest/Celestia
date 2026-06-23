@@ -27,6 +27,7 @@
 #include <fmt/format.h>
 
 #include <celengine/body.h>
+#include <celengine/bodyrenderassets.h>
 #include <celengine/glsupport.h>
 #include <celengine/marker.h>
 #include <celengine/render.h>
@@ -1374,13 +1375,13 @@ MainWindow::commandDynamicMenus(WPARAM wParam, LPARAM lParam)
             return;
 
         int index = (int) LOWORD(wParam) - MENU_CHOOSE_SURFACE - 1;
-        auto surfNames = GetBodyFeaturesManager()->getAlternateSurfaceNames(body);
-        if (!surfNames.has_value())
+        auto surfNames = BodyRenderAssets::getAlternateSurfaceNames(body);
+        if (surfNames.empty())
             return;
 
-        if (index >= 0 && index < static_cast<int>(surfNames->size()))
+        if (index >= 0 && index < static_cast<int>(surfNames.size()))
         {
-            auto it = surfNames->begin();
+            auto it = surfNames.begin();
             std::advance(it, index);
             appCore->getSimulation()->getActiveObserver()->setDisplayedSurface(*it);
         }

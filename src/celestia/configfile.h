@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <celengine/star.h>
+#include <celengine/starrenderassets.h>
 #ifdef CELX
 #include <celutil/associativearray.h>
 #endif
@@ -117,7 +117,7 @@ struct CelestiaConfig
     Mouse mouse{ };
     Observer observer{ };
     RenderDetails renderDetails{ };
-    StarDetails::StarTextureSet starTextures{ };
+    StarRenderAssets::TextureSet starTextures{ };
 
     std::string scriptSystemAccessPolicy{ };
 

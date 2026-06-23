@@ -23,12 +23,12 @@
 #include <celastro/date.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
+#include "starrenderassets.h"
 #include "univcoord.h"
 
 using namespace std::string_view_literals;
 
 namespace astro = celestia::astro;
-namespace engine = celestia::engine;
 namespace ephem = celestia::ephem;
 namespace math = celestia::math;
 namespace util = celestia::util;
@@ -578,9 +578,6 @@ public:
     StarDetailsManager(const StarDetailsManager&) = delete;
     StarDetailsManager& operator=(const StarDetailsManager&) = delete;
 
-    const StarDetails::StarTextureSet& getStarTextures() const { return starTextures; }
-    void setStarTextures(const StarDetails::StarTextureSet&);
-
     const boost::intrusive_ptr<StarDetails>& getNormalStarDetails(StellarClass::SpectralClass,
                                                                   unsigned int,
                                                                   StellarClass::LuminosityClass);
@@ -632,8 +629,6 @@ private:
     static constexpr auto nWhiteDwarf = static_cast<std::size_t>(StellarClass::WDClassCount) *
                                         static_cast<std::size_t>(StellarClass::SubclassCount);
 
-    StarDetails::StarTextureSet starTextures{ };
-
     std::array<boost::intrusive_ptr<StarDetails>, nNormal>     normalStarDetails{ };
     std::array<boost::intrusive_ptr<StarDetails>, nWhiteDwarf> whiteDwarfDetails{ };
     boost::intrusive_ptr<StarDetails> neutronStarDetails{ };
@@ -652,12 +647,6 @@ StarDetailsManager::getManager()
 {
     static StarDetailsManager* const manager = std::make_unique<StarDetailsManager>().release();
     return *manager;
-}
-
-void
-StarDetailsManager::setStarTextures(const StarDetails::StarTextureSet& textures)
-{
-    starTextures = textures;
 }
 
 const boost::intrusive_ptr<StarDetails>&
@@ -777,9 +766,7 @@ StarDetailsManager::createNormalStarDetails(StellarClass::SpectralClass specClas
     auto details = createStandardStarType(name, temp, period);
     details->bolometricCorrection = bmagCorrection;
 
-    details->texture = starTextures.starTex[specClass];
-    if (details->texture == util::TextureHandle::Invalid)
-        details->texture = starTextures.defaultTex;
+    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::textureFor(specClass));
 
     return details;
 }
@@ -813,9 +800,7 @@ StarDetailsManager::createWhiteDwarfDetails(std::size_t scIndex,
 
     auto details = createStandardStarType(name, temp, period);
     details->bolometricCorrection = bmagCorrection;
-    details->texture = starTextures.starTex[StellarClass::Spectral_D];
-    if (details->texture == util::TextureHandle::Invalid)
-        details->texture = starTextures.defaultTex;
+    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::textureFor(StellarClass::Spectral_D));
     return details;
 }
 
@@ -828,9 +813,7 @@ StarDetailsManager::createNeutronStarDetails()
                                           1.0f / 86400.0f);
     details->radius = 10.0f;
     details->knowledge = StarDetails::Knowledge::KnowRadius;
-    details->texture = starTextures.neutronStarTex;
-    if (details->texture == util::TextureHandle::Invalid)
-        details->texture = starTextures.defaultTex;
+    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::neutronStarTexture());
     return details;
 }
 
@@ -887,16 +870,14 @@ StarDetails::GetBarycenterDetails()
     return manager.getBarycenterDetails();
 }
 
-void
-StarDetails::SetStarTextures(const StarTextureSet& _starTextures)
-{
-    StarDetailsManager& manager = StarDetailsManager::getManager();
-    manager.setStarTextures(_starTextures);
-}
-
 StarDetails::StarDetails()
 {
     spectralType[0] = '\0';
+}
+
+StarDetails::~StarDetails()
+{
+    StarRenderAssets::remove(this);
 }
 
 boost::intrusive_ptr<StarDetails>
@@ -910,14 +891,13 @@ StarDetails::clone() const
     newDetails->knowledge = knowledge;
     newDetails->visible = visible;
     newDetails->spectralType = spectralType;
-    newDetails->texture = texture;
-    newDetails->geometry = geometry;
     newDetails->orbit = orbit;
     newDetails->orbitalRadius = orbitalRadius;
     newDetails->barycenter = barycenter;
     newDetails->rotationModel = rotationModel;
     newDetails->semiAxes = semiAxes;
     newDetails->isShared = false;
+    StarRenderAssets::cloneAssets(this, newDetails.get());
     return newDetails;
 }
 
@@ -931,17 +911,15 @@ StarDetails::mergeFromStandard(const StarDetails* other)
     if (other->isBarycenter())
     {
         // Use default values when replacement object is a barycenter
-        texture = other->texture;
+        StarRenderAssets::copyAssets(this, other);
         rotationModel = other->rotationModel;
-        geometry = other->geometry;
         radius = other->radius;
         semiAxes = other->semiAxes;
         knowledge = other->knowledge;
     }
     else
     {
-        if (!util::is_set(knowledge, Knowledge::KnowTexture))
-            texture = other->texture;
+        StarRenderAssets::copyTextureIfUnset(this, other);
         if (!util::is_set(knowledge, Knowledge::KnowRotation))
             rotationModel = other->rotationModel;
     }
@@ -968,21 +946,6 @@ StarDetails::setBolometricCorrection(boost::intrusive_ptr<StarDetails>& details,
 {
     unshare(details);
     details->bolometricCorrection = correction;
-}
-
-void
-StarDetails::setTexture(boost::intrusive_ptr<StarDetails>& details, util::TextureHandle tex)
-{
-    unshare(details);
-    details->texture = tex;
-    details->knowledge |= Knowledge::KnowTexture;
-}
-
-void
-StarDetails::setGeometry(boost::intrusive_ptr<StarDetails>& details, engine::GeometryHandle rh)
-{
-    unshare(details);
-    details->geometry = rh;
 }
 
 void
@@ -1151,18 +1114,6 @@ Star::getRadius() const
     // star from surface temperature and luminosity
     return astro::SOLAR_RADIUS<float> * std::sqrt(lum) *
         math::square(astro::SOLAR_TEMPERATURE / getTemperature());
-}
-
-util::TextureHandle
-Star::getTexture() const
-{
-    return details->getTexture();
-}
-
-engine::GeometryHandle
-Star::getGeometry() const
-{
-    return details->getGeometry();
 }
 
 void

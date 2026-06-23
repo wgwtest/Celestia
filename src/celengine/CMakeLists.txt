@@ -8,6 +8,10 @@ set(CELENGINE_SOURCES
   axisarrow.h
   body.cpp
   body.h
+  bodylocationgeometryprojector.cpp
+  bodylocationgeometryprojector.h
+  bodyrenderassets.cpp
+  bodyrenderassets.h
   boundaries.cpp
   boundaries.h
   category.cpp
@@ -26,6 +30,10 @@ set(CELENGINE_SOURCES
   dsodb.h
   dsodbbuilder.cpp
   dsodbbuilder.h
+  deepskyobjectpicker.cpp
+  deepskyobjectpicker.h
+  deepskyobjectrenderpolicy.cpp
+  deepskyobjectrenderpolicy.h
   dsooctree.cpp
   dsooctree.h
   dsorenderer.cpp
@@ -66,6 +74,8 @@ set(CELENGINE_SOURCES
   name.h
   nebula.cpp
   nebula.h
+  nebularenderassets.cpp
+  nebularenderassets.h
   objectrenderer.h
   observer.cpp
   observer.h
@@ -108,6 +118,8 @@ set(CELENGINE_SOURCES
   renderlistentry.h
   rotationmanager.cpp
   rotationmanager.h
+  selectionpicker.cpp
+  selectionpicker.h
   selection.cpp
   selection.h
   shadermanager.cpp
@@ -126,6 +138,8 @@ set(CELENGINE_SOURCES
   starcolors.h
   star.cpp
   star.h
+  starrenderassets.cpp
+  starrenderassets.h
   stardb.cpp
   stardb.h
   stardbbuilder.cpp

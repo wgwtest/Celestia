@@ -33,24 +33,3 @@ OpenCluster::getObjType() const
 {
     return DeepSkyObjectType::OpenCluster;
 }
-
-bool
-OpenCluster::pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                  double& distanceToPicker,
-                  double& cosAngleToBoundCenter) const
-{
-    // Open clusters are not rendered, do not pick them
-    return false;
-}
-
-RenderFlags
-OpenCluster::getRenderMask() const
-{
-    return RenderFlags::ShowOpenClusters;
-}
-
-RenderLabels
-OpenCluster::getLabelMask() const
-{
-    return RenderLabels::OpenClusterLabels;
-}

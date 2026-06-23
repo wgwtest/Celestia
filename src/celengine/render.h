@@ -413,7 +413,7 @@ class Renderer
  public:
     struct RenderProperties
     {
-        Surface* surface{ nullptr };
+        const Surface* surface{ nullptr };
         const Atmosphere* atmosphere{ nullptr };
         RingSystem* rings{ nullptr };
         LightingState::EclipseShadowVector* eclipseShadows{ nullptr };
