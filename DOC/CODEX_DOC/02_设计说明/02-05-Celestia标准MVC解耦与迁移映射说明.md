@@ -35,89 +35,87 @@ Catalog loaders
 下图中的箭头表示 Step 1 后允许保留的编译依赖或运行时编排方向。Model / Controller 的 public header 不得反向暴露 View 资源；需要 View 资源的行为统一落在 View Adapter 或 Application Shell。
 
 ```mermaid
-flowchart LR
-    catalog["Catalog loaders"] --> universe["Universe / catalogs"]
-    universe --> model["Model objects<br/>Body / Star / DSO / Location"]
-    dynamics["Orbit / RotationModel / ReferenceFrame"] --> model
+graph LR
+    Catalog[Catalog loaders] --> Universe[Universe and catalogs]
+    Universe --> Model[Model objects Body Star DSO Location]
+    Dynamics[Orbit RotationModel ReferenceFrame] --> Model
 
-    simulation["Simulation<br/>Controller"] --> universe
-    simulation --> state["Selection / Observer"]
+    Simulation[Simulation Controller] --> Universe
+    Simulation --> State[Selection and Observer]
 
-    shell["CelestiaCore<br/>Application Shell"] --> simulation
-    shell --> renderer["Renderer<br/>View"]
-    shell --> picker["SelectionPicker<br/>View Adapter"]
+    CelestiaCore[CelestiaCore Application Shell] --> Simulation
+    CelestiaCore --> Renderer[Renderer View]
+    CelestiaCore --> SelectionPicker[SelectionPicker View Adapter]
 
-    picker --> universe
-    picker --> geometry["GeometryManager<br/>View resource"]
-    renderer --> bodyAssets["BodyRenderAssets"]
-    renderer --> starAssets["StarRenderAssets"]
-    renderer --> nebulaAssets["NebulaRenderAssets"]
-    renderer --> dsoPolicy["DeepSkyObjectRenderPolicy"]
+    SelectionPicker --> Universe
+    SelectionPicker --> GeometryManager[GeometryManager View resource]
+    Renderer --> BodyRenderAssets[BodyRenderAssets]
+    Renderer --> StarRenderAssets[StarRenderAssets]
+    Renderer --> NebulaRenderAssets[NebulaRenderAssets]
+    Renderer --> DeepSkyObjectRenderPolicy[DeepSkyObjectRenderPolicy]
 
-    bodyAssets --> model
-    starAssets --> model
-    nebulaAssets --> model
-    dsoPolicy --> model
+    BodyRenderAssets --> Model
+    StarRenderAssets --> Model
+    NebulaRenderAssets --> Model
+    DeepSkyObjectRenderPolicy --> Model
 
-    viewResources["Renderer / GeometryManager / TextureManager / RenderFlags"] -. "不得进入" .-> coreHeaders["Model / Controller public headers"]
+    ViewResources[Renderer GeometryManager TextureManager RenderFlags] --> Forbidden[Do not expose in Model or Controller headers]
 ```
 
 ### 3.2 核心类依赖变化图
 
-本图只表达本次 Step 1 拆除和迁出的关键依赖，不等同于完整 C++ include graph。左侧是原始混杂点，右侧是更新后的边界落点。
+本图只表达本次 Step 1 拆除和迁出的关键依赖，不等同于完整 C++ include graph。`Before` 节点表示原始混杂点，`After` 节点表示更新后的边界落点。
 
 ```mermaid
-flowchart TB
-    subgraph before["Before: mixed MVC dependencies"]
-        oldSimulation["Simulation"] --> oldRenderer["Renderer / RenderFlags / pickObject"]
-        oldUniverse["Universe"] --> oldPicking["GeometryManager / pickPlanet / pickStar / pickDeepSkyObject"]
-        oldBody["Body"] --> oldBodyAssets["GeometryHandle / Surface / alternate surface / ring texture"]
-        oldStar["Star / StarDetails"] --> oldStarAssets["TextureHandle / GeometryHandle / StarTextureSet"]
-        oldDso["DeepSkyObject subclasses"] --> oldDsoView["RenderFlags / RenderLabels / pick / GeometryHandle"]
-    end
+graph TB
+    OldSimulation[Before Simulation] --> OldRenderer[Renderer RenderFlags pickObject]
+    OldUniverse[Before Universe] --> OldPicking[GeometryManager pickPlanet pickStar pickDeepSkyObject]
+    OldBody[Before Body] --> OldBodyAssets[GeometryHandle Surface alternate surface ring texture]
+    OldStar[Before Star and StarDetails] --> OldStarAssets[TextureHandle GeometryHandle StarTextureSet]
+    OldDso[Before DeepSkyObject subclasses] --> OldDsoView[RenderFlags RenderLabels pick GeometryHandle]
 
-    subgraph after["After: Step 1 boundaries"]
-        newSimulation["Simulation"] --> controllerState["time / selection / observer / tracking"]
-        newUniverse["Universe"] --> catalogs["StarDatabase / SolarSystemCatalog / DSODatabase"]
-        newShell["CelestiaCore"] --> newRenderer["Renderer"]
-        newShell --> newPicker["SelectionPicker"]
-        newPicker --> newUniverse
-        newPicker --> newGeometry["GeometryManager"]
-        bodyAdapter["BodyRenderAssets"] --> newBody["Body"]
-        starAdapter["StarRenderAssets"] --> newStar["Star / StarDetails"]
-        nebulaAdapter["NebulaRenderAssets"] --> newNebula["Nebula"]
-        dsoRenderPolicy["DeepSkyObjectRenderPolicy"] --> newDso["DeepSkyObject"]
-        dsoPicker["DeepSkyObjectPicker"] --> newDso
-    end
+    NewSimulation[After Simulation] --> ControllerState[time selection observer tracking]
+    NewUniverse[After Universe] --> Catalogs[StarDatabase SolarSystemCatalog DSODatabase]
+    NewCelestiaCore[After CelestiaCore] --> NewRenderer[Renderer]
+    NewCelestiaCore --> NewSelectionPicker[SelectionPicker]
+    NewSelectionPicker --> NewUniverse
+    NewSelectionPicker --> NewGeometryManager[GeometryManager]
+    BodyAdapter[BodyRenderAssets] --> NewBody[Body]
+    StarAdapter[StarRenderAssets] --> NewStar[Star and StarDetails]
+    NebulaAdapter[NebulaRenderAssets] --> NewNebula[Nebula]
+    DsoPolicy[DeepSkyObjectRenderPolicy] --> NewDso[DeepSkyObject]
+    DsoPicker[DeepSkyObjectPicker] --> NewDso
 ```
 
 ### 3.3 文件依赖落点图
 
-下图用于审查“新增文件是否真的承接了原先散落在 Model / Controller 中的 View 依赖”。实线表示 include 或直接调用方向；虚线表示 header 中只保留前向声明或友元入口，不暴露具体 View 资源类型。
+下图用于审查“新增文件是否真的承接了原先散落在 Model / Controller 中的 View 依赖”。箭头表示 include 或直接调用方向；`forward friend access only` 节点表示 header 中只保留前向声明或友元入口，不暴露具体 View 资源类型。
 
 ```mermaid
-flowchart LR
-    celestiaCore["src/celestia/celestiacore.cpp"] --> selectionPickerH["src/celengine/selectionpicker.h"]
-    celestiaCore --> bodyAssetsH["src/celengine/bodyrenderassets.h"]
+graph LR
+    CelestiaCoreCpp[src/celestia/celestiacore.cpp] --> SelectionPickerH[src/celengine/selectionpicker.h]
+    CelestiaCoreCpp --> BodyRenderAssetsH[src/celengine/bodyrenderassets.h]
 
-    renderCpp["src/celengine/render.cpp"] --> bodyAssetsH
-    renderCpp --> starAssetsH["src/celengine/starrenderassets.h"]
-    renderCpp --> nebulaAssetsH["src/celengine/nebularenderassets.h"]
-    renderCpp --> dsoPolicyH["src/celengine/deepskyobjectrenderpolicy.h"]
+    RenderCpp[src/celengine/render.cpp] --> BodyRenderAssetsH
+    RenderCpp --> StarRenderAssetsH[src/celengine/starrenderassets.h]
+    RenderCpp --> NebulaRenderAssetsH[src/celengine/nebularenderassets.h]
+    RenderCpp --> DsoPolicyH[src/celengine/deepskyobjectrenderpolicy.h]
 
-    selectionPickerCpp["src/celengine/selectionpicker.cpp"] --> bodyAssetsH
-    selectionPickerCpp --> dsoPickerH["src/celengine/deepskyobjectpicker.h"]
-    selectionPickerCpp --> geometryManager["src/celengine/meshmanager.h / GeometryManager"]
+    SelectionPickerCpp[src/celengine/selectionpicker.cpp] --> BodyRenderAssetsH
+    SelectionPickerCpp --> DsoPickerH[src/celengine/deepskyobjectpicker.h]
+    SelectionPickerCpp --> GeometryManager[src/celengine/meshmanager.h GeometryManager]
 
-    solarsysCpp["src/celengine/solarsys.cpp"] --> bodyAssetsH
-    stardbBuilderCpp["src/celengine/stardbbuilder.cpp"] --> starAssetsH
-    nebulaCpp["src/celengine/nebula.cpp"] --> nebulaAssetsH
-    bodyCpp["src/celengine/body.cpp"] --> bodyAssetsH
-    starCpp["src/celengine/star.cpp"] --> starAssetsH
+    SolarSysCpp[src/celengine/solarsys.cpp] --> BodyRenderAssetsH
+    StarDbBuilderCpp[src/celengine/stardbbuilder.cpp] --> StarRenderAssetsH
+    NebulaCpp[src/celengine/nebula.cpp] --> NebulaRenderAssetsH
+    BodyCpp[src/celengine/body.cpp] --> BodyRenderAssetsH
+    StarCpp[src/celengine/star.cpp] --> StarRenderAssetsH
 
-    bodyH["src/celengine/body.h"] -. "forward friend only" .-> bodyAssetsH
-    bodyH -. "forward friend only" .-> projectorH["src/celengine/bodylocationgeometryprojector.h"]
-    starH["src/celengine/star.h"] -. "forward friend only" .-> starAssetsH
+    BodyH[src/celengine/body.h] --> BodyForward[forward friend access only]
+    BodyForward --> BodyRenderAssetsH
+    BodyForward --> ProjectorH[src/celengine/bodylocationgeometryprojector.h]
+    StarH[src/celengine/star.h] --> StarForward[forward friend access only]
+    StarForward --> StarRenderAssetsH
 ```
 
 ### 3.4 接口关系与迁移边界图
@@ -125,15 +123,16 @@ flowchart LR
 Step 2 只能迁移 Core 语义和接口关系，不能把 Celestia 的 GPL 实现代码、OpenGL 渲染管线或平台前端搬进 Planet_SIM。View Adapter 的价值是提供边界模式，而不是作为 Planet_SIM Core 类型直接复制。
 
 ```mermaid
-flowchart LR
-    celestiaModel["Celestia Model semantics<br/>Universe / Body / Star / Orbit / RotationModel / ReferenceFrame"] --> planetCore["Planet_SIM Core clean-room<br/>FCelestialUniverse / FCelestialBody / FCelestialStar / ICelestialOrbit"]
-    celestiaController["Celestia Controller semantics<br/>Simulation / Selection / Observer"] --> planetCore
+graph LR
+    CelestiaModel[Celestia Model semantics Universe Body Star Orbit RotationModel ReferenceFrame] --> PlanetCore[Planet_SIM Core clean-room]
+    CelestiaController[Celestia Controller semantics Simulation Selection Observer] --> PlanetCore
 
-    celestiaAdapter["Celestia View Adapter pattern<br/>SelectionPicker / RenderAssets / Projector / RenderPolicy"] --> planetAdapter["Planet_SIM View Adapter<br/>UE / Cesium / DigitalPlanet / Inspector"]
-    planetCore --> planetAdapter
+    CelestiaAdapter[Celestia View Adapter pattern SelectionPicker RenderAssets Projector RenderPolicy] --> PlanetAdapter[Planet_SIM View Adapter UE Cesium DigitalPlanet Inspector]
+    PlanetCore --> PlanetAdapter
 
-    celestiaView["Celestia View implementation<br/>Renderer / TextureManager / GeometryManager / SDL / Qt / Win / OpenGL"] --> noMigrate["Do not migrate into Core"]
-    celestiaView -. "only capability reference" .-> planetAdapter
+    CelestiaView[Celestia View implementation Renderer TextureManager GeometryManager SDL Qt Win OpenGL] --> NoCore[Do not migrate into Core]
+    CelestiaView --> CapabilityReference[Capability reference only]
+    CapabilityReference --> PlanetAdapter
 ```
 
 | 接口边界 | 允许迁移 | 不允许迁移 |
