@@ -1,17 +1,17 @@
-# Codex Start Here - Celestia MVC Step 1
+# Codex Start Here - Celestia MVC Step 2
 
 ## Current Workspace
 
-This directory is the active MVC Step 1 worktree:
+This directory is the active MVC Step 2 worktree:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
 ```
 
-It is bound to branch:
+The directory name was created during Step 1, but the active branch is now:
 
 ```text
-codex/celestia-mvc-step1
+codex/celestia-mvc-step2
 ```
 
 The main Celestia checkout is separate:
@@ -20,7 +20,7 @@ The main Celestia checkout is separate:
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 1 code changes to appear there unless this branch is merged or checked out there.
+That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 2 code changes to appear there unless this branch is merged or checked out there.
 
 ## Remote Model
 
@@ -31,31 +31,31 @@ upstream = https://github.com/CelestiaProject/Celestia.git
 
 Use `origin` for this project's writable fork. Treat `upstream` as the official Celestia source reference.
 
-The current Step 1 commit pushed to the fork is:
+Step 1 was pushed to the fork as:
 
 ```text
 14062ca refactor: decouple Celestia MVC boundaries
 ```
 
-PR entry:
+Step 2 is on:
 
 ```text
-https://github.com/wgwtest/Celestia/pull/new/codex/celestia-mvc-step1
+codex/celestia-mvc-step2
+```
+
+PR entry after pushing:
+
+```text
+https://github.com/wgwtest/Celestia/pull/new/codex/celestia-mvc-step2
 ```
 
 ## Current Phase Boundary
 
-Step 1 is code-level MVC decoupling inside Celestia itself. It is not just documentation cleanup.
+Step 1 is complete: Celestia source-level MVC boundaries were reduced so Model / Controller public headers no longer expose the main View resources.
 
-Step 1 acceptance requires:
+Step 2 is complete in this worktree: Celestia Model implementation files no longer call concrete render-asset sidecars for Body, StarDetails, and Nebula; DSO semantic loading is split from Nebula mesh asset loading; SelectionPicker consumes a replaceable geometry provider; and `SceneViewModel` provides a headless View Adapter proof.
 
-1. Celestia source-level MVC boundaries are factually decoupled.
-2. A runnable Celestia program is built.
-3. Full local unit tests pass.
-4. Runtime smoke testing has been performed.
-5. Human acceptance is still required before Step 2 deeper MVC decoupling starts.
-
-Step 2 is now defined as deeper MVC decoupling inside this Celestia repository. Planet_SIM clean-room migration is a later independent migration phase and must not be started from this worktree unless the user explicitly opens that migration task.
+Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
 
 ## First Reading Order
 
@@ -72,14 +72,14 @@ Then inspect the worktree state:
 
 ```powershell
 git status --short --branch
-git log -3 --oneline --decorate
+git log -8 --oneline --decorate
 git remote -v
 git worktree list --porcelain
 ```
 
 ## Main Code Changes
 
-Key model/controller boundary reductions:
+Step 1 model/controller boundary reductions:
 
 ```text
 src/celengine/simulation.h/.cpp
@@ -89,7 +89,7 @@ src/celengine/star.h/.cpp
 src/celengine/deepskyobj.h/.cpp
 ```
 
-New View Adapter / boundary helper files:
+Step 1 View Adapter / boundary helper files:
 
 ```text
 src/celengine/selectionpicker.h/.cpp
@@ -99,6 +99,17 @@ src/celengine/nebularenderassets.h/.cpp
 src/celengine/bodylocationgeometryprojector.h/.cpp
 src/celengine/deepskyobjectrenderpolicy.h/.cpp
 src/celengine/deepskyobjectpicker.h/.cpp
+```
+
+Step 2 lifecycle, provider, asset-loader, and headless View Adapter files:
+
+```text
+src/celengine/bodylifecycle.h/.cpp
+src/celengine/stardetailslifecycle.h/.cpp
+src/celengine/nebulalifecycle.h/.cpp
+src/celengine/nebularenderassetloader.h/.cpp
+src/celengine/selectiongeometryprovider.h
+src/celengine/sceneviewmodel.h/.cpp
 ```
 
 Application shell and frontend call-site changes:
@@ -114,6 +125,7 @@ Boundary regression tests:
 
 ```text
 test/unit/mvc_boundary_test.cpp
+test/unit/mvc_step2_contract_test.cpp
 test/unit/CMakeLists.txt
 ```
 
@@ -122,20 +134,21 @@ test/unit/CMakeLists.txt
 This machine does not expose `cmake` / `ctest` in the normal PowerShell PATH. Use Visual Studio's bundled CMake tools directly:
 
 ```powershell
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe' --build build-mvc-sdl-rel --config Release
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel --output-on-failure
-
 & 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe' --build build-mvc-baseline-rel --config Release
 & 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-baseline-rel --output-on-failure
+
+& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe' --build build-mvc-sdl-rel --config Release
+& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel --output-on-failure
 ```
 
-Last verified result before this handoff:
+Last verified Step 2 result before this handoff:
 
 ```text
-build-mvc-sdl-rel: ninja: no work to do
-build-mvc-sdl-rel: 42/42 tests passed
-build-mvc-baseline-rel: ninja: no work to do
-build-mvc-baseline-rel: 42/42 tests passed
+build-mvc-baseline-rel: build passed
+build-mvc-baseline-rel: 47/47 tests passed
+build-mvc-sdl-rel: build passed
+build-mvc-sdl-rel: 47/47 tests passed
+SDL smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe entered the run loop for 6 seconds with build-mvc-sdl-rel\run-minimal and was stopped
 ```
 
 ## Runtime Notes
@@ -169,6 +182,8 @@ run-*
 CelestiaContent copies inside build output
 downloaded runtime catalogs
 local screenshots or temporary demo data
+verify-*.log
+shaders.log
 ```
 
 Before committing, run:
@@ -178,17 +193,17 @@ git status --short --branch
 git diff --check
 ```
 
-Push Step 1 work only to the fork:
+Push Step 2 work only to the fork:
 
 ```powershell
-git push origin codex/celestia-mvc-step1
+git push origin codex/celestia-mvc-step2
 ```
 
 Do not push to `upstream`.
 
 ## Upstream Sync Warning
 
-This Step 1 branch was created from Celestia commit:
+This Step 2 branch descends from the Step 1 work, which was created from Celestia commit:
 
 ```text
 44ec265 Move InfoURL into a separate manager class

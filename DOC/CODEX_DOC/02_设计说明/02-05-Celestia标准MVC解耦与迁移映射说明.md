@@ -6,7 +6,7 @@
 
 ## 2. Celestia 源码参考快照
 
-当前实现分支为 `codex/celestia-mvc-step1`，工作区为 `D:/WorkSpace/Codex/CeleNew/.worktrees/celestia-mvc-step1`。参考主链为：
+当前实现分支为 `codex/celestia-mvc-step2`，工作区为 `D:/WorkSpace/Codex/CeleNew/.worktrees/celestia-mvc-step1`。工作区目录名沿用 Step1 创建时的名称，但当前分支承载 Step2 代码。参考主链为：
 
 ```text
 Catalog loaders
@@ -36,30 +36,43 @@ Catalog loaders
 
 ```mermaid
 graph LR
-    Catalog[Catalog loaders] --> Universe[Universe and catalogs]
-    Universe --> Model[Model objects Body Star DSO Location]
-    Dynamics[Orbit RotationModel ReferenceFrame] --> Model
+    Catalog["Catalog loaders"] --> Universe["Universe and catalogs"]
+    Universe --> Model["Model objects: Body, Star, DSO, Location"]
+    Dynamics["Orbit, RotationModel, ReferenceFrame"] --> Model
+    Model --> Lifecycle["Model lifecycle events"]
 
-    Simulation[Simulation Controller] --> Universe
-    Simulation --> State[Selection and Observer]
+    Simulation["Simulation Controller"] --> Universe
+    Simulation --> State["Selection and Observer"]
+    SceneViewModel["SceneViewModel headless View Adapter"] --> Simulation
+    SceneViewModel --> Snapshot["Scene snapshot DTO"]
 
-    CelestiaCore[CelestiaCore Application Shell] --> Simulation
-    CelestiaCore --> Renderer[Renderer View]
-    CelestiaCore --> SelectionPicker[SelectionPicker View Adapter]
+    CelestiaCore["CelestiaCore Application Shell"] --> Simulation
+    CelestiaCore --> Renderer["Renderer View"]
+    CelestiaCore --> SelectionPicker["SelectionPicker View Adapter"]
+    CelestiaCore --> GeometryProvider["SelectionGeometryProvider implementation"]
 
     SelectionPicker --> Universe
-    SelectionPicker --> GeometryManager[GeometryManager View resource]
-    Renderer --> BodyRenderAssets[BodyRenderAssets]
-    Renderer --> StarRenderAssets[StarRenderAssets]
-    Renderer --> NebulaRenderAssets[NebulaRenderAssets]
-    Renderer --> DeepSkyObjectRenderPolicy[DeepSkyObjectRenderPolicy]
+    SelectionPicker --> GeometryProvider
+    GeometryProvider --> GeometryManager["GeometryManager View resource"]
+    GeometryProvider --> BodyRenderAssets["BodyRenderAssets"]
 
-    BodyRenderAssets --> Model
-    StarRenderAssets --> Model
-    NebulaRenderAssets --> Model
+    Renderer --> BodyRenderAssets
+    Renderer --> StarRenderAssets["StarRenderAssets"]
+    Renderer --> NebulaRenderAssets["NebulaRenderAssets"]
+    Renderer --> DeepSkyObjectRenderPolicy["DeepSkyObjectRenderPolicy"]
+
+    BodyRenderAssets --> Lifecycle
+    StarRenderAssets --> StarLifecycle["StarDetails lifecycle events"]
+    NebulaRenderAssets --> NebulaLifecycle["Nebula lifecycle events"]
+    NebulaAssetLoader["NebulaRenderAssetLoader"] --> NebulaRenderAssets
+    NebulaAssetLoader --> GeometryManager
+    DsoBuilder["DSODatabaseBuilder"] --> Model
+    DsoBuilder --> NebulaAssetLoader
+
     DeepSkyObjectRenderPolicy --> Model
+    SceneViewModel --> Model
 
-    ViewResources[Renderer GeometryManager TextureManager RenderFlags] --> Forbidden[Do not expose in Model or Controller headers]
+    ViewResources["Renderer, GeometryManager, TextureManager, RenderFlags"] --> Forbidden["Do not expose in Model or Controller headers"]
 ```
 
 ### 3.2 核心类依赖变化图
@@ -68,23 +81,38 @@ graph LR
 
 ```mermaid
 graph TB
-    OldSimulation[Before Simulation] --> OldRenderer[Renderer RenderFlags pickObject]
-    OldUniverse[Before Universe] --> OldPicking[GeometryManager pickPlanet pickStar pickDeepSkyObject]
-    OldBody[Before Body] --> OldBodyAssets[GeometryHandle Surface alternate surface ring texture]
-    OldStar[Before Star and StarDetails] --> OldStarAssets[TextureHandle GeometryHandle StarTextureSet]
-    OldDso[Before DeepSkyObject subclasses] --> OldDsoView[RenderFlags RenderLabels pick GeometryHandle]
+    OldSimulation["Before Simulation"] --> OldRenderer["Renderer, RenderFlags, pickObject"]
+    OldUniverse["Before Universe"] --> OldPicking["GeometryManager, pickPlanet, pickStar, pickDeepSkyObject"]
+    OldBody["Before Body"] --> OldBodyAssets["GeometryHandle, Surface, alternate surface, ring texture"]
+    OldStar["Before Star and StarDetails"] --> OldStarAssets["TextureHandle, GeometryHandle, StarTextureSet"]
+    OldDso["Before DeepSkyObject subclasses"] --> OldDsoView["RenderFlags, RenderLabels, pick, GeometryHandle"]
 
-    NewSimulation[After Simulation] --> ControllerState[time selection observer tracking]
-    NewUniverse[After Universe] --> Catalogs[StarDatabase SolarSystemCatalog DSODatabase]
-    NewCelestiaCore[After CelestiaCore] --> NewRenderer[Renderer]
-    NewCelestiaCore --> NewSelectionPicker[SelectionPicker]
+    NewSimulation["After Simulation"] --> ControllerState["time, selection, observer, tracking"]
+    NewUniverse["After Universe"] --> Catalogs["StarDatabase, SolarSystemCatalog, DSODatabase"]
+    NewSceneViewModel["After SceneViewModel"] --> NewSimulation
+    NewSceneViewModel --> Snapshot["renderer-free scene snapshot"]
+
+    NewCelestiaCore["After CelestiaCore"] --> NewRenderer["Renderer"]
+    NewCelestiaCore --> NewSelectionPicker["SelectionPicker"]
+    NewCelestiaCore --> Provider["SelectionGeometryProvider implementation"]
     NewSelectionPicker --> NewUniverse
-    NewSelectionPicker --> NewGeometryManager[GeometryManager]
-    BodyAdapter[BodyRenderAssets] --> NewBody[Body]
-    StarAdapter[StarRenderAssets] --> NewStar[Star and StarDetails]
-    NebulaAdapter[NebulaRenderAssets] --> NewNebula[Nebula]
-    DsoPolicy[DeepSkyObjectRenderPolicy] --> NewDso[DeepSkyObject]
-    DsoPicker[DeepSkyObjectPicker] --> NewDso
+    NewSelectionPicker --> Provider
+    Provider --> NewGeometryManager["GeometryManager"]
+    Provider --> BodyAdapter["BodyRenderAssets"]
+
+    NewBody["Body"] --> BodyLifecycle["BodyLifecycleEvents"]
+    BodyAdapter --> BodyLifecycle
+    NewStar["Star and StarDetails"] --> StarLifecycle["StarDetailsLifecycleEvents"]
+    StarAdapter["StarRenderAssets"] --> StarLifecycle
+    NewNebula["Nebula"] --> NebulaLifecycle["NebulaLifecycleEvents"]
+    NebulaAdapter["NebulaRenderAssets"] --> NebulaLifecycle
+    NebulaLoader["NebulaRenderAssetLoader"] --> NebulaAdapter
+    NebulaLoader --> NewGeometryManager
+
+    DsoPolicy["DeepSkyObjectRenderPolicy"] --> NewDso["DeepSkyObject"]
+    DsoPicker["DeepSkyObjectPicker"] --> NewDso
+    DsoBuilder["DSODatabaseBuilder"] --> NewDso
+    DsoBuilder --> NebulaLoader
 ```
 
 ### 3.3 文件依赖落点图
@@ -93,29 +121,37 @@ graph TB
 
 ```mermaid
 graph LR
-    CelestiaCoreCpp[src/celestia/celestiacore.cpp] --> SelectionPickerH[src/celengine/selectionpicker.h]
-    CelestiaCoreCpp --> BodyRenderAssetsH[src/celengine/bodyrenderassets.h]
+    CelestiaCoreCpp["src/celestia/celestiacore.cpp"] --> SelectionPickerH["src/celengine/selectionpicker.h"]
+    CelestiaCoreCpp --> BodyRenderAssetsH["src/celengine/bodyrenderassets.h"]
+    CelestiaCoreCpp --> SelectionGeometryProviderH["src/celengine/selectiongeometryprovider.h"]
 
-    RenderCpp[src/celengine/render.cpp] --> BodyRenderAssetsH
-    RenderCpp --> StarRenderAssetsH[src/celengine/starrenderassets.h]
-    RenderCpp --> NebulaRenderAssetsH[src/celengine/nebularenderassets.h]
-    RenderCpp --> DsoPolicyH[src/celengine/deepskyobjectrenderpolicy.h]
+    RenderCpp["src/celengine/render.cpp"] --> BodyRenderAssetsH
+    RenderCpp --> StarRenderAssetsH["src/celengine/starrenderassets.h"]
+    RenderCpp --> NebulaRenderAssetsH["src/celengine/nebularenderassets.h"]
+    RenderCpp --> DsoPolicyH["src/celengine/deepskyobjectrenderpolicy.h"]
 
-    SelectionPickerCpp[src/celengine/selectionpicker.cpp] --> BodyRenderAssetsH
-    SelectionPickerCpp --> DsoPickerH[src/celengine/deepskyobjectpicker.h]
-    SelectionPickerCpp --> GeometryManager[src/celengine/meshmanager.h GeometryManager]
+    SelectionPickerCpp["src/celengine/selectionpicker.cpp"] --> SelectionGeometryProviderH
+    SelectionPickerCpp --> DsoPickerH["src/celengine/deepskyobjectpicker.h"]
+    SelectionGeometryProviderH --> GeometryManager["src/celengine/meshmanager.h GeometryManager"]
 
-    SolarSysCpp[src/celengine/solarsys.cpp] --> BodyRenderAssetsH
-    StarDbBuilderCpp[src/celengine/stardbbuilder.cpp] --> StarRenderAssetsH
-    NebulaCpp[src/celengine/nebula.cpp] --> NebulaRenderAssetsH
-    BodyCpp[src/celengine/body.cpp] --> BodyRenderAssetsH
-    StarCpp[src/celengine/star.cpp] --> StarRenderAssetsH
+    SolarSysCpp["src/celengine/solarsys.cpp"] --> BodyRenderAssetsH
+    StarDbBuilderCpp["src/celengine/stardbbuilder.cpp"] --> StarRenderAssetsH
+    DsoDbBuilderCpp["src/celengine/dsodbbuilder.cpp"] --> NebulaRenderAssetLoaderH["src/celengine/nebularenderassetloader.h"]
+    NebulaRenderAssetLoaderCpp["src/celengine/nebularenderassetloader.cpp"] --> NebulaRenderAssetsH
+    NebulaRenderAssetLoaderCpp --> GeometryManager
 
-    BodyH[src/celengine/body.h] --> BodyForward[forward friend access only]
+    BodyCpp["src/celengine/body.cpp"] --> BodyLifecycleH["src/celengine/bodylifecycle.h"]
+    BodyRenderAssetsCpp["src/celengine/bodyrenderassets.cpp"] --> BodyLifecycleH
+    StarCpp["src/celengine/star.cpp"] --> StarDetailsLifecycleH["src/celengine/stardetailslifecycle.h"]
+    StarRenderAssetsCpp["src/celengine/starrenderassets.cpp"] --> StarDetailsLifecycleH
+    NebulaCpp["src/celengine/nebula.cpp"] --> NebulaLifecycleH["src/celengine/nebulalifecycle.h"]
+    NebulaRenderAssetsCpp["src/celengine/nebularenderassets.cpp"] --> NebulaLifecycleH
+
+    BodyH["src/celengine/body.h"] --> BodyForward["forward friend access only"]
     BodyForward --> BodyRenderAssetsH
-    BodyForward --> ProjectorH[src/celengine/bodylocationgeometryprojector.h]
-    StarH[src/celengine/star.h] --> StarForward[forward friend access only]
-    StarForward --> StarRenderAssetsH
+    BodyForward --> ProjectorH["src/celengine/bodylocationgeometryprojector.h"]
+    SceneViewModelCpp["src/celengine/sceneviewmodel.cpp"] --> SimulationH["src/celengine/simulation.h"]
+    SceneViewModelCpp --> SelectionH["src/celengine/selection.h"]
 ```
 
 ### 3.4 接口关系与迁移边界图
@@ -124,14 +160,14 @@ graph LR
 
 ```mermaid
 graph LR
-    CelestiaModel[Celestia Model semantics Universe Body Star Orbit RotationModel ReferenceFrame] --> PlanetCore[Planet_SIM Core clean-room]
-    CelestiaController[Celestia Controller semantics Simulation Selection Observer] --> PlanetCore
+    CelestiaModel["Celestia Model semantics: Universe, Body, Star, Orbit, RotationModel, ReferenceFrame"] --> PlanetCore["Planet_SIM Core clean-room"]
+    CelestiaController["Celestia Controller semantics: Simulation, Selection, Observer"] --> PlanetCore
 
-    CelestiaAdapter[Celestia View Adapter pattern SelectionPicker RenderAssets Projector RenderPolicy] --> PlanetAdapter[Planet_SIM View Adapter UE Cesium DigitalPlanet Inspector]
+    CelestiaAdapter["Celestia View Adapter pattern: SelectionPicker, RenderAssets, Projector, RenderPolicy"] --> PlanetAdapter["Planet_SIM View Adapter: UE, Cesium, DigitalPlanet, Inspector"]
     PlanetCore --> PlanetAdapter
 
-    CelestiaView[Celestia View implementation Renderer TextureManager GeometryManager SDL Qt Win OpenGL] --> NoCore[Do not migrate into Core]
-    CelestiaView --> CapabilityReference[Capability reference only]
+    CelestiaView["Celestia View implementation: Renderer, TextureManager, GeometryManager, SDL, Qt, Win, OpenGL"] --> NoCore["Do not migrate into Core"]
+    CelestiaView --> CapabilityReference["Capability reference only"]
     CapabilityReference --> PlanetAdapter
 ```
 
@@ -185,10 +221,12 @@ graph LR
 | `Universe` 持有 `GeometryManager` 并实现拾取 | 拆出 `SelectionPicker`，`Universe` 头文件移除 `GeometryManager`、`RenderFlags` 和 `pick*` |
 | `Simulation` 转发渲染和拾取 | 删除 `render` / `pickObject`，由 `CelestiaCore` 编排 `Renderer` 与 `SelectionPicker` |
 | `BodyFeaturesManager::computeLocations` 依赖几何管理器 | 拆出 `BodyLocationGeometryProjector` |
-| `Body` 暴露主几何、主表面、alternate surface 和 rings 纹理资产 | 拆出 `BodyRenderAssets`，渲染、拾取、前端菜单和 SSO 加载器通过适配层读写 |
-| `Star` / `StarDetails` 暴露纹理和网格句柄 | 拆出 `StarRenderAssets`，保留 `StarDetails` copy-on-write 语义 |
-| `Nebula` 暴露网格句柄 | 拆出 `NebulaRenderAssets` |
+| `Body` 暴露主几何、主表面、alternate surface 和 rings 纹理资产 | Step1 拆出 `BodyRenderAssets`；Step2 进一步让 `body.cpp` 只发出 `BodyLifecycleEvents`，资产清理和默认状态重置由 sidecar 注册回调承接 |
+| `Star` / `StarDetails` 暴露纹理和网格句柄 | Step1 拆出 `StarRenderAssets`；Step2 通过 `StarDetailsLifecycleEvents` 保留默认纹理、clone、copy-on-write 语义，并移除 `star.h` 对 `StarRenderAssets` 的 friend/forward 依赖 |
+| `Nebula` 暴露网格句柄 | Step1 拆出 `NebulaRenderAssets`；Step2 拆出 `NebulaLifecycleEvents` 和 `NebulaRenderAssetLoader`，让 DSO / Nebula 只处理模型语义，mesh / geometry 资产加载由 builder 编排到 View Adapter |
 | `DeepSkyObject` 子类暴露 render mask 和拾取 | 拆出 `DeepSkyObjectRenderPolicy` 与 `DeepSkyObjectPicker` |
+| `SelectionPicker` 直接绑定 `GeometryManager` | Step2 改为依赖 `SelectionGeometryProvider`，具体 `GeometryManager + BodyRenderAssets` 实现留在 `CelestiaCore` application shell |
+| 只有 Renderer 能消费 Simulation / Model 输出 | Step2 新增 `SceneViewModel`，用 renderer-free snapshot 证明 headless/test View Adapter 可以消费同一套 Model / Simulation 输出 |
 
 ## 8. Planet_SIM 迁移类表
 
@@ -260,7 +298,40 @@ build-mvc-sdl-rel: ctest --output-on-failure passed, 42/42
 build-mvc-sdl-rel/src/celestia/sdl/celestia-sdl.exe built and entered the SDL run loop with a minimal runtime catalog
 ```
 
-## 14. 详细类映射卡
+## 14. Step 2 代码验收记录
+
+本仓库已新增 `test/unit/mvc_step2_contract_test.cpp`，覆盖：
+
+- `body.cpp`、`star.cpp`、`nebula.cpp` 不调用 `BodyRenderAssets::`、`StarRenderAssets::`、`NebulaRenderAssets::`
+- 上述 Model 实现文件不 include `bodyrenderassets.h`、`starrenderassets.h`、`nebularenderassets.h`、`meshmanager.h` 或 `render.h`
+- `star.h` 不 forward declare / friend `StarRenderAssets`
+- `DeepSkyObject` / `Nebula` 模型 API 不接收 `GeometryPaths`
+- `SelectionPicker` 不直接暴露 `GeometryManager&` / `GeometryManager*`
+- `SceneViewModel` 不依赖 `Renderer`、`GeometryManager` 或 `TextureManager`
+
+Step2 新增或关键变更文件：
+
+```text
+src/celengine/bodylifecycle.h/.cpp
+src/celengine/stardetailslifecycle.h/.cpp
+src/celengine/nebulalifecycle.h/.cpp
+src/celengine/nebularenderassetloader.h/.cpp
+src/celengine/selectiongeometryprovider.h
+src/celengine/sceneviewmodel.h/.cpp
+test/unit/mvc_step2_contract_test.cpp
+```
+
+验证结果：
+
+```text
+build-mvc-baseline-rel: build passed
+build-mvc-baseline-rel: ctest --output-on-failure passed, 47/47
+build-mvc-sdl-rel: build passed
+build-mvc-sdl-rel: ctest --output-on-failure passed, 47/47
+build-mvc-sdl-rel/src/celestia/sdl/celestia-sdl.exe entered the SDL run loop for 6 seconds with build-mvc-sdl-rel/run-minimal and was stopped
+```
+
+## 15. 详细类映射卡
 
 ### Celestia class: `CelestiaCore`
 
@@ -323,7 +394,7 @@ Planet_SIM target: `FCelestialBody`。
 
 Migration level: Interface semantics migration, clean-room implementation。
 
-Validation: `Body` 头文件不暴露 `meshmanager.h`、`GeometryHandle` 主字段、`TextureHandle`、primary `Surface` 字段或 alternate surface API，渲染资产经 `BodyRenderAssets` 访问。
+Validation: `Body` 头文件不暴露 `meshmanager.h`、`GeometryHandle` 主字段、`TextureHandle`、primary `Surface` 字段或 alternate surface API；`body.cpp` 不再 include / call `BodyRenderAssets`，只发出 `BodyLifecycleEvents`，渲染资产由 `BodyRenderAssets` 注册生命周期回调承接。
 
 ### Celestia class: `Star` / `StarDetails`
 
@@ -344,7 +415,7 @@ Planet_SIM target: `FCelestialStar`。
 
 Migration level: Interface semantics migration, clean-room implementation。
 
-Validation: `Star` 头文件不暴露 `TextureHandle`、`GeometryHandle`、`StarTextureSet` 或 texture/geometry getter/setter，渲染资产经 `StarRenderAssets` 访问。
+Validation: `Star` 头文件不暴露 `TextureHandle`、`GeometryHandle`、`StarTextureSet` 或 texture/geometry getter/setter，并且不再 forward declare / friend `StarRenderAssets`；`star.cpp` 通过 `StarDetailsLifecycleEvents` 保留默认纹理、clone、copy-on-write 语义。
 
 ### Celestia class: `DeepSkyObject` / `Galaxy` / `Globular` / `Nebula` / `OpenCluster`
 
@@ -368,7 +439,7 @@ Planet_SIM target: 当前迁移优先级低；如迁移，进入 `FCelestialDeep
 
 Migration level: Optional semantic migration, clean-room implementation。
 
-Validation: DSO 模型头文件不暴露 `RenderFlags`、`RenderLabels`、`pick` 或 `GeometryHandle`，策略和拾取分别迁入 `DeepSkyObjectRenderPolicy` / `DeepSkyObjectPicker`。
+Validation: DSO 模型头文件不暴露 `RenderFlags`、`RenderLabels`、`pick` 或 `GeometryHandle`，策略和拾取分别迁入 `DeepSkyObjectRenderPolicy` / `DeepSkyObjectPicker`；Step2 后 `DeepSkyObject::load` / `Nebula::loadDetails` 不接收 `GeometryPaths`，Nebula mesh 资产由 `NebulaRenderAssetLoader` 在 `DSODatabaseBuilder` 中单独加载。
 
 ### Celestia class: `Simulation`
 
@@ -389,7 +460,7 @@ Planet_SIM target: `FCelestialSimulation`。
 
 Migration level: Controller semantics migration, clean-room implementation。
 
-Validation: `Simulation` 头文件不暴露 `Renderer`、`RenderFlags`、`render` 或 `pickObject`。
+Validation: `Simulation` 头文件不暴露 `Renderer`、`RenderFlags`、`render` 或 `pickObject`；`SceneViewModel` 可以在不依赖 `Renderer`、`GeometryManager` 或 `TextureManager` 的情况下消费 `Simulation` 当前选择并生成 scene snapshot。
 
 ### Celestia class: `Selection` / `Observer` / `ObserverFrame`
 
@@ -411,7 +482,7 @@ Planet_SIM target: `FCelestialSelection`、`FCelestialObserver`、`ICelestialRef
 
 Migration level: Interface semantics migration, clean-room implementation。
 
-Validation: 后续 Planet_SIM 迁移中 `FCelestialSimulation` 必须能设置选择、跟踪对象并由 observer frame 构建快照；Step 1 / Step2 只保留来源、边界和可验证语义。
+Validation: 后续 Planet_SIM 迁移中 `FCelestialSimulation` 必须能设置选择、跟踪对象并由 observer frame 构建快照；Step 2 已用 `SceneViewModel` 在 Celestia 仓库内证明 renderer-free snapshot 消费路径。
 
 ### Celestia class group: catalogs and hierarchy
 
@@ -469,9 +540,15 @@ src/celengine/render.h/.cpp
 src/celengine/texmanager.h/.cpp
 src/celengine/meshmanager.h/.cpp
 src/celengine/selectionpicker.h/.cpp
+src/celengine/selectiongeometryprovider.h
 src/celengine/bodyrenderassets.h/.cpp
 src/celengine/starrenderassets.h/.cpp
 src/celengine/nebularenderassets.h/.cpp
+src/celengine/bodylifecycle.h/.cpp
+src/celengine/stardetailslifecycle.h/.cpp
+src/celengine/nebulalifecycle.h/.cpp
+src/celengine/nebularenderassetloader.h/.cpp
+src/celengine/sceneviewmodel.h/.cpp
 src/celengine/bodylocationgeometryprojector.h/.cpp
 src/celengine/deepskyobjectrenderpolicy.h/.cpp
 ```
@@ -486,4 +563,4 @@ Planet_SIM target: UE/Cesium/DigitalPlanet/Inspector adapter layer。
 
 Migration level: Boundary pattern only。
 
-Validation: Model / Controller 头文件不反向包含上述 View 资源；View Adapter 可以依赖 Model。
+Validation: Model / Controller 头文件不反向包含上述 View 资源；Model 实现层通过 lifecycle 事件暴露语义变化，具体 View Adapter / render assets 通过回调、provider 或 asset loader 消费；`SceneViewModel` 证明非 Renderer View 也能消费同一套 Model / Simulation 输出。
