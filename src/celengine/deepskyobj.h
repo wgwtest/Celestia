@@ -32,7 +32,6 @@ namespace celestia
 {
 namespace engine
 {
-class GeometryPaths;
 class UrlManager;
 }
 namespace util
@@ -93,7 +92,6 @@ public:
 
     bool load(const celestia::util::AssociativeArray*,
               const std::filesystem::path& resPath,
-              celestia::engine::GeometryPaths& geometryPaths,
               std::string_view name,
               celestia::engine::UrlManager& urlManager);
 
@@ -102,8 +100,7 @@ public:
 
 protected:
     virtual bool loadDetails(const celestia::util::AssociativeArray*,
-                             const std::filesystem::path&,
-                             celestia::engine::GeometryPaths&) = 0;
+                             const std::filesystem::path&) = 0;
 
 private:
     Eigen::Vector3d position{ Eigen::Vector3d::Zero() };

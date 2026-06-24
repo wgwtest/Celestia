@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "nebula.h"
+#include "nebulalifecycle.h"
 
 namespace engine = celestia::engine;
 
@@ -25,11 +26,26 @@ geometryHandles()
     return *handles;
 }
 
+void
+ensureNebulaLifecycleRegistration()
+{
+    static const bool registered = []()
+    {
+        NebulaLifecycleEvents::addDestroyedCallback([](const Nebula* nebula)
+        {
+            NebulaRenderAssets::remove(nebula);
+        });
+        return true;
+    }();
+    (void)registered;
+}
+
 } // end unnamed namespace
 
 engine::GeometryHandle
 NebulaRenderAssets::getGeometry(const Nebula* nebula)
 {
+    ensureNebulaLifecycleRegistration();
     auto& handles = geometryHandles();
     auto it = handles.find(nebula);
     return it == handles.end() ? engine::GeometryHandle::Invalid : it->second;
@@ -38,11 +54,13 @@ NebulaRenderAssets::getGeometry(const Nebula* nebula)
 void
 NebulaRenderAssets::setGeometry(const Nebula* nebula, engine::GeometryHandle geometry)
 {
+    ensureNebulaLifecycleRegistration();
     geometryHandles()[nebula] = geometry;
 }
 
 void
 NebulaRenderAssets::remove(const Nebula* nebula)
 {
+    ensureNebulaLifecycleRegistration();
     geometryHandles().erase(nebula);
 }

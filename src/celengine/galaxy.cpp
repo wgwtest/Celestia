@@ -20,7 +20,6 @@
 
 using namespace std::string_view_literals;
 
-namespace engine = celestia::engine;
 namespace math = celestia::math;
 namespace util = celestia::util;
 
@@ -110,8 +109,7 @@ int Galaxy::getFormId() const
 
 bool
 Galaxy::loadDetails(const util::AssociativeArray* params,
-                    const std::filesystem::path& resPath,
-                    engine::GeometryPaths&)
+                    const std::filesystem::path& resPath)
 {
     setDetail(params->getNumber<float>("Detail").value_or(1.0f));
 

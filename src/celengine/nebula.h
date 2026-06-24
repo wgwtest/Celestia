@@ -50,8 +50,7 @@ public:
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override;
+                     const std::filesystem::path&) override;
 
 private:
     Type type{ Type::NotDefined };

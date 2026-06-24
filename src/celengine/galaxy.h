@@ -25,10 +25,6 @@ struct Matrices;
 
 namespace celestia
 {
-namespace engine
-{
-class GeometryPaths;
-}
 namespace util
 {
 class AssociativeArray;
@@ -81,8 +77,7 @@ public:
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override;
+                     const std::filesystem::path&) override;
 
 private:
     void setForm(const std::filesystem::path&, const std::filesystem::path& = {});

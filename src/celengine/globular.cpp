@@ -23,7 +23,6 @@
 #include "globular.h"
 
 namespace astro = celestia::astro;
-namespace engine = celestia::engine;
 namespace math = celestia::math;
 namespace util = celestia::util;
 
@@ -74,8 +73,7 @@ DeepSkyObjectType Globular::getObjType() const
 
 bool
 Globular::loadDetails(const util::AssociativeArray* params,
-                      const std::filesystem::path&,
-                      engine::GeometryPaths&)
+                      const std::filesystem::path&)
 {
     if (auto detailVal = params->getNumber<float>("Detail"); detailVal.has_value())
         detail = *detailVal;

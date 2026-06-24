@@ -76,6 +76,10 @@ set(CELENGINE_SOURCES
   name.h
   nebula.cpp
   nebula.h
+  nebulalifecycle.cpp
+  nebulalifecycle.h
+  nebularenderassetloader.cpp
+  nebularenderassetloader.h
   nebularenderassets.cpp
   nebularenderassets.h
   objectrenderer.h

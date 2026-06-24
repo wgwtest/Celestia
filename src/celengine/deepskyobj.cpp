@@ -21,7 +21,6 @@
 #include <celutil/gettext.h>
 #include <celutil/infourl.h>
 #include <celutil/logger.h>
-#include "meshmanager.h"
 #include "urlmanager.h"
 
 namespace astro = celestia::astro;
@@ -82,7 +81,6 @@ DeepSkyObject::getDescription() const
 bool
 DeepSkyObject::load(const util::AssociativeArray* params,
                     const std::filesystem::path& resPath,
-                    engine::GeometryPaths& geometryPaths,
                     std::string_view name,
                     engine::UrlManager& urlManager)
 {
@@ -119,7 +117,7 @@ DeepSkyObject::load(const util::AssociativeArray* params,
     if (auto clickableValue = params->getBoolean("Clickable"); clickableValue.has_value())
         setClickable(*clickableValue);
 
-    if (!loadDetails(params, resPath, geometryPaths))
+    if (!loadDetails(params, resPath))
         return false;
 
     if (const auto *infoUrlValue = params->getString("InfoURL"); infoUrlValue)

@@ -8,25 +8,17 @@
 // of the License, or (at your option) any later version.
 
 #include <algorithm>
-#include <celmath/mathlib.h>
-#include <celmath/vecgl.h>
+#include <array>
 #include <celutil/associativearray.h>
-#include <celutil/fsutils.h>
 #include <celutil/gettext.h>
-#include <celutil/logger.h>
 #include <celutil/stringutils.h>
 #include <fmt/format.h>
-#include "meshmanager.h"
 #include "nebula.h"
-#include "nebularenderassets.h"
-#include "rendcontext.h"
-#include "render.h"
+#include "nebulalifecycle.h"
 
-namespace engine = celestia::engine;
 namespace util = celestia::util;
 
 using namespace std::string_view_literals;
-using util::GetLogger;
 
 namespace
 {
@@ -52,7 +44,7 @@ constexpr std::array NebulaTypeNames =
 
 Nebula::~Nebula()
 {
-    NebulaRenderAssets::remove(this);
+    NebulaLifecycleEvents::notifyDestroyed(this);
 }
 
 const char*
@@ -85,24 +77,10 @@ Nebula::getObjType() const
 
 bool
 Nebula::loadDetails(const util::AssociativeArray* params,
-                    const std::filesystem::path& resPath,
-                    engine::GeometryPaths& geometryPaths)
+                    const std::filesystem::path&)
 {
     if (const std::string* typeName = params->getString("Type"); typeName != nullptr)
         setType(*typeName);
-
-    if (const std::string* t = params->getString("Mesh"); t != nullptr)
-    {
-        auto geometryFileName = util::U8FileName(*t);
-        if (!geometryFileName.has_value())
-        {
-            GetLogger()->error("Invalid filename in Mesh\n");
-            return false;
-        }
-
-        auto geometryHandle = geometryPaths.getHandle(*geometryFileName, resPath);
-        NebulaRenderAssets::setGeometry(this, geometryHandle);
-    }
 
     return true;
 }

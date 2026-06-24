@@ -34,6 +34,7 @@
 #include "galaxy.h"
 #include "globular.h"
 #include "nebula.h"
+#include "nebularenderassetloader.h"
 #include "octree.h"
 #include "octreebuilder.h"
 #include "opencluster.h"
@@ -254,9 +255,16 @@ DSODatabaseBuilder::load(std::istream& in,
 
         std::unique_ptr<DeepSkyObject> obj = createDSO(objType);
 
-        if (obj == nullptr || !obj->load(objParams, resourcePath, *geometryPaths, objName, *urlManager))
+        if (obj == nullptr || !obj->load(objParams, resourcePath, objName, *urlManager))
         {
             GetLogger()->warn("Bad Deep Sky Object definition--will continue parsing file.\n");
+            continue;
+        }
+
+        if (auto* nebula = dynamic_cast<Nebula*>(obj.get());
+            nebula != nullptr && !NebulaRenderAssetLoader::load(*nebula, objParams, resourcePath, *geometryPaths))
+        {
+            GetLogger()->warn("Bad Nebula render asset definition--will continue parsing file.\n");
             continue;
         }
 

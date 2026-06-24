@@ -28,10 +28,6 @@ struct Matrices;
 
 namespace celestia
 {
-namespace engine
-{
-class GeometryPaths;
-}
 namespace util
 {
 class AssociativeArray;
@@ -65,8 +61,7 @@ public:
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override;
+                     const std::filesystem::path&) override;
 
 private:
     // Reference values ( = data base averages) of core radius, King concentration
