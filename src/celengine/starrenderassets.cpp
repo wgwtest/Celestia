@@ -11,8 +11,8 @@
 
 #include <unordered_map>
 
-#include <celutil/flag.h>
 #include "star.h"
+#include "stardetailslifecycle.h"
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;
@@ -66,39 +66,82 @@ engine::GeometryHandle getGeometry(const StarDetails* details)
     return engine::GeometryHandle::Invalid;
 }
 
+void
+ensureStarDetailsLifecycleRegistration()
+{
+    static const bool registered = []()
+    {
+        StarDetailsLifecycleEvents::addDestroyedCallback([](const StarDetails* details)
+        {
+            StarRenderAssets::remove(details);
+        });
+        StarDetailsLifecycleEvents::addCloneCallback([](const StarDetails* source, const StarDetails* target)
+        {
+            StarRenderAssets::cloneAssets(source, target);
+        });
+        StarDetailsLifecycleEvents::addCopyCallback([](const StarDetails* target, const StarDetails* source)
+        {
+            StarRenderAssets::copyAssets(target, source);
+        });
+        StarDetailsLifecycleEvents::addCopyTextureIfUnsetCallback([](StarDetails* target, const StarDetails* source)
+        {
+            StarRenderAssets::copyTextureIfUnset(target, source);
+        });
+        StarDetailsLifecycleEvents::addNormalStarDefaultCallback([](const StarDetails* details, StellarClass::SpectralClass spectralClass)
+        {
+            StarRenderAssets::initializeTexture(details, StarRenderAssets::textureFor(spectralClass));
+        });
+        StarDetailsLifecycleEvents::addWhiteDwarfDefaultCallback([](const StarDetails* details)
+        {
+            StarRenderAssets::initializeTexture(details, StarRenderAssets::textureFor(StellarClass::Spectral_D));
+        });
+        StarDetailsLifecycleEvents::addNeutronStarDefaultCallback([](const StarDetails* details)
+        {
+            StarRenderAssets::initializeTexture(details, StarRenderAssets::neutronStarTexture());
+        });
+        return true;
+    }();
+    (void)registered;
+}
+
 } // end unnamed namespace
 
 void
 StarRenderAssets::setStarTextures(const TextureSet& textures)
 {
+    ensureStarDetailsLifecycleRegistration();
     textureSet() = textures;
 }
 
 util::TextureHandle
 StarRenderAssets::getTexture(const Star& star)
 {
-    return ::getTexture(star.details.get());
+    ensureStarDetailsLifecycleRegistration();
+    return ::getTexture(star.getDetails());
 }
 
 engine::GeometryHandle
 StarRenderAssets::getGeometry(const Star& star)
 {
-    return ::getGeometry(star.details.get());
+    ensureStarDetailsLifecycleRegistration();
+    return ::getGeometry(star.getDetails());
 }
 
 void
 StarRenderAssets::setTexture(boost::intrusive_ptr<StarDetails>& details, util::TextureHandle texture)
 {
+    ensureStarDetailsLifecycleRegistration();
     if (details->shared())
         details = details->clone();
 
     stateFor(details.get()).texture = texture;
-    details->knowledge |= StarDetails::Knowledge::KnowTexture;
+    details->addKnowledge(StarDetails::Knowledge::KnowTexture);
 }
 
 void
 StarRenderAssets::setGeometry(boost::intrusive_ptr<StarDetails>& details, engine::GeometryHandle geometry)
 {
+    ensureStarDetailsLifecycleRegistration();
     if (details->shared())
         details = details->clone();
 
@@ -108,6 +151,7 @@ StarRenderAssets::setGeometry(boost::intrusive_ptr<StarDetails>& details, engine
 util::TextureHandle
 StarRenderAssets::textureFor(StellarClass::SpectralClass spectralClass)
 {
+    ensureStarDetailsLifecycleRegistration();
     auto texture = textureSet().starTex[spectralClass];
     return texture == util::TextureHandle::Invalid ? textureSet().defaultTex : texture;
 }
@@ -115,6 +159,7 @@ StarRenderAssets::textureFor(StellarClass::SpectralClass spectralClass)
 util::TextureHandle
 StarRenderAssets::neutronStarTexture()
 {
+    ensureStarDetailsLifecycleRegistration();
     auto texture = textureSet().neutronStarTex;
     return texture == util::TextureHandle::Invalid ? textureSet().defaultTex : texture;
 }
@@ -122,12 +167,14 @@ StarRenderAssets::neutronStarTexture()
 void
 StarRenderAssets::initializeTexture(const StarDetails* details, util::TextureHandle texture)
 {
+    ensureStarDetailsLifecycleRegistration();
     stateFor(details).texture = texture;
 }
 
 void
 StarRenderAssets::cloneAssets(const StarDetails* source, const StarDetails* target)
 {
+    ensureStarDetailsLifecycleRegistration();
     auto& states = assetStates();
     auto sourceIt = states.find(source);
     if (sourceIt == states.end())
@@ -142,13 +189,15 @@ StarRenderAssets::cloneAssets(const StarDetails* source, const StarDetails* targ
 void
 StarRenderAssets::copyAssets(const StarDetails* target, const StarDetails* source)
 {
+    ensureStarDetailsLifecycleRegistration();
     cloneAssets(source, target);
 }
 
 void
 StarRenderAssets::copyTextureIfUnset(StarDetails* target, const StarDetails* source)
 {
-    if (util::is_set(target->knowledge, StarDetails::Knowledge::KnowTexture))
+    ensureStarDetailsLifecycleRegistration();
+    if (target->hasKnowledge(StarDetails::Knowledge::KnowTexture))
         return;
 
     stateFor(target).texture = ::getTexture(source);
@@ -157,5 +206,6 @@ StarRenderAssets::copyTextureIfUnset(StarDetails* target, const StarDetails* sou
 void
 StarRenderAssets::remove(const StarDetails* details)
 {
+    ensureStarDetailsLifecycleRegistration();
     assetStates().erase(details);
 }

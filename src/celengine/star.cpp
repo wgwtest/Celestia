@@ -23,7 +23,7 @@
 #include <celastro/date.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
-#include "starrenderassets.h"
+#include "stardetailslifecycle.h"
 #include "univcoord.h"
 
 using namespace std::string_view_literals;
@@ -766,7 +766,7 @@ StarDetailsManager::createNormalStarDetails(StellarClass::SpectralClass specClas
     auto details = createStandardStarType(name, temp, period);
     details->bolometricCorrection = bmagCorrection;
 
-    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::textureFor(specClass));
+    StarDetailsLifecycleEvents::notifyNormalStarDefault(details.get(), specClass);
 
     return details;
 }
@@ -800,7 +800,7 @@ StarDetailsManager::createWhiteDwarfDetails(std::size_t scIndex,
 
     auto details = createStandardStarType(name, temp, period);
     details->bolometricCorrection = bmagCorrection;
-    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::textureFor(StellarClass::Spectral_D));
+    StarDetailsLifecycleEvents::notifyWhiteDwarfDefault(details.get());
     return details;
 }
 
@@ -813,7 +813,7 @@ StarDetailsManager::createNeutronStarDetails()
                                           1.0f / 86400.0f);
     details->radius = 10.0f;
     details->knowledge = StarDetails::Knowledge::KnowRadius;
-    StarRenderAssets::initializeTexture(details.get(), StarRenderAssets::neutronStarTexture());
+    StarDetailsLifecycleEvents::notifyNeutronStarDefault(details.get());
     return details;
 }
 
@@ -877,7 +877,7 @@ StarDetails::StarDetails()
 
 StarDetails::~StarDetails()
 {
-    StarRenderAssets::remove(this);
+    StarDetailsLifecycleEvents::notifyDestroyed(this);
 }
 
 boost::intrusive_ptr<StarDetails>
@@ -897,7 +897,7 @@ StarDetails::clone() const
     newDetails->rotationModel = rotationModel;
     newDetails->semiAxes = semiAxes;
     newDetails->isShared = false;
-    StarRenderAssets::cloneAssets(this, newDetails.get());
+    StarDetailsLifecycleEvents::notifyCloned(this, newDetails.get());
     return newDetails;
 }
 
@@ -911,7 +911,7 @@ StarDetails::mergeFromStandard(const StarDetails* other)
     if (other->isBarycenter())
     {
         // Use default values when replacement object is a barycenter
-        StarRenderAssets::copyAssets(this, other);
+        StarDetailsLifecycleEvents::notifyCopied(this, other);
         rotationModel = other->rotationModel;
         radius = other->radius;
         semiAxes = other->semiAxes;
@@ -919,7 +919,7 @@ StarDetails::mergeFromStandard(const StarDetails* other)
     }
     else
     {
-        StarRenderAssets::copyTextureIfUnset(this, other);
+        StarDetailsLifecycleEvents::notifyCopyTextureIfUnset(this, other);
         if (!util::is_set(knowledge, Knowledge::KnowRotation))
             rotationModel = other->rotationModel;
     }

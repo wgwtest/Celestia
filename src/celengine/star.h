@@ -30,7 +30,6 @@
 class Selection;
 class Star;
 class StarDatabaseBuilder;
-class StarRenderAssets;
 class UniversalCoord;
 
 namespace celestia::ephem
@@ -75,9 +74,6 @@ public:
     static void setEllipsoidSemiAxes(boost::intrusive_ptr<StarDetails>&, const Eigen::Vector3f&);
     static void addOrbitingStar(boost::intrusive_ptr<StarDetails>&, Star*);
 
-    bool shared() const;
-    inline bool hasCorona() const;
-
     enum class Knowledge : unsigned int
     {
         None         = 0,
@@ -85,6 +81,11 @@ public:
         KnowRotation = 0x2,
         KnowTexture  = 0x4,
     };
+
+    bool shared() const;
+    bool hasKnowledge(Knowledge) const;
+    void addKnowledge(Knowledge);
+    inline bool hasCorona() const;
 
     static boost::intrusive_ptr<StarDetails> GetStarDetails(const StellarClass&);
     static boost::intrusive_ptr<StarDetails> GetBarycenterDetails();
@@ -131,7 +132,6 @@ private:
     bool isShared{ true };
 
     friend class StarDetailsManager;
-    friend class StarRenderAssets;
 };
 
 ENUM_CLASS_BITWISE_OPS(StarDetails::Knowledge);
@@ -197,6 +197,18 @@ StarDetails::getEllipsoidSemiAxes() const
 }
 
 inline bool
+StarDetails::hasKnowledge(Knowledge value) const
+{
+    return celestia::util::is_set(knowledge, value);
+}
+
+inline void
+StarDetails::addKnowledge(Knowledge value)
+{
+    knowledge |= value;
+}
+
+inline bool
 StarDetails::hasCorona() const
 {
     // Y dwarfs and T dwarf subclasses 5-9 don't have a corona
@@ -250,6 +262,7 @@ public:
     UniversalCoord getOrbitBarycenterPosition(double t) const;
 
     Eigen::Vector3d getVelocity(double t) const;
+    const StarDetails* getDetails() const;
 
     // Accessor methods that delegate to StarDetails
     float getRadius() const;
@@ -275,13 +288,18 @@ private:
     boost::intrusive_ptr<StarDetails> details{ nullptr };
 
     friend class StarDatabaseBuilder;
-    friend class StarRenderAssets;
 };
 
 inline AstroCatalog::IndexNumber
 Star::getIndex() const
 {
     return indexNumber;
+}
+
+inline const StarDetails*
+Star::getDetails() const
+{
+    return details.get();
 }
 
 inline const Eigen::Vector3f&

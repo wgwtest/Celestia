@@ -140,6 +140,8 @@ set(CELENGINE_SOURCES
   starcolors.h
   star.cpp
   star.h
+  stardetailslifecycle.cpp
+  stardetailslifecycle.h
   starrenderassets.cpp
   starrenderassets.h
   stardb.cpp
