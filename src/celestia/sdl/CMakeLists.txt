@@ -76,10 +76,14 @@ if(WIN32)
   add_custom_command(
     TARGET celestia-sdl
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:celestia>
-            $<TARGET_FILE_DIR:celestia-sdl>
-    COMMENT "Copying celestia shared library next to celestia-sdl"
+    COMMAND
+      ${CMAKE_COMMAND}
+        -D "DEPS_TARGET_FILE=$<TARGET_FILE:celestia>"
+        -D "DEPS_DEST_DIR=$<TARGET_FILE_DIR:celestia-sdl>"
+        -D "DEPS_COPY_TARGET=ON"
+        -P "${CMAKE_SOURCE_DIR}/cmake/CopyDependentDlls.cmake"
+    COMMENT "Copying celestia shared library and dependencies next to celestia-sdl"
+    VERBATIM
   )
 endif()
 
