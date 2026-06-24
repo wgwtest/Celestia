@@ -170,6 +170,20 @@ build-mvc-sdl-rel\run-full-nofont
 build-mvc-sdl-rel\run-mass-orbits
 ```
 
+Before a full SDL visual smoke run, refresh `run-full` through the CMake install
+rules so it includes the complete core data set:
+
+```powershell
+$cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
+& $cmake --install build-mvc-sdl-rel --prefix (Resolve-Path 'build-mvc-sdl-rel\run-full').Path --component core
+```
+
+`build-mvc-sdl-rel\run-full\shaders\text_vert.glsl` and
+`build-mvc-sdl-rel\run-full\shaders\text_frag.glsl` must exist before launch.
+If the SDL app starts with readable menu text but core HUD/label text appears
+as solid red blocks, the `shaders` directory is missing from the active data
+directory and the text shader is falling back to Celestia's red error shader.
+
 If a font-loading warning appears in the console, it does not by itself invalidate the MVC boundary work. It affects text visibility in that local runtime setup.
 
 ## Git Hygiene
