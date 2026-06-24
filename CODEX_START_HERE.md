@@ -1,8 +1,8 @@
-# Codex Start Here - Celestia MVC Step 2
+# Codex Start Here - Celestia MVC Step 3
 
 ## Current Workspace
 
-This directory is the active MVC Step 2 worktree:
+This directory is the active MVC Step 3 worktree:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
@@ -11,7 +11,7 @@ D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
 The directory name was created during Step 1, but the active branch is now:
 
 ```text
-codex/celestia-mvc-step2
+codex/celestia-mvc-step3
 ```
 
 The main Celestia checkout is separate:
@@ -20,7 +20,7 @@ The main Celestia checkout is separate:
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 2 code changes to appear there unless this branch is merged or checked out there.
+That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 3 code changes to appear there unless this branch is merged or checked out there.
 
 ## Remote Model
 
@@ -37,16 +37,16 @@ Step 1 was pushed to the fork as:
 14062ca refactor: decouple Celestia MVC boundaries
 ```
 
-Step 2 is on:
+Step 3 is on:
 
 ```text
-codex/celestia-mvc-step2
+codex/celestia-mvc-step3
 ```
 
 PR entry after pushing:
 
 ```text
-https://github.com/wgwtest/Celestia/pull/new/codex/celestia-mvc-step2
+https://github.com/wgwtest/Celestia/pull/new/codex/celestia-mvc-step3
 ```
 
 ## Current Phase Boundary
@@ -55,7 +55,11 @@ Step 1 is complete: Celestia source-level MVC boundaries were reduced so Model /
 
 Step 2 is complete in this worktree: Celestia Model implementation files no longer call concrete render-asset sidecars for Body, StarDetails, and Nebula; DSO semantic loading is split from Nebula mesh asset loading; SelectionPicker consumes a replaceable geometry provider; and `SceneViewModel` provides a headless View Adapter proof.
 
-Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
+Step 3 is complete in this worktree: CMake now exposes auditable `celestia_model`, `celestia_controller`, `celestia_view_adapter`, and `celestia_view3d` object targets; `celestia` explicitly aggregates them through the application shell; Step3 contract tests scan CMake ownership buckets, target dependency direction, and Model / Controller implementation files.
+
+Step 3 is still an in-process physical modularization step. It is not an OS-process split for M / V / C, and it is not the Planet_SIM clean-room migration. Directory `git mv` reorganization is intentionally deferred to a possible Step3.1 after the target split remains stable.
+
+Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 / Step 3 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
 
 ## First Reading Order
 
@@ -65,6 +69,7 @@ Read these first in a new Codex session:
 CODEX_START_HERE.md
 DOC\CODEX_DOC\04_研制计划\13-WBS-0.13-Celestia标准MVC解耦-Step1代码落实记录.md
 DOC\CODEX_DOC\04_研制计划\14-WBS-0.14-Celestia标准MVC解耦-Step2落地方案.md
+DOC\CODEX_DOC\04_研制计划\15-WBS-0.15-Celestia标准MVC解耦-Step3物理模块化与构建边界固化方案.md
 DOC\CODEX_DOC\02_设计说明\02-05-Celestia标准MVC解耦与迁移映射说明.md
 ```
 
@@ -112,6 +117,14 @@ src/celengine/selectiongeometryprovider.h
 src/celengine/sceneviewmodel.h/.cpp
 ```
 
+Step 3 physical CMake boundary files:
+
+```text
+src/celengine/CMakeLists.txt
+src/celestia/CMakeLists.txt
+test/unit/mvc_step3_contract_test.cpp
+```
+
 Application shell and frontend call-site changes:
 
 ```text
@@ -126,6 +139,7 @@ Boundary regression tests:
 ```text
 test/unit/mvc_boundary_test.cpp
 test/unit/mvc_step2_contract_test.cpp
+test/unit/mvc_step3_contract_test.cpp
 test/unit/CMakeLists.txt
 ```
 
@@ -141,14 +155,14 @@ This machine does not expose `cmake` / `ctest` in the normal PowerShell PATH. Us
 & 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel --output-on-failure
 ```
 
-Last verified Step 2 result before this handoff:
+Last verified Step 3 result before this handoff:
 
 ```text
 build-mvc-baseline-rel: build passed
-build-mvc-baseline-rel: 47/47 tests passed
+build-mvc-baseline-rel: 53/53 tests passed
 build-mvc-sdl-rel: build passed
-build-mvc-sdl-rel: 47/47 tests passed
-SDL smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe entered the run loop for 6 seconds with build-mvc-sdl-rel\run-minimal and was stopped
+build-mvc-sdl-rel: 53/53 tests passed
+SDL smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe entered the run loop for 6 seconds with build-mvc-sdl-rel\run-full and was stopped
 ```
 
 ## Runtime Notes
@@ -207,17 +221,17 @@ git status --short --branch
 git diff --check
 ```
 
-Push Step 2 work only to the fork:
+Push Step 3 work only to the fork:
 
 ```powershell
-git push origin codex/celestia-mvc-step2
+git push origin codex/celestia-mvc-step3
 ```
 
 Do not push to `upstream`.
 
 ## Upstream Sync Warning
 
-This Step 2 branch descends from the Step 1 work, which was created from Celestia commit:
+This Step 3 branch descends from the Step 1 / Step 2 work, which was created from Celestia commit:
 
 ```text
 44ec265 Move InfoURL into a separate manager class

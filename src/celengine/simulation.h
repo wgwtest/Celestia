@@ -23,7 +23,6 @@
 #include <celengine/universe.h>
 #include <celengine/galaxy.h>
 #include <celengine/globular.h>
-#include <celengine/texmanager.h>
 #include <celengine/frame.h>
 #include <celengine/observer.h>
 

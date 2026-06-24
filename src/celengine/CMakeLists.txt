@@ -1,101 +1,144 @@
-set(CELENGINE_SOURCES
+set(CELESTIA_MODEL_SOURCES
   asterism.cpp
   asterism.h
   astroobj.h
   atmosphere.cpp
   atmosphere.h
-  axisarrow.cpp
-  axisarrow.h
   body.cpp
   body.h
-  bodylifecycle.cpp
-  bodylifecycle.h
-  bodylocationgeometryprojector.cpp
-  bodylocationgeometryprojector.h
-  bodyrenderassets.cpp
-  bodyrenderassets.h
   boundaries.cpp
   boundaries.h
   category.cpp
   category.h
   completion.cpp
   completion.h
-  console.cpp
-  console.h
   constellation.cpp
   constellation.h
-  curveplot.cpp
-  curveplot.h
   deepskyobj.cpp
   deepskyobj.h
   dsodb.cpp
   dsodb.h
+  dsooctree.cpp
+  dsooctree.h
+  frame.cpp
+  frame.h
+  frametree.cpp
+  frametree.h
+  location.cpp
+  location.h
+  name.cpp
+  name.h
+  nebula.cpp
+  nebula.h
+  octree.h
+  octreebuilder.h
+  opencluster.cpp
+  opencluster.h
+  orbitsampler.h
+  parseobject.cpp
+  parseobject.h
+  rotationmanager.cpp
+  rotationmanager.h
+  shared.h
+  star.cpp
+  star.h
+  stardb.cpp
+  stardb.h
+  starname.cpp
+  starname.h
+  staroctree.cpp
+  staroctree.h
+  stellarclass.cpp
+  stellarclass.h
+  surface.h
+  timeline.cpp
+  timeline.h
+  timelinephase.cpp
+  timelinephase.h
+  trajmanager.cpp
+  trajmanager.h
+  univcoord.h
+  universe.cpp
+  universe.h
+  urlmanager.cpp
+  urlmanager.h
+)
+
+set(CELESTIA_CONTROLLER_SOURCES
+  observer.cpp
+  observer.h
+  selection.cpp
+  selection.h
+  simulation.cpp
+  simulation.h
+)
+
+set(CELESTIA_VIEW_ADAPTER_SOURCES
+  bodylifecycle.cpp
+  bodylifecycle.h
+  bodylocationgeometryprojector.cpp
+  bodylocationgeometryprojector.h
+  bodyrenderassets.cpp
+  bodyrenderassets.h
   dsodbbuilder.cpp
   dsodbbuilder.h
   deepskyobjectpicker.cpp
   deepskyobjectpicker.h
   deepskyobjectrenderpolicy.cpp
   deepskyobjectrenderpolicy.h
-  dsooctree.cpp
-  dsooctree.h
-  dsorenderer.cpp
-  dsorenderer.h
-  fisheyeprojectionmode.cpp
-  fisheyeprojectionmode.h
-  frame.cpp
-  frame.h
-  framebuffer.cpp
-  framebuffer.h
-  frametree.cpp
-  frametree.h
-  galaxy.cpp
-  galaxy.h
-  galaxyform.cpp
-  galaxyform.h
-  geometry.cpp
-  geometry.h
-  glmarker.cpp
-  globular.cpp
-  globular.h
-  glshader.cpp
-  glshader.h
-  glsupport.cpp
-  glsupport.h
-  lightenv.h
-  location.cpp
-  location.h
-  lodspheremesh.cpp
-  lodspheremesh.h
-  marker.cpp
-  marker.h
-  meshmanager.cpp
-  meshmanager.h
-  modelgeometry.cpp
-  modelgeometry.h
-  name.cpp
-  name.h
-  nebula.cpp
-  nebula.h
   nebulalifecycle.cpp
   nebulalifecycle.h
   nebularenderassetloader.cpp
   nebularenderassetloader.h
   nebularenderassets.cpp
   nebularenderassets.h
-  objectrenderer.h
-  observer.cpp
-  observer.h
-  octree.h
-  octreebuilder.h
-  opencluster.cpp
-  opencluster.h
-  orbitsampler.h
-  overlay.cpp
-  overlay.h
+  sceneviewmodel.cpp
+  sceneviewmodel.h
+  selectiongeometryprovider.h
+  selectionpicker.cpp
+  selectionpicker.h
+  solarsys.cpp
+  solarsys.h
+  stardetailslifecycle.cpp
+  stardetailslifecycle.h
+  starrenderassets.cpp
+  starrenderassets.h
+  stardbbuilder.cpp
+  stardbbuilder.h
+)
+
+set(CELESTIA_VIEW3D_SOURCES
+  axisarrow.cpp
+  axisarrow.h
+  console.cpp
+  console.h
+  curveplot.cpp
+  curveplot.h
+  dsorenderer.cpp
+  dsorenderer.h
+  fisheyeprojectionmode.cpp
+  fisheyeprojectionmode.h
+  framebuffer.cpp
+  framebuffer.h
+  geometry.cpp
+  geometry.h
+  glmarker.cpp
+  glshader.cpp
+  glshader.h
+  glsupport.cpp
+  glsupport.h
   imageoverlay.cpp
   imageoverlay.h
-  parseobject.cpp
-  parseobject.h
+  lightenv.h
+  lodspheremesh.cpp
+  lodspheremesh.h
+  meshmanager.cpp
+  meshmanager.h
+  modelgeometry.cpp
+  modelgeometry.h
+  objectrenderer.h
+  overlay.cpp
+  overlay.h
   perspectiveprojectionmode.cpp
   perspectiveprojectionmode.h
   planetgrid.cpp
@@ -104,11 +147,10 @@ set(CELENGINE_SOURCES
   pointstarrenderer.h
   pointstarvertexbuffer.cpp
   pointstarvertexbuffer.h
-  psfstarvertexbuffer.cpp
-  psfstarvertexbuffer.h
-  starpipelineowner.h
   projectionmode.cpp
   projectionmode.h
+  psfstarvertexbuffer.cpp
+  psfstarvertexbuffer.h
   rectangle.h
   referencemark.h
   rendcontext.cpp
@@ -122,65 +164,22 @@ set(CELENGINE_SOURCES
   renderglsl.h
   renderinfo.h
   renderlistentry.h
-  rotationmanager.cpp
-  rotationmanager.h
-  selectiongeometryprovider.h
-  selectionpicker.cpp
-  selectionpicker.h
-  sceneviewmodel.cpp
-  sceneviewmodel.h
-  selection.cpp
-  selection.h
   shadermanager.cpp
   shadermanager.h
-  shared.h
-  simulation.cpp
-  simulation.h
   skygrid.h
-  solarsys.cpp
-  solarsys.h
   spheremesh.cpp
   spheremesh.h
-  starbrowser.cpp
-  starbrowser.h
   starcolors.cpp
   starcolors.h
-  star.cpp
-  star.h
-  stardetailslifecycle.cpp
-  stardetailslifecycle.h
-  starrenderassets.cpp
-  starrenderassets.h
-  stardb.cpp
-  stardb.h
-  stardbbuilder.cpp
-  stardbbuilder.h
-  starname.cpp
-  starname.h
-  staroctree.cpp
-  staroctree.h
-  stellarclass.cpp
-  stellarclass.h
-  surface.h
+  starpipelineowner.h
   texmanager.cpp
   texmanager.h
   textlayout.cpp
   textlayout.h
   texture.cpp
   texture.h
-  timeline.cpp
-  timeline.h
-  timelinephase.cpp
-  timelinephase.h
-  trajmanager.cpp
-  trajmanager.h
-  univcoord.h
-  universe.cpp
-  universe.h
-  urlmanager.cpp
-  urlmanager.h
-  viewporteffect.h
   viewporteffect.cpp
+  viewporteffect.h
   virtualtex.cpp
   virtualtex.h
   visibleregion.cpp
@@ -189,14 +188,40 @@ set(CELENGINE_SOURCES
   warpmesh.h
 )
 
+set(CELESTIA_LEGACY_ENGINE_SOURCES
+  galaxy.cpp
+  galaxy.h
+  galaxyform.cpp
+  galaxyform.h
+  globular.cpp
+  globular.h
+  marker.cpp
+  marker.h
+  starbrowser.cpp
+  starbrowser.h
+)
+
 if(ENABLE_FFMPEG)
-  list(APPEND CELENGINE_SOURCES
+  list(APPEND CELESTIA_VIEW3D_SOURCES
     videooverlay.cpp
     videooverlay.h
   )
 endif()
 
+set(CELENGINE_SOURCES
+  ${CELESTIA_LEGACY_ENGINE_SOURCES}
+)
+
+add_library(celestia_model OBJECT ${CELESTIA_MODEL_SOURCES})
+add_library(celestia_controller OBJECT ${CELESTIA_CONTROLLER_SOURCES})
+add_library(celestia_view_adapter OBJECT ${CELESTIA_VIEW_ADAPTER_SOURCES})
+add_library(celestia_view3d OBJECT ${CELESTIA_VIEW3D_SOURCES})
 add_library(celengine OBJECT ${CELENGINE_SOURCES})
 
-gperf_add_table(celengine location.gperf location.cpp 4)
-gperf_add_table(celengine solarsys.gperf solarsys.cpp 4)
+target_link_libraries(celestia_controller PRIVATE celestia_model)
+target_link_libraries(celestia_view_adapter PRIVATE celestia_model celestia_controller)
+target_link_libraries(celestia_view3d PRIVATE celestia_model celestia_controller celestia_view_adapter)
+target_link_libraries(celengine PRIVATE celestia_model)
+
+gperf_add_table(celestia_model location.gperf location.cpp 4)
+gperf_add_table(celestia_view_adapter solarsys.gperf solarsys.cpp 4)

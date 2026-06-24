@@ -2,11 +2,11 @@
 
 ## 1. 文档目的
 
-本文记录 Celestia 本仓库 Step 1 的代码级 MVC 解耦结果，并为 Step 2 的本仓库内更彻底 MVC 解耦提供类来源、依赖证据和剥离边界。Step 1 的完成口径是 Celestia 源码内完成 Model / Controller / View 边界收缩、构建出可运行程序、全量测试通过；Step 2 的完成口径是在 Celestia 本仓库内继续剥离 Model 实现层与具体 View Adapter / 渲染资产的耦合。后续 Planet_SIM clean-room 迁移基于 Step1 / Step2 形成的边界另行启动，不再称为 Step2。
+本文记录 Celestia 本仓库 Step 1、Step 2、Step 3 的 MVC 解耦结果，并为后续迁移提供类来源、依赖证据和剥离边界。Step 1 的完成口径是 Celestia 源码内完成 Model / Controller / View 边界收缩、构建出可运行程序、全量测试通过；Step 2 的完成口径是在 Celestia 本仓库内继续剥离 Model 实现层与具体 View Adapter / 渲染资产的耦合；Step 3 的完成口径是通过 CMake object target、source ownership bucket 和边界测试固化进程内 MVC 的物理构建边界。后续 Planet_SIM clean-room 迁移基于 Step1 / Step2 / Step3 形成的边界另行启动，不再称为 Step2 或 Step3。
 
 ## 2. Celestia 源码参考快照
 
-当前实现分支为 `codex/celestia-mvc-step2`，工作区为 `D:/WorkSpace/Codex/CeleNew/.worktrees/celestia-mvc-step1`。工作区目录名沿用 Step1 创建时的名称，但当前分支承载 Step2 代码。参考主链为：
+当前实现分支为 `codex/celestia-mvc-step3`，工作区为 `D:/WorkSpace/Codex/CeleNew/.worktrees/celestia-mvc-step1`。工作区目录名沿用 Step1 创建时的名称，但当前分支承载 Step3 代码。参考主链为：
 
 ```text
 Catalog loaders
@@ -75,7 +75,33 @@ graph LR
     ViewResources["Renderer, GeometryManager, TextureManager, RenderFlags"] --> Forbidden["Do not expose in Model or Controller headers"]
 ```
 
-### 3.2 核心类依赖变化图
+### 3.2 Step3 构建 target 依赖图
+
+下图表达 Step3 后由 CMake 固化的物理构建边界。它不表示 M / C / V 已经是独立 OS 进程；它表示当前仓库内进程内 MVC 的 source bucket 和 object target 已可审查、可测试。
+
+```mermaid
+graph LR
+    ModelTarget["celestia_model"] --> ModelSources["Pure model source bucket"]
+    ControllerTarget["celestia_controller"] --> ControllerSources["Simulation, Observer, Selection"]
+    AdapterTarget["celestia_view_adapter"] --> AdapterSources["SelectionPicker, SceneViewModel, lifecycle, render asset adapters"]
+    View3DTarget["celestia_view3d"] --> View3DSources["Renderer, TextureManager, GeometryManager, shaders, framebuffers"]
+    LegacyTarget["celengine legacy bucket"] --> LegacySources["Mixed legacy sources kept out of pure Model"]
+    AppShell["celestia application shell"] --> ModelTarget
+    AppShell --> ControllerTarget
+    AppShell --> AdapterTarget
+    AppShell --> View3DTarget
+    AppShell --> LegacyTarget
+    ControllerTarget --> ModelTarget
+    AdapterTarget --> ModelTarget
+    AdapterTarget --> ControllerTarget
+    View3DTarget --> AdapterTarget
+    View3DTarget --> ModelTarget
+    View3DTarget --> ControllerTarget
+```
+
+Step3 的关键取舍是：`solarsys.*`、`stardbbuilder.*`、`dsodbbuilder.*` 仍承担模型加载与渲染资源绑定的混合职责，因此归入 `celestia_view_adapter`；`galaxy.*`、`globular.*`、`marker.*` 仍有渲染状态或渲染方法，因此暂留 `CELESTIA_LEGACY_ENGINE_SOURCES`，避免污染纯 `celestia_model` target。目录搬迁保留为后续 Step3.1。
+
+### 3.3 核心类依赖变化图
 
 本图只表达本次 Step 1 拆除和迁出的关键依赖，不等同于完整 C++ include graph。`Before` 节点表示原始混杂点，`After` 节点表示更新后的边界落点。
 
@@ -115,7 +141,7 @@ graph TB
     DsoBuilder --> NebulaLoader
 ```
 
-### 3.3 文件依赖落点图
+### 3.4 文件依赖落点图
 
 下图用于审查“新增文件是否真的承接了原先散落在 Model / Controller 中的 View 依赖”。箭头表示 include 或直接调用方向；`forward friend access only` 节点表示 header 中只保留前向声明或友元入口，不暴露具体 View 资源类型。
 
