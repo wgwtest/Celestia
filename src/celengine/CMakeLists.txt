@@ -124,6 +124,7 @@ set(CELENGINE_SOURCES
   renderlistentry.h
   rotationmanager.cpp
   rotationmanager.h
+  selectiongeometryprovider.h
   selectionpicker.cpp
   selectionpicker.h
   selection.cpp

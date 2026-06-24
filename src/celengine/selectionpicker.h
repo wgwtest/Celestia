@@ -17,16 +17,12 @@
 
 class SolarSystem;
 class Universe;
-
-namespace celestia::engine
-{
-class GeometryManager;
-}
+class SelectionGeometryProvider;
 
 class SelectionPicker
 {
 public:
-    SelectionPicker(const Universe&, celestia::engine::GeometryManager&);
+    SelectionPicker(const Universe&, const SelectionGeometryProvider&);
 
     Selection pick(const UniversalCoord& origin,
                    const Eigen::Vector3f& direction,
@@ -56,5 +52,5 @@ private:
                                 float tolerance = 0.0f) const;
 
     const Universe& universe;
-    celestia::engine::GeometryManager& geometryManager;
+    const SelectionGeometryProvider& geometryProvider;
 };

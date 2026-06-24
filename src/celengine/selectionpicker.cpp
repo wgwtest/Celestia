@@ -22,12 +22,11 @@
 #include <celmath/ray.h>
 #include <celutil/flag.h>
 #include "body.h"
-#include "bodyrenderassets.h"
 #include "deepskyobj.h"
 #include "deepskyobjectpicker.h"
 #include "deepskyobjectrenderpolicy.h"
 #include "frametree.h"
-#include "meshmanager.h"
+#include "selectiongeometryprovider.h"
 #include "solarsys.h"
 #include "stardb.h"
 #include "timelinephase.h"
@@ -88,12 +87,12 @@ ApproxPlanetPickTraversal(Body* body, PlanetPickInfo& pickInfo)
 class ExactPlanetPickTraversal
 {
 public:
-    explicit ExactPlanetPickTraversal(engine::GeometryManager& manager) : geometryManager(manager) {}
+    explicit ExactPlanetPickTraversal(const SelectionGeometryProvider& provider) : geometryProvider(provider) {}
 
     bool operator()(Body* body, PlanetPickInfo& pickInfo) const;
 
 private:
-    engine::GeometryManager& geometryManager;
+    const SelectionGeometryProvider& geometryProvider;
 };
 
 // Perform an intersection test between the pick ray and a body
@@ -110,7 +109,8 @@ ExactPlanetPickTraversal::operator()(Body* body,
         !math::testIntersection(pickInfo.pickRay, math::Sphered(bpos, radius), distance))
         return true;
 
-    if (BodyRenderAssets::getGeometry(body) == engine::GeometryHandle::Invalid)
+    auto geometryHandle = geometryProvider.geometryFor(body);
+    if (geometryHandle == engine::GeometryHandle::Invalid)
     {
         // There's no mesh, so the object is an ellipsoid.  If it's
         // spherical, we've already done all the work we need to. Otherwise,
@@ -130,13 +130,13 @@ ExactPlanetPickTraversal::operator()(Body* body,
     else
     {
         // Transform rotate the pick ray into object coordinates
-        Eigen::Quaterniond qd = BodyRenderAssets::getGeometryOrientation(body).cast<double>();
+        Eigen::Quaterniond qd = geometryProvider.geometryOrientationFor(body).cast<double>();
         Eigen::Matrix3d m = (qd * body->getEclipticToBodyFixed(pickInfo.jd)).toRotationMatrix();
         Eigen::ParametrizedLine<double, 3> r(pickInfo.pickRay.origin() - bpos, pickInfo.pickRay.direction());
         r = math::transformRay(r, m);
 
-        const Geometry* geometry = geometryManager.find(BodyRenderAssets::getGeometry(body));
-        float scaleFactor = BodyRenderAssets::getGeometryScale(body);
+        const Geometry* geometry = geometryProvider.findGeometry(geometryHandle);
+        float scaleFactor = geometryProvider.geometryScaleFor(body);
         if (geometry != nullptr && geometry->isNormalized())
             scaleFactor = radius;
 
@@ -478,9 +478,9 @@ CloseDSOPicker::process(const std::unique_ptr<DeepSkyObject>& dso, //NOSONAR
 } // end unnamed namespace
 
 SelectionPicker::SelectionPicker(const Universe& _universe,
-                                 engine::GeometryManager& _geometryManager) :
+                                 const SelectionGeometryProvider& _geometryProvider) :
     universe(_universe),
-    geometryManager(_geometryManager)
+    geometryProvider(_geometryProvider)
 {
 }
 
@@ -511,7 +511,7 @@ SelectionPicker::pickPlanet(const SolarSystem& solarSystem,
 
     // First see if there's a planet|moon that the pick ray intersects.
     // Select the closest planet|moon intersected.
-    traverseFrameTree(solarSystem.getFrameTree(), when, ExactPlanetPickTraversal(geometryManager), pickInfo);
+    traverseFrameTree(solarSystem.getFrameTree(), when, ExactPlanetPickTraversal(geometryProvider), pickInfo);
 
     if (pickInfo.closestBody != nullptr)
     {

@@ -56,6 +56,7 @@
 #include <celengine/planetgrid.h>
 #include <celengine/starname.h>
 #include <celengine/starrenderassets.h>
+#include <celengine/selectiongeometryprovider.h>
 #include <celengine/selectionpicker.h>
 #include <celengine/textlayout.h>
 #include <celengine/timeline.h>
@@ -120,6 +121,38 @@ std::locale CelestiaCore::loc = std::locale();
 
 namespace
 {
+
+class CelestiaSelectionGeometryProvider final : public SelectionGeometryProvider
+{
+public:
+    explicit CelestiaSelectionGeometryProvider(GeometryManager& _geometryManager) :
+        geometryManager(_geometryManager)
+    {
+    }
+
+    GeometryHandle geometryFor(const Body* body) const override
+    {
+        return BodyRenderAssets::getGeometry(body);
+    }
+
+    Eigen::Quaternionf geometryOrientationFor(const Body* body) const override
+    {
+        return BodyRenderAssets::getGeometryOrientation(body);
+    }
+
+    float geometryScaleFor(const Body* body) const override
+    {
+        return BodyRenderAssets::getGeometryScale(body);
+    }
+
+    const Geometry* findGeometry(GeometryHandle handle) const override
+    {
+        return geometryManager.find(handle);
+    }
+
+private:
+    GeometryManager& geometryManager;
+};
 
 bool ReadLeapSecondsFile(const std::filesystem::path& path, std::vector<astro::LeapSecondRecord> &leapSeconds)
 {
@@ -486,7 +519,8 @@ void CelestiaCore::mouseButtonUp(float x, float y, int button)
         auto pickSelection = [this, obsPickTolerance](const Eigen::Vector3f& pickRay)
         {
             const Observer* observer = sim->getActiveObserver();
-            SelectionPicker picker(*sim->getUniverse(), *geometryManager);
+            CelestiaSelectionGeometryProvider geometryProvider(*geometryManager);
+            SelectionPicker picker(*sim->getUniverse(), geometryProvider);
             return picker.pick(observer->getPosition(),
                                observer->getOrientationf().conjugate() * pickRay,
                                observer->getTime(),
