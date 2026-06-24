@@ -1,0 +1,57 @@
+// nebula.h
+//
+// Copyright (C) 2003-present, the Celestia Development Team
+// Copyright (C) 2003, Chris Laurel <claurel@shatters.net>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+#pragma once
+
+#include <cstdint>
+#include <filesystem>
+#include <string>
+#include <string_view>
+
+#include "deepskyobj.h"
+
+namespace celestia::util
+{
+class AssociativeArray;
+}
+
+class Nebula final : public DeepSkyObject
+{
+public:
+    Nebula() = default;
+    ~Nebula() override;
+
+    const char* getType() const override;
+    void setType(const std::string&) override;
+    std::string getDescription() const override;
+
+    DeepSkyObjectType getObjType() const override;
+
+    enum class Type
+    {
+        NotDefined         = 0,
+        Emission           = 1,  // includes Herbig–Haro objects and misc. emission nebula not listed below
+        Reflection         = 2,  // includes misc. reflection nebula not listed below
+        Dark               = 3,
+        Planetary          = 4,
+        SupernovaRemnant   = 5,
+        HII_Region         = 6,
+        Protoplanetary     = 7
+    };
+
+    Type getNebulaType() const;
+
+protected:
+    bool loadDetails(const celestia::util::AssociativeArray*,
+                     const std::filesystem::path&) override;
+
+private:
+    Type type{ Type::NotDefined };
+};

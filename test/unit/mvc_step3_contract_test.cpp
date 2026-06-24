@@ -151,16 +151,16 @@ TEST_CASE("CMake declares MVC target dependency direction")
 TEST_CASE("model implementation files do not depend on view adapter or 3D view")
 {
     constexpr std::string_view modelFiles[] = {
-        "src/celengine/body.cpp",
-        "src/celengine/body.h",
-        "src/celengine/star.cpp",
-        "src/celengine/star.h",
-        "src/celengine/nebula.cpp",
-        "src/celengine/nebula.h",
-        "src/celengine/universe.cpp",
-        "src/celengine/universe.h",
-        "src/celengine/deepskyobj.cpp",
-        "src/celengine/deepskyobj.h",
+        "src/celengine/model/body.cpp",
+        "src/celengine/model/body.h",
+        "src/celengine/model/star.cpp",
+        "src/celengine/model/star.h",
+        "src/celengine/model/nebula.cpp",
+        "src/celengine/model/nebula.h",
+        "src/celengine/model/universe.cpp",
+        "src/celengine/model/universe.h",
+        "src/celengine/model/deepskyobj.cpp",
+        "src/celengine/model/deepskyobj.h",
     };
 
     constexpr std::string_view forbiddenTokens[] = {
@@ -188,12 +188,12 @@ TEST_CASE("model implementation files do not depend on view adapter or 3D view")
 TEST_CASE("controller implementation files do not depend on renderer resources")
 {
     constexpr std::string_view controllerFiles[] = {
-        "src/celengine/simulation.cpp",
-        "src/celengine/simulation.h",
-        "src/celengine/observer.cpp",
-        "src/celengine/observer.h",
-        "src/celengine/selection.cpp",
-        "src/celengine/selection.h",
+        "src/celengine/controller/simulation.cpp",
+        "src/celengine/controller/simulation.h",
+        "src/celengine/controller/observer.cpp",
+        "src/celengine/controller/observer.h",
+        "src/celengine/controller/selection.cpp",
+        "src/celengine/controller/selection.h",
     };
 
     constexpr std::string_view forbiddenTokens[] = {

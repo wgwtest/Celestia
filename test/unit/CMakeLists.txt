@@ -9,6 +9,7 @@ set(UNIT_TEST_SOURCES
   mvc_boundary_test.cpp
   mvc_step2_contract_test.cpp
   mvc_step3_contract_test.cpp
+  mvc_step4_directory_contract_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp

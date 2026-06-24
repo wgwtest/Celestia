@@ -34,7 +34,7 @@ TEST_SUITE_BEGIN("MVC boundary");
 
 TEST_CASE("Simulation controller header does not expose view adapter API")
 {
-    const auto simulationHeader = readSourceFile("src/celengine/simulation.h");
+    const auto simulationHeader = readSourceFile("src/celengine/controller/simulation.h");
 
     CHECK_FALSE(contains(simulationHeader, "class Renderer"));
     CHECK_FALSE(contains(simulationHeader, "RenderFlags"));
@@ -44,7 +44,7 @@ TEST_CASE("Simulation controller header does not expose view adapter API")
 
 TEST_CASE("Universe model header does not expose picking or view resources")
 {
-    const auto universeHeader = readSourceFile("src/celengine/universe.h");
+    const auto universeHeader = readSourceFile("src/celengine/model/universe.h");
 
     CHECK_FALSE(contains(universeHeader, "GeometryManager"));
     CHECK_FALSE(contains(universeHeader, "RenderFlags"));
@@ -56,7 +56,7 @@ TEST_CASE("Universe model header does not expose picking or view resources")
 
 TEST_CASE("Body feature manager header does not expose geometry adapter API")
 {
-    const auto bodyHeader = readSourceFile("src/celengine/body.h");
+    const auto bodyHeader = readSourceFile("src/celengine/model/body.h");
 
     CHECK_FALSE(contains(bodyHeader, "GeometryManager"));
     CHECK_FALSE(contains(bodyHeader, "computeLocations("));
@@ -64,7 +64,7 @@ TEST_CASE("Body feature manager header does not expose geometry adapter API")
 
 TEST_CASE("Body model header does not expose primary render assets")
 {
-    const auto bodyHeader = readSourceFile("src/celengine/body.h");
+    const auto bodyHeader = readSourceFile("src/celengine/model/body.h");
 
     CHECK_FALSE(contains(bodyHeader, "meshmanager.h"));
     CHECK_FALSE(contains(bodyHeader, "getGeometry()"));
@@ -87,7 +87,7 @@ TEST_CASE("Body model header does not expose primary render assets")
 
 TEST_CASE("Star model header does not expose render assets")
 {
-    const auto starHeader = readSourceFile("src/celengine/star.h");
+    const auto starHeader = readSourceFile("src/celengine/model/star.h");
 
     CHECK_FALSE(contains(starHeader, "meshmanager.h"));
     CHECK_FALSE(contains(starHeader, "TextureHandle"));
@@ -102,11 +102,11 @@ TEST_CASE("Star model header does not expose render assets")
 TEST_CASE("Deep sky model headers do not expose render mask API")
 {
     const std::filesystem::path headers[] = {
-        "src/celengine/deepskyobj.h",
-        "src/celengine/galaxy.h",
-        "src/celengine/globular.h",
-        "src/celengine/nebula.h",
-        "src/celengine/opencluster.h",
+        "src/celengine/model/deepskyobj.h",
+        "src/celengine/legacy/galaxy.h",
+        "src/celengine/legacy/globular.h",
+        "src/celengine/model/nebula.h",
+        "src/celengine/model/opencluster.h",
     };
 
     for (const auto& headerPath : headers)

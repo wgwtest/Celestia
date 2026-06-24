@@ -1,8 +1,8 @@
-# Codex Start Here - Celestia MVC Step 3
+# Codex Start Here - Celestia MVC Step 4
 
 ## Current Workspace
 
-This directory is the active MVC Step 3 worktree:
+This directory is the active MVC Step 4 worktree:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
@@ -20,7 +20,7 @@ The main Celestia checkout is separate:
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 3 code changes to appear there unless this branch is merged or checked out there.
+That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 4 code changes to appear there unless this branch is merged or checked out there.
 
 ## Remote Model
 
@@ -37,7 +37,7 @@ Step 1 was pushed to the fork as:
 14062ca refactor: decouple Celestia MVC boundaries
 ```
 
-Step 3 is on:
+Step 3 / Step 4 work is on:
 
 ```text
 codex/celestia-mvc-step3
@@ -57,9 +57,13 @@ Step 2 is complete in this worktree: Celestia Model implementation files no long
 
 Step 3 is complete in this worktree: CMake now exposes auditable `celestia_model`, `celestia_controller`, `celestia_view_adapter`, and `celestia_view3d` object targets; `celestia` explicitly aggregates them through the application shell; Step3 contract tests scan CMake ownership buckets, target dependency direction, and Model / Controller implementation files.
 
-Step 3 is still an in-process physical modularization step. It is not an OS-process split for M / V / C, and it is not the Planet_SIM clean-room migration. Directory `git mv` reorganization is intentionally deferred to a possible Step3.1 after the target split remains stable.
+Step 3 is an in-process physical modularization step. It is not an OS-process split for M / V / C, and it is not the Planet_SIM clean-room migration.
 
-Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 / Step 3 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
+Step 4 is complete in this worktree: `src/celengine` ownership groups are physically moved into `model` / `controller` / `adapter` / `view3d` / `legacy`, and `src/celrender` renderer helpers are physically moved under `view3d` and `view3d/gl`. Root forwarding headers remain under `src/celengine`, `src/celrender`, and `src/celrender/gl` so existing public include paths continue to work.
+
+Step 4 is still in-process MVC. It does not make M / C / V run as independent OS processes. Process boundaries, IPC / RPC, and message contracts remain Step5 work.
+
+Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 / Step 3 / Step 4 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
 
 ## First Reading Order
 
@@ -70,6 +74,7 @@ CODEX_START_HERE.md
 DOC\CODEX_DOC\04_研制计划\13-WBS-0.13-Celestia标准MVC解耦-Step1代码落实记录.md
 DOC\CODEX_DOC\04_研制计划\14-WBS-0.14-Celestia标准MVC解耦-Step2落地方案.md
 DOC\CODEX_DOC\04_研制计划\15-WBS-0.15-Celestia标准MVC解耦-Step3物理模块化与构建边界固化方案.md
+DOC\CODEX_DOC\04_研制计划\16-WBS-0.16-Celestia标准MVC解耦-Step4源码目录物理重组方案.md
 DOC\CODEX_DOC\02_设计说明\02-05-Celestia标准MVC解耦与迁移映射说明.md
 ```
 
@@ -125,6 +130,21 @@ src/celestia/CMakeLists.txt
 test/unit/mvc_step3_contract_test.cpp
 ```
 
+Step 4 physical source directory reorganization:
+
+```text
+src/celengine/model/
+src/celengine/controller/
+src/celengine/adapter/
+src/celengine/view3d/
+src/celengine/legacy/
+src/celrender/view3d/
+src/celrender/view3d/gl/
+test/unit/mvc_step4_directory_contract_test.cpp
+```
+
+The moved root headers under `src/celengine`, `src/celrender`, and `src/celrender/gl` are compatibility forwarding headers. The real implementations now live in the ownership folders above.
+
 Application shell and frontend call-site changes:
 
 ```text
@@ -140,29 +160,35 @@ Boundary regression tests:
 test/unit/mvc_boundary_test.cpp
 test/unit/mvc_step2_contract_test.cpp
 test/unit/mvc_step3_contract_test.cpp
+test/unit/mvc_step4_directory_contract_test.cpp
 test/unit/CMakeLists.txt
 ```
 
 ## Verification Commands
 
-This machine does not expose `cmake` / `ctest` in the normal PowerShell PATH. Use Visual Studio's bundled CMake tools directly:
+This machine does not expose `cmake` / `ctest` in the normal PowerShell PATH, and a plain PowerShell build does not populate the MSVC include/lib environment. Wrap CMake and CTest with Visual Studio's `VsDevCmd.bat`:
 
 ```powershell
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe' --build build-mvc-baseline-rel --config Release
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-baseline-rel --output-on-failure
+$vsdev = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat'
+$cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
+$ctest = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe'
 
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe' --build build-mvc-sdl-rel --config Release
-& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel --output-on-failure
+cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >nul && `"$cmake`" --build build-mvc-baseline-rel --config Release && `"$ctest`" --test-dir build-mvc-baseline-rel --output-on-failure"
+cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >nul && `"$cmake`" --build build-mvc-sdl-rel --config Release && `"$ctest`" --test-dir build-mvc-sdl-rel --output-on-failure"
 ```
 
-Last verified Step 3 result before this handoff:
+Last verified Step 4 result after physical reorganization:
 
 ```text
 build-mvc-baseline-rel: build passed
-build-mvc-baseline-rel: 53/53 tests passed
+build-mvc-baseline-rel: 58/58 tests passed
 build-mvc-sdl-rel: build passed
-build-mvc-sdl-rel: 53/53 tests passed
-SDL smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe entered the run loop for 6 seconds with build-mvc-sdl-rel\run-full and was stopped
+build-mvc-sdl-rel: 58/58 tests passed
+MVC Step1-Step4 focused tests: 21/21 passed
+SDL install: build-mvc-sdl-rel\run-full refreshed through CMake install component core
+SDL visual smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe launched with run-full and rendered the Celestia main window
+Screenshot: build-mvc-sdl-rel\celestia-step4-smoke.png
+Visual check: no missing-DLL dialog, no red HUD/menu text blocks, Earth texture rendered
 ```
 
 ## Runtime Notes
@@ -199,6 +225,14 @@ as solid red blocks, the `shaders` directory is missing from the active data
 directory and the text shader is falling back to Celestia's red error shader.
 
 If a font-loading warning appears in the console, it does not by itself invalidate the MVC boundary work. It affects text visibility in that local runtime setup.
+
+The Step4 visual smoke screenshot is:
+
+```text
+build-mvc-sdl-rel\celestia-step4-smoke.png
+```
+
+Computer Use window capture failed on this SDL/OpenGL window with `SetIsBorderRequired failed: 不支持此接口 (0x80004002)`, so the accepted screenshot path was captured with a Win32 screen-copy fallback after bringing the Celestia window to the foreground.
 
 ## Git Hygiene
 
