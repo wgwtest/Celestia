@@ -53,9 +53,9 @@ Step 1 acceptance requires:
 2. A runnable Celestia program is built.
 3. Full local unit tests pass.
 4. Runtime smoke testing has been performed.
-5. Human acceptance is still required before Step 2 migration starts.
+5. Human acceptance is still required before Step 2 deeper MVC decoupling starts.
 
-Step 2 is migration into another project and must remain independent. Do not start Step 2 core implementation from this worktree unless the user explicitly accepts Step 1 and opens a new Step 2 task.
+Step 2 is now defined as deeper MVC decoupling inside this Celestia repository. Planet_SIM clean-room migration is a later independent migration phase and must not be started from this worktree unless the user explicitly opens that migration task.
 
 ## First Reading Order
 
@@ -64,6 +64,7 @@ Read these first in a new Codex session:
 ```text
 CODEX_START_HERE.md
 DOC\CODEX_DOC\04_研制计划\13-WBS-0.13-Celestia标准MVC解耦-Step1代码落实记录.md
+DOC\CODEX_DOC\04_研制计划\14-WBS-0.14-Celestia标准MVC解耦-Step2落地方案.md
 DOC\CODEX_DOC\02_设计说明\02-05-Celestia标准MVC解耦与迁移映射说明.md
 ```
 

@@ -2,7 +2,7 @@
 
 ## 1. 文档目的
 
-本文记录 Celestia 本仓库 Step 1 的代码级 MVC 解耦结果，并为后续 Planet_SIM clean-room 迁移提供类来源和剥离边界。Step 1 的完成口径是 Celestia 源码内完成 Model / Controller / View 边界收缩、构建出可运行程序、全量测试通过；Step 2 的 UE 插件迁移与本步骤独立。
+本文记录 Celestia 本仓库 Step 1 的代码级 MVC 解耦结果，并为 Step 2 的本仓库内更彻底 MVC 解耦提供类来源、依赖证据和剥离边界。Step 1 的完成口径是 Celestia 源码内完成 Model / Controller / View 边界收缩、构建出可运行程序、全量测试通过；Step 2 的完成口径是在 Celestia 本仓库内继续剥离 Model 实现层与具体 View Adapter / 渲染资产的耦合。后续 Planet_SIM clean-room 迁移基于 Step1 / Step2 形成的边界另行启动，不再称为 Step2。
 
 ## 2. Celestia 源码参考快照
 
@@ -120,7 +120,7 @@ graph LR
 
 ### 3.4 接口关系与迁移边界图
 
-Step 2 只能迁移 Core 语义和接口关系，不能把 Celestia 的 GPL 实现代码、OpenGL 渲染管线或平台前端搬进 Planet_SIM。View Adapter 的价值是提供边界模式，而不是作为 Planet_SIM Core 类型直接复制。
+后续 Planet_SIM clean-room 迁移只能迁移 Core 语义和接口关系，不能把 Celestia 的 GPL 实现代码、OpenGL 渲染管线或平台前端搬进 Planet_SIM。View Adapter 的价值是提供边界模式，而不是作为 Planet_SIM Core 类型直接复制。Step2 在 Celestia 本仓库内先把这些边界继续做实。
 
 ```mermaid
 graph LR
@@ -411,7 +411,7 @@ Planet_SIM target: `FCelestialSelection`、`FCelestialObserver`、`ICelestialRef
 
 Migration level: Interface semantics migration, clean-room implementation。
 
-Validation: Step 2 中 `FCelestialSimulation` 必须能设置选择、跟踪对象并由 observer frame 构建快照；Step 1 只保留来源和边界。
+Validation: 后续 Planet_SIM 迁移中 `FCelestialSimulation` 必须能设置选择、跟踪对象并由 observer frame 构建快照；Step 1 / Step2 只保留来源、边界和可验证语义。
 
 ### Celestia class group: catalogs and hierarchy
 
@@ -436,7 +436,7 @@ Planet_SIM target: `FCelestialStarCatalog`、`FCelestialSolarSystem`、`FCelesti
 
 Migration level: Structure and behavior migration, clean-room implementation。
 
-Validation: Step 2 中 `FCelestialUniverse` 必须能由 catalog entries 构建对象图并解析 `FindPath("Sol/Earth")`。
+Validation: 后续 Planet_SIM 迁移中 `FCelestialUniverse` 必须能由 catalog entries 构建对象图并解析 `FindPath("Sol/Earth")`。
 
 ### Celestia class group: dynamics
 
@@ -458,7 +458,7 @@ Planet_SIM target: `ICelestialOrbit`、`ICelestialRotationModel`、`ICelestialRe
 
 Migration level: Interface semantics migration only。
 
-Validation: Step 2 使用 UE 自动化测试证明 fixed、sampled 或 simple analytic implementation 的确定性。
+Validation: 后续 Planet_SIM 迁移使用 UE 自动化测试证明 fixed、sampled 或 simple analytic implementation 的确定性。
 
 ### Celestia class group: View and View Adapter
 
