@@ -23,17 +23,11 @@
 #include <Eigen/Geometry>
 
 #include "deepskyobj.h"
-#include "renderflags.h"
 
 struct Matrices;
-class Renderer;
 
 namespace celestia
 {
-namespace engine
-{
-class GeometryPaths;
-}
 namespace util
 {
 class AssociativeArray;
@@ -61,20 +55,13 @@ public:
 
     float getBoundingSphereRadius() const override { return tidalRadius; }
 
-    bool pick(const Eigen::ParametrizedLine<double, 3>& ray,
-              double& distanceToPicker,
-              double& cosAngleToBoundCenter) const override;
-
-    RenderFlags getRenderMask() const override;
-    RenderLabels getLabelMask() const override;
     DeepSkyObjectType getObjType() const override;
 
     int getFormId() const;
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override;
+                     const std::filesystem::path&) override;
 
 private:
     // Reference values ( = data base averages) of core radius, King concentration

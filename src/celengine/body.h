@@ -25,13 +25,11 @@
 #include <celutil/color.h>
 #include <celutil/flag.h>
 #include <celutil/ranges.h>
-#include <celutil/texhandle.h>
 #include <celutil/utf8.h>
-#include "meshmanager.h"
-#include "surface.h"
 
 struct Atmosphere;
 class Body;
+class BodyLocationGeometryProjector;
 class FrameTree;
 class Location;
 class ReferenceFrame;
@@ -102,7 +100,6 @@ struct RingSystem
     float innerRadius;
     float outerRadius;
     Color color{ 1.0f, 1.0f, 1.0f };
-    celestia::util::TextureHandle texture{ celestia::util::TextureHandle::Invalid };
 };
 
 // Object class enumeration:
@@ -260,17 +257,6 @@ public:
     float getBoundingRadius() const;
     float getCullingRadius() const;
 
-    celestia::engine::GeometryHandle getGeometry() const { return geometry; }
-    void setGeometry(celestia::engine::GeometryHandle);
-    Eigen::Quaternionf getGeometryOrientation() const;
-    void setGeometryOrientation(const Eigen::Quaternionf& orientation);
-    float getGeometryScale() const { return geometryScale; }
-    void setGeometryScale(float scale);
-
-    void setSurface(const Surface&);
-    const Surface& getSurface() const;
-    Surface& getSurface();
-
     float getLuminosity(const Star& sun,
                         float distanceFromSun) const;
     float getLuminosity(float sunLuminosity,
@@ -370,13 +356,7 @@ private:
     float emissivity{ 1.0f };
     float internalHeatFlux{ 0.0f };
 
-    Eigen::Quaternionf geometryOrientation{ Eigen::Quaternionf::Identity() };
-
     float cullingRadius{ 0.0f };
-
-    celestia::engine::GeometryHandle geometry{ celestia::engine::GeometryHandle::Invalid };
-    float geometryScale{ 1.0f };
-    Surface surface{ Color(1.0f, 1.0f, 1.0f) };
 
     BodyClassification classification{ BodyClassification::Unknown };
 
@@ -417,20 +397,6 @@ public:
     void setRings(Body*, std::unique_ptr<RingSystem>&&);
     void scaleRings(Body*, float);
 
-    Surface* getAlternateSurface(const Body*, std::string_view) const;
-    void addAlternateSurface(Body*, std::string_view, std::unique_ptr<Surface>&&);
-
-    auto getAlternateSurfaceNames(const Body* body) const
-    {
-        using range_type = decltype(celestia::util::keysView(std::declval<AltSurfaceTable>()));
-        if (!celestia::util::is_set(body->features, BodyFeatures::AlternateSurfaces))
-            return std::optional<range_type>();
-
-        auto it = alternateSurfaces.find(body);
-        assert(it != alternateSurfaces.end());
-        return std::make_optional(celestia::util::keysView(*it->second));
-    }
-
     void addReferenceMark(Body*, std::unique_ptr<ReferenceMark>&&);
     bool removeReferenceMark(Body*, std::string_view tag);
     const ReferenceMark* findReferenceMark(const Body*, std::string_view tag) const;
@@ -451,7 +417,6 @@ public:
     void addLocation(Body*, std::unique_ptr<Location>&&);
     Location* findLocation(const Body*, std::string_view, bool i18n = false) const;
     bool hasLocations(const Body*) const;
-    void computeLocations(const Body*, celestia::engine::GeometryManager&);
 
     auto getLocations(const Body* body) const
     {
@@ -477,11 +442,10 @@ public:
     void removeFeatures(Body*);
 
 private:
-    using AltSurfaceTable = std::map<std::string, std::unique_ptr<Surface>, std::less<>>;
+    friend class BodyLocationGeometryProjector;
 
     std::unordered_map<const Body*, std::unique_ptr<Atmosphere>> atmospheres;
     std::unordered_map<const Body*, std::unique_ptr<RingSystem>> rings;
-    std::unordered_map<const Body*, std::unique_ptr<AltSurfaceTable>> alternateSurfaces;
     std::unordered_map<const Body*, BodyLocations> locations;
     std::unordered_map<const Body*, Color> orbitColors;
     std::unordered_map<const Body*, Color> cometTailColors;

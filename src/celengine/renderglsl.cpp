@@ -29,6 +29,7 @@
 #include <celutil/flag.h>
 #include "atmosphere.h"
 #include "body.h"
+#include "bodyrenderassets.h"
 #include "framebuffer.h"
 #include "geometry.h"
 #include "glsupport.h"
@@ -260,7 +261,7 @@ void renderEllipsoid_GLSL(const RenderInfo& ri,
 
     if (ls.shadowingRingSystem)
     {
-        Texture* ringsTex = renderer->getTextureManager()->findShadow(ls.shadowingRingSystem->texture);
+        Texture* ringsTex = renderer->getTextureManager()->findShadow(BodyRenderAssets::getRingTexture(ls.shadowingRingSystem));
         if (ringsTex != nullptr)
         {
             glActiveTexture(GL_TEXTURE0 + textures.size());

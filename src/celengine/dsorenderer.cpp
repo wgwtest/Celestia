@@ -16,6 +16,7 @@
 #include <celrender/openclusterrenderer.h>
 #include "dsodb.h"
 #include "deepskyobj.h"
+#include "deepskyobjectrenderpolicy.h"
 #include "galaxy.h"
 #include "globular.h"
 #include "nebula.h"
@@ -83,7 +84,7 @@ void DSORenderer::process(const std::unique_ptr<DeepSkyObject>& dso, //NOSONAR
     else
         appMag = absMag + (float) (enhance * tanh(distanceToDSO/astro::LY_PER_10PARSEC - 1.0));
 
-    if (util::is_set(renderFlags, dso->getRenderMask()))
+    if (util::is_set(renderFlags, getDeepSkyObjectRenderMask(*dso)))
     {
         dsosProcessed++;
 
@@ -134,7 +135,7 @@ void DSORenderer::process(const std::unique_ptr<DeepSkyObject>& dso, //NOSONAR
     // Only render those labels that are in front of the camera:
     // Place labels for DSOs brighter than the specified label threshold brightness
     //
-    RenderLabels labelMask = dso->getLabelMask();
+    RenderLabels labelMask = getDeepSkyObjectLabelMask(*dso);
 
     if (util::is_set(labelMode, labelMask))
     {

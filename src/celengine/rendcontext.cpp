@@ -18,6 +18,7 @@
 #include <celutil/texhandle.h>
 #include "atmosphere.h"
 #include "body.h"
+#include "bodyrenderassets.h"
 #include "lightenv.h"
 #include "rendcontext.h"
 #include "render.h"
@@ -328,7 +329,7 @@ GLSL_RenderContext::makeCurrent(const cmod::Material& m)
 
     if (lightingState.shadowingRingSystem)
     {
-        Texture* ringsTex = renderer->getTextureManager()->findShadow(lightingState.shadowingRingSystem->texture);
+        Texture* ringsTex = renderer->getTextureManager()->findShadow(BodyRenderAssets::getRingTexture(lightingState.shadowingRingSystem));
         if (ringsTex != nullptr)
         {
             glActiveTexture(GL_TEXTURE0 + nTextures);

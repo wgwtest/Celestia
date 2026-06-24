@@ -20,7 +20,6 @@
 #include <Eigen/Geometry>
 
 #include "astroobj.h"
-#include "renderflags.h"
 
 class Galaxy;
 class Globular;
@@ -28,13 +27,11 @@ struct Matrices;
 class Nebula;
 class OpenCluster;
 class Selection;
-class Renderer;
 
 namespace celestia
 {
 namespace engine
 {
-class GeometryPaths;
 class UrlManager;
 }
 namespace util
@@ -93,25 +90,17 @@ public:
 
     virtual DeepSkyObjectType getObjType() const = 0;
 
-    virtual bool pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                      double& distanceToPicker,
-                      double& cosAngleToBoundCenter) const;
     bool load(const celestia::util::AssociativeArray*,
               const std::filesystem::path& resPath,
-              celestia::engine::GeometryPaths& geometryPaths,
               std::string_view name,
               celestia::engine::UrlManager& urlManager);
-
-    virtual RenderFlags getRenderMask() const { return RenderFlags::ShowNothing; }
-    virtual RenderLabels getLabelMask() const { return RenderLabels::NoLabels; }
 
     AstroCatalog::IndexNumber getIndex() const { return indexNumber; }
     void setIndex(AstroCatalog::IndexNumber idx) { indexNumber = idx; }
 
 protected:
     virtual bool loadDetails(const celestia::util::AssociativeArray*,
-                             const std::filesystem::path&,
-                             celestia::engine::GeometryPaths&) = 0;
+                             const std::filesystem::path&) = 0;
 
 private:
     Eigen::Vector3d position{ Eigen::Vector3d::Zero() };

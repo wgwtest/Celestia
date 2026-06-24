@@ -23,6 +23,7 @@
 #include <fmt/format.h>
 
 #include <celengine/body.h>
+#include <celengine/bodyrenderassets.h>
 #include <celengine/dsodb.h>
 #include <celengine/selection.h>
 #include <celengine/simulation.h>
@@ -273,10 +274,10 @@ WinContextMenuHandler::requestContextMenu(float x, float y, Selection sel)
                            UTF8ToWideString(_("&Satellites")).c_str());
             }
 
-            if (auto altSurfaces = bodyFeaturesManager->getAlternateSurfaceNames(sel.body());
-                altSurfaces.has_value() && !altSurfaces->empty())
+            if (auto altSurfaces = BodyRenderAssets::getAlternateSurfaceNames(sel.body());
+                !altSurfaces.empty())
             {
-                HMENU surfMenu = CreateAlternateSurfaceMenu(*altSurfaces);
+                HMENU surfMenu = CreateAlternateSurfaceMenu(altSurfaces);
                 AppendMenu(hMenu, MF_POPUP | MF_STRING, (UINT_PTR) surfMenu,
                            UTF8ToWideString(_("&Alternate Surfaces")).c_str());
             }

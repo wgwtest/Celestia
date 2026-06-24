@@ -19,7 +19,6 @@
 #include <celutil/strnatcmp.h>
 #include "body.h"
 #include "location.h"
-#include "render.h"
 
 
 Simulation::Simulation(std::unique_ptr<Universe>&& universe,
@@ -35,24 +34,6 @@ Simulation::~Simulation()
 {
     for (const auto observer : observers)
         delete observer;
-}
-
-
-void Simulation::render(Renderer& renderer)
-{
-    renderer.render(*activeObserver,
-                    *universe,
-                    faintestVisible,
-                    selection);
-}
-
-
-void Simulation::render(Renderer& renderer, Observer& observer)
-{
-    renderer.render(observer,
-                    *universe,
-                    faintestVisible,
-                    selection);
 }
 
 
@@ -136,18 +117,6 @@ void Simulation::setTrackedObject(const Selection& sel)
     activeObserver->setTrackedObject(sel);
 }
 
-
-Selection Simulation::pickObject(const Eigen::Vector3f& pickRay,
-                                 RenderFlags renderFlags,
-                                 float tolerance)
-{
-    return universe->pick(activeObserver->getPosition(),
-                          activeObserver->getOrientationf().conjugate() * pickRay,
-                          activeObserver->getTime(),
-                          renderFlags,
-                          faintestVisible,
-                          tolerance);
-}
 
 void Simulation::reverseObserverOrientation()
 {

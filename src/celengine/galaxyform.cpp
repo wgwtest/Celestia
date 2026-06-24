@@ -24,6 +24,7 @@ namespace celestia::engine
 namespace
 {
 constexpr unsigned int kIrrGalaxyPoints = 3500u;
+constexpr float kMaxSpiralThickness = 0.06f;
 
 std::optional<celestia::engine::GalacticForm>
 buildGalacticForm(const std::filesystem::path& filename)
@@ -64,7 +65,7 @@ buildGalacticForm(const std::filesystem::path& filename)
             float y;
             if (filename != "models/E0.png")
             {
-                float y0 = 0.5f * Galaxy::kMaxSpiralThickness * std::sqrt(static_cast<float>(value)/256.0f) * std::exp(- 5.0f * r2);
+                float y0 = 0.5f * kMaxSpiralThickness * std::sqrt(static_cast<float>(value)/256.0f) * std::exp(- 5.0f * r2);
                 float B = (r2 > 0.35f) ? 1.0f: 0.75f; // the darkness of the "dust lane", 0 < B < 1
                 float p0 = 1.0f - B * std::exp(-h * h); // the uniform reference probability, envelopping prob*p0.
                 float yr, prob;

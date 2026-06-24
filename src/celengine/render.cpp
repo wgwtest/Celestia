@@ -18,6 +18,8 @@
 #include <fmt/format.h>
 
 #include "atmosphere.h"
+#include "bodylocationgeometryprojector.h"
+#include "bodyrenderassets.h"
 #include "location.h"
 #include "render.h"
 #include "boundaries.h"
@@ -45,6 +47,7 @@
 #include "pointstarrenderer.h"
 #include "psfstarvertexbuffer.h"
 #include "starpipelineowner.h"
+#include "starrenderassets.h"
 #include "orbitsampler.h"
 #include "rendcontext.h"
 #include "textlayout.h"
@@ -2174,7 +2177,7 @@ setupObjectLighting(const vector<LightSource>& suns,
             ls.lights[i].direction_eye = toIllum.cast<float>();
             ls.lights[i].direction_eye.normalize();
             ls.lights[i].irradiance = maxIrr;
-            ls.lights[i].color = secondaryIlluminators[maxIrrSource].body->getSurface().color.linearize(gl::sRGBRendering);
+            ls.lights[i].color = BodyRenderAssets::getSurface(secondaryIlluminators[maxIrrSource].body).color.linearize(gl::sRGBRendering);
             ls.lights[i].apparentSize = 0.0f;
             ls.lights[i].castsShadows = false;
             i++;
@@ -2793,28 +2796,30 @@ void Renderer::renderPlanet(Body& body,
         RenderProperties rp;
         if (displayedSurface.empty())
         {
-            rp.surface = &body.getSurface();
+            rp.surface = &BodyRenderAssets::getSurface(&body);
         }
         else
         {
-            rp.surface = bodyFeaturesManager->getAlternateSurface(&body, displayedSurface);
+            rp.surface = BodyRenderAssets::getAlternateSurface(&body, displayedSurface);
             if (rp.surface == nullptr)
-                rp.surface = &body.getSurface();
+                rp.surface = &BodyRenderAssets::getSurface(&body);
         }
         rp.atmosphere = bodyFeaturesManager->getAtmosphere(&body);
         rp.rings = bodyFeaturesManager->getRings(&body);
         rp.radius = body.getRadius();
-        rp.geometry = body.getGeometry();
+        rp.geometry = BodyRenderAssets::getGeometry(&body);
         rp.semiAxes = body.getSemiAxes() * (1.0f / rp.radius);
-        rp.geometryScale = body.getGeometryScale();
+        rp.geometryScale = BodyRenderAssets::getGeometryScale(&body);
 
         Quaterniond q = body.getRotationModel(now)->spin(now) *
                         body.getEclipticToEquatorial(now);
 
-        rp.orientation = body.getGeometryOrientation() * q.cast<float>();
+        rp.orientation = BodyRenderAssets::getGeometryOrientation(&body) * q.cast<float>();
 
         if (util::is_set(labelMode, RenderLabels::LocationLabels))
-            bodyFeaturesManager->computeLocations(&body, *m_geometryManager->geometryManager());
+            BodyLocationGeometryProjector::computeLocations(&body,
+                                                            *bodyFeaturesManager,
+                                                            *m_geometryManager->geometryManager());
 
         Vector3f scaleFactors;
         bool isNormalized = false;
@@ -2921,7 +2926,7 @@ void Renderer::renderPlanet(Body& body,
             float ringWidth = rings->outerRadius - rings->innerRadius;
             float projectedRingSize = std::abs(lights.lights[li].direction_obj.dot(lights.ringPlaneNormal)) * ringWidth;
             float projectedRingSizeInPixels = projectedRingSize / (max(nearPlaneDistance, altitude) * pixelSize);
-            const Texture* ringsTex = m_textureManager->find(rings->texture);
+            const Texture* ringsTex = m_textureManager->find(BodyRenderAssets::getRingTexture(rings));
             if (!ringsTex)
             {
                 lights.ringShadows[li].texLod = 0.0f;
@@ -2994,7 +2999,7 @@ void Renderer::renderPlanet(Body& body,
 
     if (body.isVisibleAsPoint())
     {
-        const auto surfaceColor = body.getSurface().color.linearize(gl::sRGBRendering);
+        const auto surfaceColor = BodyRenderAssets::getSurface(&body).color.linearize(gl::sRGBRendering);
         if (float maxCoeff = surfaceColor.toVector3().maxCoeff(); maxCoeff > 0.0f) // ignore [ 0 0 0 ]; used by old addons to make objects not get rendered as point
         {
             renderObjectAsPoint(PointObjectInfo{pos, distance, body.getRadius()},
@@ -3029,22 +3034,22 @@ void Renderer::renderRingSystem(Body& body,
     const Surface* surface;
     if (displayedSurface.empty())
     {
-        surface = &body.getSurface();
+        surface = &BodyRenderAssets::getSurface(&body);
     }
     else
     {
-        surface = bodyFeaturesManager->getAlternateSurface(&body, displayedSurface);
+        surface = BodyRenderAssets::getAlternateSurface(&body, displayedSurface);
         if (surface == nullptr)
-            surface = &body.getSurface();
+            surface = &BodyRenderAssets::getSurface(&body);
     }
 
     Vector3f semiAxes = body.getSemiAxes() / radius;
     Quaterniond q = body.getRotationModel(now)->spin(now) *
                     body.getEclipticToEquatorial(now);
-    Quaternionf bodyOrientation = body.getGeometryOrientation() * q.cast<float>();
+    Quaternionf bodyOrientation = BodyRenderAssets::getGeometryOrientation(&body) * q.cast<float>();
 
     // Determine geometry scale and ring scale factor (matches renderObject).
-    engine::GeometryHandle geomHandle = body.getGeometry();
+    engine::GeometryHandle geomHandle = BodyRenderAssets::getGeometry(&body);
     const RenderGeometry* geometry = nullptr;
     if (geomHandle != engine::GeometryHandle::Invalid)
         geometry = m_geometryManager->find(geomHandle);
@@ -3060,7 +3065,7 @@ void Renderer::renderRingSystem(Body& body,
     }
     else
     {
-        float geometryScale = body.getGeometryScale();
+        float geometryScale = BodyRenderAssets::getGeometryScale(&body);
         scaleFactors = Vector3f::Constant(geometryScale);
         ringsScaleFactor = geometryScale;
     }
@@ -3132,7 +3137,7 @@ void Renderer::renderStar(const Star& star,
 
         surface.color = color;
 
-        if (auto mtex = star.getTexture(); mtex != util::TextureHandle::Invalid)
+        if (auto mtex = StarRenderAssets::getTexture(star); mtex != util::TextureHandle::Invalid)
             surface.baseTexture = mtex;
         else
             surface.baseTexture = util::TextureHandle::Invalid;
@@ -3144,7 +3149,7 @@ void Renderer::renderStar(const Star& star,
         rp.rings = nullptr;
         rp.radius = star.getRadius();
         rp.semiAxes = star.getEllipsoidSemiAxes();
-        rp.geometry = star.getGeometry();
+        rp.geometry = StarRenderAssets::getGeometry(star);
 
 #if 0 // disabled for limb darkening
         Atmosphere atmosphere;
@@ -3373,9 +3378,9 @@ void Renderer::addRenderListEntries(RenderListEntry& rle,
         rle.renderableType = RenderListEntry::RenderableBody;
         rle.body = &body;
 
-        if (body.getGeometry() != engine::GeometryHandle::Invalid && rle.discSizeInPixels > 1)
+        if (BodyRenderAssets::getGeometry(&body) != engine::GeometryHandle::Invalid && rle.discSizeInPixels > 1)
         {
-            const RenderGeometry* geometry = m_geometryManager->find(body.getGeometry());
+            const RenderGeometry* geometry = m_geometryManager->find(BodyRenderAssets::getGeometry(&body));
             if (geometry == nullptr)
                 rle.isOpaque = true;
             else
@@ -4635,7 +4640,7 @@ float Renderer::getStarExposure() const
 
 void Renderer::loadTextures(Body* body)
 {
-    const Surface& surface = body->getSurface();
+    const Surface& surface = BodyRenderAssets::getSurface(body);
 
     if (surface.baseTexture != util::TextureHandle::Invalid)
     {
@@ -4666,9 +4671,9 @@ void Renderer::loadTextures(Body* body)
     }
 
     if (auto rings = bodyFeaturesManager->getRings(body);
-        rings != nullptr && rings->texture != util::TextureHandle::Invalid)
+        rings != nullptr && BodyRenderAssets::getRingTexture(rings) != util::TextureHandle::Invalid)
     {
-        m_textureManager->find(rings->texture);
+        m_textureManager->find(BodyRenderAssets::getRingTexture(rings));
     }
 }
 

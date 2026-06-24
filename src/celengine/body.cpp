@@ -19,14 +19,12 @@
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
 #include <celmath/mathlib.h>
-#include <celmath/ray.h>
 #include <celutil/gettext.h>
 #include "atmosphere.h"
+#include "bodylifecycle.h"
 #include "frame.h"
 #include "frametree.h"
-#include "geometry.h"
 #include "location.h"
-#include "meshmanager.h"
 #include "referencemark.h"
 #include "selection.h"
 #include "star.h"
@@ -36,7 +34,6 @@
 #include "univcoord.h"
 
 namespace astro = celestia::astro;
-namespace engine = celestia::engine;
 namespace numbers = celestia::numbers;
 namespace math = celestia::math;
 namespace util = celestia::util;
@@ -70,6 +67,7 @@ Body::Body(PlanetarySystem* _system, const std::string& _name) :
 
 Body::~Body()
 {
+    BodyLifecycleEvents::notifyDestroyed(this);
     auto bodyFeaturesManager = GetBodyFeaturesManager();
     bodyFeaturesManager->removeFeatures(this);
 }
@@ -91,9 +89,7 @@ Body::setDefaultProperties()
     temperature = 0.0f;
     emissivity = 1.0f;
     internalHeatFlux = 0.0f;
-    geometryOrientation = Eigen::Quaternionf::Identity();
-    geometry = engine::GeometryHandle::Invalid;
-    surface = Surface(Color::White);
+    BodyLifecycleEvents::notifyDefaultPropertiesReset(this);
     auto manager = GetBodyFeaturesManager();
     manager->setAtmosphere(this, nullptr);
     manager->setRings(this, nullptr);
@@ -291,7 +287,7 @@ Body::getRotationModel(double tdb) const
 float
 Body::getBoundingRadius() const
 {
-    if (geometry == engine::GeometryHandle::Invalid)
+    if (!BodyLifecycleEvents::hasShapeOverride(this))
         return radius;
 
     return radius * numbers::sqrt3_v<float>;
@@ -446,18 +442,6 @@ Body::setInternalHeatFlux(float _internalHeatFlux)
     internalHeatFlux = _internalHeatFlux;
 }
 
-Eigen::Quaternionf
-Body::getGeometryOrientation() const
-{
-    return geometryOrientation;
-}
-
-void
-Body::setGeometryOrientation(const Eigen::Quaternionf& orientation)
-{
-    geometryOrientation = orientation;
-}
-
 /*! Set the semiaxes of a body.
  */
 void
@@ -498,7 +482,7 @@ Body::getRadius() const
 bool
 Body::isSphere() const
 {
-    return (geometry == engine::GeometryHandle::Invalid) &&
+    return !BodyLifecycleEvents::hasShapeOverride(this) &&
            (semiAxes.x() == semiAxes.y()) &&
            (semiAxes.x() == semiAxes.z());
 }
@@ -509,40 +493,7 @@ Body::isSphere() const
 bool
 Body::isEllipsoid() const
 {
-    return geometry == engine::GeometryHandle::Invalid;
-}
-
-const
-Surface& Body::getSurface() const
-{
-    return surface;
-}
-
-Surface&
-Body::getSurface()
-{
-    return surface;
-}
-
-void
-Body::setSurface(const Surface& surf)
-{
-    surface = surf;
-}
-
-void
-Body::setGeometry(engine::GeometryHandle _geometry)
-{
-    geometry = _geometry;
-}
-
-/*! Set the scale factor for geometry; this is only used with unnormalized meshes.
- *  When a mesh is normalized, the effective scale factor is the radius.
- */
-void
-Body::setGeometryScale(float scale)
-{
-    geometryScale = scale;
+    return !BodyLifecycleEvents::hasShapeOverride(this);
 }
 
 PlanetarySystem*
@@ -1183,6 +1134,9 @@ BodyFeaturesManager::getRings(const Body* body) const
 void
 BodyFeaturesManager::setRings(Body* body, std::unique_ptr<RingSystem>&& ringSystem)
 {
+    if (auto it = rings.find(body); it != rings.end())
+        BodyLifecycleEvents::notifyRingRemoved(it->second.get());
+
     if (ringSystem == nullptr)
     {
         body->features &= ~BodyFeatures::Rings;
@@ -1236,55 +1190,6 @@ BodyFeaturesManager::setAtmosphere(Body* body, std::unique_ptr<Atmosphere>&& atm
     }
 
     body->recomputeCullingRadius();
-}
-
-Surface*
-BodyFeaturesManager::getAlternateSurface(const Body* body, std::string_view name) const
-{
-    if (!util::is_set(body->features, BodyFeatures::AlternateSurfaces))
-        return nullptr;
-
-    auto alternateSurfacesIt = alternateSurfaces.find(body);
-    assert(alternateSurfacesIt != alternateSurfaces.end());
-
-    auto altSurfaces = alternateSurfacesIt->second.get();
-    auto it = altSurfaces->find(name);
-    return it == altSurfaces->end() ? nullptr : it->second.get();
-}
-
-void
-BodyFeaturesManager::addAlternateSurface(Body* body, std::string_view name, std::unique_ptr<Surface>&& altSurface)
-{
-    if (altSurface == nullptr)
-    {
-        auto alternateSurfacesIt = alternateSurfaces.find(body);
-        if (alternateSurfacesIt == alternateSurfaces.end())
-            return;
-
-        auto& altSurfaces = *alternateSurfacesIt->second;
-        auto it = altSurfaces.find(name);
-        if (it == altSurfaces.end())
-            return;
-
-        altSurfaces.erase(it);
-        if (altSurfaces.empty())
-        {
-            alternateSurfaces.erase(alternateSurfacesIt);
-            body->features &= ~BodyFeatures::AlternateSurfaces;
-        }
-    }
-    else
-    {
-        auto [alternateSurfacesIt, createdNew] = alternateSurfaces.try_emplace(body);
-        if (createdNew)
-            alternateSurfacesIt->second = std::make_unique<AltSurfaceTable>();
-
-        // C++26 provides additional overloads that allow transparent key updates
-        // which would allow a small optimization in the case of replacing an
-        // existing alternate surface to avoid constructing the redundant string.
-        (*alternateSurfacesIt->second)[std::string(name)] = std::move(altSurface);
-        body->features |= BodyFeatures::AlternateSurfaces;
-    }
 }
 
 /*! Add a new reference mark.
@@ -1377,61 +1282,6 @@ BodyFeaturesManager::hasLocations(const Body* body) const
     return util::is_set(body->features, BodyFeatures::Locations);
 }
 
-// Compute the positions of locations on an irregular object using ray-mesh
-// intersections.  This is not automatically done when a location is added
-// because it would force the loading of all meshes for objects with
-// defined locations; on-demand (i.e. when the object becomes visible to
-// a user) loading of meshes is preferred.
-void
-BodyFeaturesManager::computeLocations(const Body* body, engine::GeometryManager& geometryManager)
-{
-    if (!util::is_set(body->features, BodyFeatures::Locations))
-        return;
-
-    auto it = locations.find(body);
-    assert(it != locations.end());
-
-    auto& bodyLocations = it->second;
-    if (bodyLocations.locationsComputed)
-        return;
-
-    bodyLocations.locationsComputed = true;
-
-    // No work to do if there's no mesh, or if the mesh cannot be loaded
-    auto geometry = body->getGeometry();
-    if (geometry == engine::GeometryHandle::Invalid)
-        return;
-
-    const Geometry* g = geometryManager.find(geometry);
-    if (g == nullptr)
-        return;
-
-    // TODO: Implement separate radius and bounding radius so that this hack is
-    // not necessary.
-    constexpr float boundingRadius = 2.0f;
-    auto radius = body->getRadius();
-    Eigen::Quaterniond orientation = body->getGeometryOrientation().cast<double>();
-    for (const auto& location : bodyLocations.locations)
-    {
-        Location* loc = location.get();
-        Eigen::Vector3f v = loc->getPosition();
-        float alt = v.norm() - radius;
-        if (alt > 0.1f * radius) // assume we don't have locations with height > 0.1*radius
-            continue;
-        if (alt != -radius)
-            v.normalize();
-        v *= boundingRadius;
-
-        Eigen::ParametrizedLine<double, 3> ray(v.cast<double>(), -v.cast<double>());
-        double t = 0.0;
-        if (g->pick(math::transformRay(ray, orientation), t))
-        {
-            v *= static_cast<float>((1.0 - t) * radius + alt);
-            loc->setPosition(v);
-        }
-    }
-}
-
 bool
 BodyFeaturesManager::getOrbitColor(const Body* body, Color& color) const
 {
@@ -1500,9 +1350,11 @@ BodyFeaturesManager::unsetCometTailColor(Body* body)
 void
 BodyFeaturesManager::removeFeatures(Body* body)
 {
+    if (auto it = rings.find(body); it != rings.end())
+        BodyLifecycleEvents::notifyRingRemoved(it->second.get());
+
     atmospheres.erase(body);
     rings.erase(body);
-    alternateSurfaces.erase(body);
     referenceMarks.erase(body);
     locations.erase(body);
     orbitColors.erase(body);

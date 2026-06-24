@@ -16,8 +16,6 @@
 #include <string_view>
 
 #include "deepskyobj.h"
-#include "meshmanager.h"
-#include "renderflags.h"
 
 namespace celestia::util
 {
@@ -28,16 +26,11 @@ class Nebula final : public DeepSkyObject
 {
 public:
     Nebula() = default;
+    ~Nebula() override;
 
     const char* getType() const override;
     void setType(const std::string&) override;
     std::string getDescription() const override;
-
-    RenderFlags getRenderMask() const override;
-    RenderLabels getLabelMask() const override;
-
-    void setGeometry(celestia::engine::GeometryHandle);
-    celestia::engine::GeometryHandle getGeometry() const;
 
     DeepSkyObjectType getObjType() const override;
 
@@ -57,10 +50,8 @@ public:
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override;
+                     const std::filesystem::path&) override;
 
 private:
-    celestia::engine::GeometryHandle geometry{ celestia::engine::GeometryHandle::Invalid };
     Type type{ Type::NotDefined };
 };

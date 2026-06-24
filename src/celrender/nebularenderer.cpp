@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <celengine/meshmanager.h>
 #include <celengine/nebula.h>
+#include <celengine/nebularenderassets.h>
 #include <celengine/rendcontext.h>
 #include <celengine/render.h>
 #include <celmath/geomutil.h>
@@ -76,7 +77,7 @@ void
 NebulaRenderer::renderNebula(const Object &obj) const
 {
     RenderGeometry *g = nullptr;
-    if (auto geometry = obj.nebula->getGeometry(); geometry != engine::GeometryHandle::Invalid)
+    if (auto geometry = NebulaRenderAssets::getGeometry(obj.nebula); geometry != engine::GeometryHandle::Invalid)
         g = m_renderer.getGeometryManager()->find(geometry);
     if (g == nullptr)
         return;

@@ -17,23 +17,17 @@
 #include <fmt/printf.h>
 
 #include <celengine/render.h>
-#include <celmath/ellipsoid.h>
-#include <celmath/intersect.h>
 #include <celmath/randutils.h>
-#include <celmath/ray.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include "globular.h"
 
 namespace astro = celestia::astro;
-namespace engine = celestia::engine;
 namespace math = celestia::math;
 namespace util = celestia::util;
 
 namespace
 {
-
-constexpr float kRadiusCorrection = 0.025f;
 
 unsigned int cSlot(float conc)
 {
@@ -77,29 +71,9 @@ DeepSkyObjectType Globular::getObjType() const
     return DeepSkyObjectType::Globular;
 }
 
-bool Globular::pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                    double& distanceToPicker,
-                    double& cosAngleToBoundCenter) const
-{
-    if (!isVisible())
-        return false;
-    /*
-     * The selection sphere should be slightly larger to compensate for the fact
-     * that blobs are considered points when globulars are built, but have size
-     * when they are drawn.
-     */
-    Eigen::Vector3d p = getPosition();
-    return math::testIntersection(math::transformRay(Eigen::ParametrizedLine<double, 3>(ray.origin() - p, ray.direction()),
-                                                     getOrientation().cast<double>().toRotationMatrix()),
-                                  math::Sphered(getRadius() * (1.0f + kRadiusCorrection)),
-                                  distanceToPicker,
-                                  cosAngleToBoundCenter);
-}
-
 bool
 Globular::loadDetails(const util::AssociativeArray* params,
-                      const std::filesystem::path&,
-                      engine::GeometryPaths&)
+                      const std::filesystem::path&)
 {
     if (auto detailVal = params->getNumber<float>("Detail"); detailVal.has_value())
         detail = *detailVal;
@@ -117,16 +91,6 @@ Globular::loadDetails(const util::AssociativeArray* params,
     recomputeTidalRadius();
 
     return true;
-}
-
-RenderFlags Globular::getRenderMask() const
-{
-    return RenderFlags::ShowGlobulars;
-}
-
-RenderLabels Globular::getLabelMask() const
-{
-    return RenderLabels::GlobularLabels;
 }
 
 void Globular::recomputeTidalRadius()

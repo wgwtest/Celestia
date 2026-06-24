@@ -16,13 +16,11 @@
 #include <fmt/format.h>
 
 #include <celastro/astro.h>
-#include <celmath/intersect.h>
-#include <celmath/sphere.h>
+#include <celmath/mathlib.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include <celutil/infourl.h>
 #include <celutil/logger.h>
-#include "meshmanager.h"
 #include "urlmanager.h"
 
 namespace astro = celestia::astro;
@@ -81,20 +79,8 @@ DeepSkyObject::getDescription() const
 }
 
 bool
-DeepSkyObject::pick(const Eigen::ParametrizedLine<double, 3>& ray,
-                    double& distanceToPicker,
-                    double& cosAngleToBoundCenter) const
-{
-    return isVisible() && math::testIntersection(ray,
-                                                 math::Sphered(position, static_cast<double>(radius)),
-                                                 distanceToPicker,
-                                                 cosAngleToBoundCenter);
-}
-
-bool
 DeepSkyObject::load(const util::AssociativeArray* params,
                     const std::filesystem::path& resPath,
-                    engine::GeometryPaths& geometryPaths,
                     std::string_view name,
                     engine::UrlManager& urlManager)
 {
@@ -131,7 +117,7 @@ DeepSkyObject::load(const util::AssociativeArray* params,
     if (auto clickableValue = params->getBoolean("Clickable"); clickableValue.has_value())
         setClickable(*clickableValue);
 
-    if (!loadDetails(params, resPath, geometryPaths))
+    if (!loadDetails(params, resPath))
         return false;
 
     if (const auto *infoUrlValue = params->getString("InfoURL"); infoUrlValue)

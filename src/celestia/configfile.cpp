@@ -218,7 +218,7 @@ applyRenderDetails(CelestiaConfig::RenderDetails& renderDetails, const Associati
 }
 
 void
-applyStarTextures(StarDetails::StarTextureSet& starTextures,
+applyStarTextures(StarRenderAssets::TextureSet& starTextures,
                   const AssociativeArray& hash,
                   std::string_view key,
                   engine::TexturePaths& texturePaths)

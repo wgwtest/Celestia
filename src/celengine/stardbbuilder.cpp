@@ -42,6 +42,7 @@
 #include "meshmanager.h"
 #include "octreebuilder.h"
 #include "stardb.h"
+#include "starrenderassets.h"
 #include "stellarclass.h"
 #include "urlmanager.h"
 
@@ -494,7 +495,7 @@ applyMesh(const StarDatabaseBuilder::StcHeader& header,
     }
 
     engine::GeometryHandle geometryHandle = geometryPaths.getHandle(*meshPath, *header.path);
-    StarDetails::setGeometry(details, geometryHandle);
+    StarRenderAssets::setGeometry(details, geometryHandle);
 }
 
 void
@@ -558,10 +559,10 @@ applyCustomDetails(const StarDatabaseBuilder::StcHeader& header,
         }
         else if (auto texturePath = util::U8FileName(*texture); texturePath.has_value())
         {
-            StarDetails::setTexture(details,
-                                    texturePaths.getHandle(*texturePath,
-                                                           *header.path,
-                                                           engine::TextureFlags::WrapTexture));
+            StarRenderAssets::setTexture(details,
+                                         texturePaths.getHandle(*texturePath,
+                                                                *header.path,
+                                                                engine::TextureFlags::WrapTexture));
         }
         else
         {

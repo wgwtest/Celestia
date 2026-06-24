@@ -14,7 +14,6 @@
 #include <Eigen/Geometry>
 
 #include "deepskyobj.h"
-#include "renderflags.h"
 
 class OpenCluster final : public DeepSkyObject
 {
@@ -24,13 +23,6 @@ public:
     const char* getType() const override;
     void setType(const std::string&) override;
     std::string getDescription() const override;
-
-    bool pick(const Eigen::ParametrizedLine<double, 3>& ray,
-              double& distanceToPicker,
-              double& cosAngleToBoundCenter) const override;
-
-    RenderFlags getRenderMask() const override;
-    RenderLabels getLabelMask() const override;
 
     DeepSkyObjectType getObjType() const override;
 
@@ -43,8 +35,7 @@ public:
 
 protected:
     bool loadDetails(const celestia::util::AssociativeArray*,
-                     const std::filesystem::path&,
-                     celestia::engine::GeometryPaths&) override
+                     const std::filesystem::path&) override
     {
         // nothing to load
         return true;

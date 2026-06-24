@@ -23,22 +23,19 @@
 #include <celengine/solarsys.h>
 #include <celengine/deepskyobj.h>
 #include <celengine/marker.h>
-#include <celengine/renderflags.h>
 #include <celengine/selection.h>
 #include <celengine/asterism.h>
 #include <celutil/array_view.h>
 
 namespace celestia::engine
 {
-class GeometryManager;
 class UrlManager;
 }
 
 class Universe
 {
 public:
-    Universe(const std::shared_ptr<celestia::engine::GeometryManager>&,
-             std::unique_ptr<celestia::engine::UrlManager>&&);
+    explicit Universe(std::unique_ptr<celestia::engine::UrlManager>&&);
     ~Universe();
 
     StarDatabase* getStarCatalog() const;
@@ -55,14 +52,6 @@ public:
 
     ConstellationBoundaries* getBoundaries() const;
     void setBoundaries(std::unique_ptr<ConstellationBoundaries>&&);
-
-    Selection pick(const UniversalCoord& origin,
-                   const Eigen::Vector3f& direction,
-                   double when,
-                   RenderFlags renderFlags,
-                   float faintestMag,
-                   float tolerance = 0.0f);
-
 
     Selection findPath(std::string_view s,
                        celestia::util::array_view<Selection> contexts,
@@ -111,33 +100,12 @@ private:
                                   std::string_view name,
                                   bool i18n = false) const;
 
-    Selection pickPlanet(const SolarSystem& solarSystem,
-                         const UniversalCoord& origin,
-                         const Eigen::Vector3f& direction,
-                         double when,
-                         float faintestMag,
-                         float tolerance) const;
-
-    Selection pickStar(const UniversalCoord& origin,
-                       const Eigen::Vector3f& direction,
-                       double when,
-                       float faintest,
-                       float tolerance = 0.0f) const;
-
-    Selection pickDeepSkyObject(const UniversalCoord& origin,
-                                const Eigen::Vector3f& direction,
-                                RenderFlags renderFlags,
-                                float faintest,
-                                float tolerance = 0.0f) const;
-
     std::unique_ptr<StarDatabase> starCatalog;
     std::unique_ptr<DSODatabase> dsoCatalog;
     std::unique_ptr<SolarSystemCatalog> solarSystemCatalog;
     std::unique_ptr<AsterismList> asterisms;
     std::unique_ptr<ConstellationBoundaries> boundaries;
-    std::shared_ptr<celestia::engine::GeometryManager> geometryManager;
     std::unique_ptr<celestia::engine::UrlManager> urlManager;
 
     celestia::MarkerList markers{ };
-    std::vector<const Star*> closeStars{ };
 };
