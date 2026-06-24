@@ -8,6 +8,8 @@ set(CELENGINE_SOURCES
   axisarrow.h
   body.cpp
   body.h
+  bodylifecycle.cpp
+  bodylifecycle.h
   bodylocationgeometryprojector.cpp
   bodylocationgeometryprojector.h
   bodyrenderassets.cpp

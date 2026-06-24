@@ -21,7 +21,7 @@
 #include <celmath/mathlib.h>
 #include <celutil/gettext.h>
 #include "atmosphere.h"
-#include "bodyrenderassets.h"
+#include "bodylifecycle.h"
 #include "frame.h"
 #include "frametree.h"
 #include "location.h"
@@ -34,7 +34,6 @@
 #include "univcoord.h"
 
 namespace astro = celestia::astro;
-namespace engine = celestia::engine;
 namespace numbers = celestia::numbers;
 namespace math = celestia::math;
 namespace util = celestia::util;
@@ -68,9 +67,9 @@ Body::Body(PlanetarySystem* _system, const std::string& _name) :
 
 Body::~Body()
 {
+    BodyLifecycleEvents::notifyDestroyed(this);
     auto bodyFeaturesManager = GetBodyFeaturesManager();
     bodyFeaturesManager->removeFeatures(this);
-    BodyRenderAssets::remove(this);
 }
 
 /*! Reset body attributes to their default values. The object hierarchy is left untouched,
@@ -90,7 +89,7 @@ Body::setDefaultProperties()
     temperature = 0.0f;
     emissivity = 1.0f;
     internalHeatFlux = 0.0f;
-    BodyRenderAssets::reset(this);
+    BodyLifecycleEvents::notifyDefaultPropertiesReset(this);
     auto manager = GetBodyFeaturesManager();
     manager->setAtmosphere(this, nullptr);
     manager->setRings(this, nullptr);
@@ -288,7 +287,7 @@ Body::getRotationModel(double tdb) const
 float
 Body::getBoundingRadius() const
 {
-    if (BodyRenderAssets::getGeometry(this) == engine::GeometryHandle::Invalid)
+    if (!BodyLifecycleEvents::hasShapeOverride(this))
         return radius;
 
     return radius * numbers::sqrt3_v<float>;
@@ -483,7 +482,7 @@ Body::getRadius() const
 bool
 Body::isSphere() const
 {
-    return (BodyRenderAssets::getGeometry(this) == engine::GeometryHandle::Invalid) &&
+    return !BodyLifecycleEvents::hasShapeOverride(this) &&
            (semiAxes.x() == semiAxes.y()) &&
            (semiAxes.x() == semiAxes.z());
 }
@@ -494,7 +493,7 @@ Body::isSphere() const
 bool
 Body::isEllipsoid() const
 {
-    return BodyRenderAssets::getGeometry(this) == engine::GeometryHandle::Invalid;
+    return !BodyLifecycleEvents::hasShapeOverride(this);
 }
 
 PlanetarySystem*
@@ -1136,7 +1135,7 @@ void
 BodyFeaturesManager::setRings(Body* body, std::unique_ptr<RingSystem>&& ringSystem)
 {
     if (auto it = rings.find(body); it != rings.end())
-        BodyRenderAssets::removeRing(it->second.get());
+        BodyLifecycleEvents::notifyRingRemoved(it->second.get());
 
     if (ringSystem == nullptr)
     {
@@ -1352,7 +1351,7 @@ void
 BodyFeaturesManager::removeFeatures(Body* body)
 {
     if (auto it = rings.find(body); it != rings.end())
-        BodyRenderAssets::removeRing(it->second.get());
+        BodyLifecycleEvents::notifyRingRemoved(it->second.get());
 
     atmospheres.erase(body);
     rings.erase(body);

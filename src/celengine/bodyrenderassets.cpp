@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include "body.h"
+#include "bodylifecycle.h"
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;
@@ -64,59 +65,94 @@ stateForRead(const Body* body)
     return it == states.end() ? defaultState() : it->second;
 }
 
+void
+ensureBodyLifecycleRegistration()
+{
+    static const bool registered = []()
+    {
+        BodyLifecycleEvents::addDestroyedCallback([](const Body* body)
+        {
+            BodyRenderAssets::remove(body);
+        });
+        BodyLifecycleEvents::addDefaultPropertiesResetCallback([](const Body* body)
+        {
+            BodyRenderAssets::reset(body);
+        });
+        BodyLifecycleEvents::addRingRemovedCallback([](const RingSystem* rings)
+        {
+            BodyRenderAssets::removeRing(rings);
+        });
+        BodyLifecycleEvents::addShapeOverrideQuery([](const Body* body)
+        {
+            return body != nullptr && stateForRead(body).geometry != engine::GeometryHandle::Invalid;
+        });
+        return true;
+    }();
+    (void)registered;
+}
+
 } // end unnamed namespace
 
 engine::GeometryHandle
 BodyRenderAssets::getGeometry(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     return stateForRead(body).geometry;
 }
 
 void
 BodyRenderAssets::setGeometry(const Body* body, engine::GeometryHandle geometry)
 {
+    ensureBodyLifecycleRegistration();
     stateFor(body).geometry = geometry;
 }
 
 Eigen::Quaternionf
 BodyRenderAssets::getGeometryOrientation(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     return stateForRead(body).geometryOrientation;
 }
 
 void
 BodyRenderAssets::setGeometryOrientation(const Body* body, const Eigen::Quaternionf& orientation)
 {
+    ensureBodyLifecycleRegistration();
     stateFor(body).geometryOrientation = orientation;
 }
 
 float
 BodyRenderAssets::getGeometryScale(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     return stateForRead(body).geometryScale;
 }
 
 void
 BodyRenderAssets::setGeometryScale(const Body* body, float scale)
 {
+    ensureBodyLifecycleRegistration();
     stateFor(body).geometryScale = scale;
 }
 
 const Surface&
 BodyRenderAssets::getSurface(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     return stateForRead(body).surface;
 }
 
 void
 BodyRenderAssets::setSurface(const Body* body, const Surface& surface)
 {
+    ensureBodyLifecycleRegistration();
     stateFor(body).surface = surface;
 }
 
 Surface*
 BodyRenderAssets::getAlternateSurface(const Body* body, std::string_view name)
 {
+    ensureBodyLifecycleRegistration();
     const auto& altSurfaces = stateForRead(body).alternateSurfaces;
     auto it = altSurfaces.find(name);
     return it == altSurfaces.end() ? nullptr : it->second.get();
@@ -125,6 +161,7 @@ BodyRenderAssets::getAlternateSurface(const Body* body, std::string_view name)
 void
 BodyRenderAssets::setAlternateSurface(const Body* body, std::string_view name, std::unique_ptr<Surface>&& surface)
 {
+    ensureBodyLifecycleRegistration();
     auto& altSurfaces = stateFor(body).alternateSurfaces;
     if (surface == nullptr)
     {
@@ -142,6 +179,7 @@ BodyRenderAssets::setAlternateSurface(const Body* body, std::string_view name, s
 std::vector<std::string>
 BodyRenderAssets::getAlternateSurfaceNames(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     std::vector<std::string> names;
     for (const auto& [name, surface] : stateForRead(body).alternateSurfaces)
         names.push_back(name);
@@ -151,6 +189,7 @@ BodyRenderAssets::getAlternateSurfaceNames(const Body* body)
 util::TextureHandle
 BodyRenderAssets::getRingTexture(const RingSystem* rings)
 {
+    ensureBodyLifecycleRegistration();
     auto& textures = ringTextures();
     auto it = textures.find(rings);
     return it == textures.end() ? util::TextureHandle::Invalid : it->second;
@@ -159,6 +198,7 @@ BodyRenderAssets::getRingTexture(const RingSystem* rings)
 void
 BodyRenderAssets::setRingTexture(const RingSystem* rings, util::TextureHandle texture)
 {
+    ensureBodyLifecycleRegistration();
     if (rings == nullptr)
         return;
 
@@ -168,17 +208,20 @@ BodyRenderAssets::setRingTexture(const RingSystem* rings, util::TextureHandle te
 void
 BodyRenderAssets::removeRing(const RingSystem* rings)
 {
+    ensureBodyLifecycleRegistration();
     ringTextures().erase(rings);
 }
 
 void
 BodyRenderAssets::reset(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     assetStates().erase(body);
 }
 
 void
 BodyRenderAssets::remove(const Body* body)
 {
+    ensureBodyLifecycleRegistration();
     assetStates().erase(body);
 }
