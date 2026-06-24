@@ -72,6 +72,17 @@ target_link_libraries(celestia-sdl PRIVATE imgui celestia)
 
 set_target_properties(celestia-sdl PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
+if(WIN32)
+  add_custom_command(
+    TARGET celestia-sdl
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:celestia>
+            $<TARGET_FILE_DIR:celestia-sdl>
+    COMMENT "Copying celestia shared library next to celestia-sdl"
+  )
+endif()
+
 if(MINGW)
   target_compile_definitions(celestia-sdl PRIVATE SDL_MAIN_HANDLED)
 endif()
