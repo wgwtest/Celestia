@@ -16,6 +16,7 @@
 
 #include <Eigen/Core>
 
+#include <celengine/bodyrenderassets.h>
 #include <celcompat/numbers.h>
 #include <celengine/body.h>
 #include <celengine/lightenv.h>
@@ -157,7 +158,7 @@ RingRenderer::renderRings(const RingSystem& rings,
 {
     float inner = rings.innerRadius / planetRadius;
     float outer = rings.outerRadius / planetRadius;
-    Texture* ringsTex = renderer.getTextureManager()->find(rings.texture);
+    Texture* ringsTex = renderer.getTextureManager()->find(BodyRenderAssets::getRingTexture(&rings));
 
     ShaderProperties shadprop = createShaderProperties(ls, ringsTex, renderShadow);
 

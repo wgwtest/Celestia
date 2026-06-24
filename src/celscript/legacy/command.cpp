@@ -16,6 +16,7 @@
 
 #include <celengine/asterism.h>
 #include <celengine/body.h>
+#include <celengine/bodyrenderassets.h>
 #include <celengine/dsodb.h>
 #include <celengine/galaxy.h>
 #include <celengine/imageoverlay.h>
@@ -1105,7 +1106,7 @@ void CommandSetRingsTexture::processInstantaneous(ExecutionEnvironment& env)
 
     auto rings = GetBodyFeaturesManager()->getRings(body);
     if (rings != nullptr)
-        rings->texture = env.getCelestiaCore()->getTexturePaths()->getHandle(textureName, path);
+        BodyRenderAssets::setRingTexture(rings, env.getCelestiaCore()->getTexturePaths()->getHandle(textureName, path));
 }
 
 } // end namespace celestia::scripts
