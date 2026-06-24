@@ -70,6 +70,13 @@ main(int argc, char **argv)
     if (!environment)
         return EXIT_FAILURE;
 
+    std::filesystem::path dataDir = getDataDir();
+
+    std::error_code ec;
+    std::filesystem::current_path(dataDir, ec);
+    if (ec)
+        return EXIT_FAILURE;
+
     auto celestiaCore = std::make_unique<CelestiaCore>();
     auto alerter = std::make_unique<celestia::sdl::Alerter>();
     celestiaCore->setAlerter(alerter.get());
@@ -78,13 +85,6 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
 
     if (!environment->setGLAttributes(celestiaCore->getConfig()->renderDetails.aaSamples))
-        return EXIT_FAILURE;
-
-    std::filesystem::path dataDir = getDataDir();
-
-    std::error_code ec;
-    std::filesystem::current_path(dataDir, ec);
-    if (ec)
         return EXIT_FAILURE;
 
     Settings settings = Settings::load(environment->getSettingsPath());
