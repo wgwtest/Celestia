@@ -79,4 +79,17 @@ TEST_CASE("deep sky model API does not require geometry path resources")
     CHECK_FALSE(contains(nebulaHeader, "GeometryPaths"));
 }
 
+TEST_CASE("scene view model does not depend on concrete renderer")
+{
+    const auto header = readSourceFile("src/celengine/sceneviewmodel.h");
+    const auto source = readSourceFile("src/celengine/sceneviewmodel.cpp");
+
+    CHECK_FALSE(contains(header, "Renderer"));
+    CHECK_FALSE(contains(header, "GeometryManager"));
+    CHECK_FALSE(contains(header, "TextureManager"));
+    CHECK_FALSE(contains(source, "Renderer"));
+    CHECK_FALSE(contains(source, "GeometryManager"));
+    CHECK_FALSE(contains(source, "TextureManager"));
+}
+
 TEST_SUITE_END();

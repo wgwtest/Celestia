@@ -127,6 +127,8 @@ set(CELENGINE_SOURCES
   selectiongeometryprovider.h
   selectionpicker.cpp
   selectionpicker.h
+  sceneviewmodel.cpp
+  sceneviewmodel.h
   selection.cpp
   selection.h
   shadermanager.cpp
