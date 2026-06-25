@@ -13,13 +13,21 @@ if(NOT DEPS_DEST_DIR)
   get_filename_component(DEPS_DEST_DIR "${DEPS_TARGET_FILE}" DIRECTORY)
 endif()
 
+set(deps_extra_dirs ${DEPS_EXTRA_DIRS})
+
+if(WIN32 AND DEFINED ENV{PATH})
+  file(TO_CMAKE_PATH "$ENV{PATH}" deps_path_dirs)
+  list(APPEND deps_extra_dirs ${deps_path_dirs})
+  list(REMOVE_DUPLICATES deps_extra_dirs)
+endif()
+
 file(GET_RUNTIME_DEPENDENCIES
   RESOLVED_DEPENDENCIES_VAR resolved_deps
   CONFLICTING_DEPENDENCIES_PREFIX conflicts
   PRE_EXCLUDE_REGEXES "^api-ms" "^ext-ms-"
   POST_EXCLUDE_REGEXES ".*system32/.*\\.dll$"
   EXECUTABLES "${DEPS_TARGET_FILE}"
-  DIRECTORIES "${DEPS_EXTRA_DIRS}"
+  DIRECTORIES ${deps_extra_dirs}
 )
 
 if(DEPS_COPY_TARGET)
