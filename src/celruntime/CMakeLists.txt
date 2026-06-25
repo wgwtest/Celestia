@@ -14,6 +14,11 @@ set(CELESTIA_RUNTIME_SOURCES
   protocol/payloadtype.h
   runtimeconfig.cpp
   runtimeconfig.h
+  transport/framedmessage.cpp
+  transport/framedmessage.h
+  transport/framedtransport.h
+  transport/stdiotransport.cpp
+  transport/stdiotransport.h
   runtimecomposition.cpp
   runtimecomposition.h
   viewadapterruntime.cpp
