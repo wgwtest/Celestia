@@ -3,6 +3,7 @@ set(CELESTIA_LIBS
   celastro
   celengine
   celephem
+  celruntime
   celestia
   celimage
   celmath

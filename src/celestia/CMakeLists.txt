@@ -78,6 +78,7 @@ set(CELESTIA_CORE_LIBS $<TARGET_OBJECTS:cel3ds>
                        $<TARGET_OBJECTS:celestia_controller>
                        $<TARGET_OBJECTS:celestia_view_adapter>
                        $<TARGET_OBJECTS:celestia_view3d>
+                       $<TARGET_OBJECTS:celestia_runtime>
                        $<TARGET_OBJECTS:celengine>
                        $<TARGET_OBJECTS:celephem>
                        $<TARGET_OBJECTS:celimage>
