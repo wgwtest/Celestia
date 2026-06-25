@@ -22,6 +22,8 @@ set(CELESTIA_RUNTIME_SOURCES
   process/hostprocess_win32.cpp
   process/processsupervisor.cpp
   process/processsupervisor.h
+  process/runtimesession.cpp
+  process/runtimesession.h
   runtimeconfig.cpp
   runtimeconfig.h
   transport/framedmessage.cpp
