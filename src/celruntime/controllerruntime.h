@@ -9,13 +9,23 @@
 
 #pragma once
 
+#include "controller/controllerservice.h"
+
 namespace celestia::runtime
 {
 
 class ControllerRuntime
 {
 public:
+    ControllerRuntime();
+
     bool isInitialized() const;
+
+    controller::ControllerService& service();
+    const controller::ControllerService& service() const;
+
+private:
+    controller::ControllerService service_;
 };
 
 } // namespace celestia::runtime

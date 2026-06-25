@@ -12,10 +12,24 @@
 namespace celestia::runtime
 {
 
+ControllerRuntime::ControllerRuntime() = default;
+
 bool
 ControllerRuntime::isInitialized() const
 {
     return true;
+}
+
+controller::ControllerService&
+ControllerRuntime::service()
+{
+    return service_;
+}
+
+const controller::ControllerService&
+ControllerRuntime::service() const
+{
+    return service_;
 }
 
 } // namespace celestia::runtime

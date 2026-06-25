@@ -1,4 +1,6 @@
 set(CELESTIA_RUNTIME_SOURCES
+  controller/controllerservice.cpp
+  controller/controllerservice.h
   controllerruntime.cpp
   controllerruntime.h
   ipc/channel.h
