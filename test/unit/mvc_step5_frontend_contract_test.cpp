@@ -49,7 +49,7 @@ TEST_CASE("SDL frontend parses runtime view selection")
     CHECK(contains(sdlMain, "<celruntime/runtimeconfig.h>"));
     CHECK(contains(sdlMain, "celestia::runtime::RuntimeConfig runtimeConfig"));
     CHECK(contains(sdlMain, "\"--view=\""));
-    CHECK(contains(sdlMain, "runtimeConfig.setSelectedViewId"));
+    CHECK(contains(sdlMain, "applyRuntimeConfigArgument(runtimeConfig"));
     CHECK(contains(sdlMain, "window->run(settings, runtimeConfig)"));
 }
 

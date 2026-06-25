@@ -7,14 +7,20 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+#include <array>
 #include <cerrno>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <utility>
 
 #include <celestia/celestiacore.h>
+#include <celruntime/ipc/message.h>
 #include <celruntime/runtimeconfig.h>
 #include <celutil/gettext.h>
 #include "alerter.h"
@@ -51,20 +57,148 @@ getDataDir()
     return CONFIG_DATA_DIR;
 }
 
-celestia::runtime::RuntimeConfig
-parseRuntimeConfig(int argc, char** argv)
+bool
+writeText(const std::filesystem::path& path, std::string_view text)
 {
-    celestia::runtime::RuntimeConfig runtimeConfig;
+    std::ofstream output(path);
+    if (!output.good())
+        return false;
+
+    output << text;
+    return true;
+}
+
+std::optional<std::string>
+readText(const std::filesystem::path& path)
+{
+    std::ifstream input(path);
+    if (!input.good())
+        return std::nullopt;
+
+    std::ostringstream buffer;
+    buffer << input.rdbuf();
+    return buffer.str();
+}
+
+std::string
+quotePath(const std::filesystem::path& path)
+{
+    return "\"" + path.string() + "\"";
+}
+
+std::filesystem::path
+runtimeHostDirectory(char* executablePath)
+{
+    return std::filesystem::absolute(executablePath)
+        .parent_path()
+        .parent_path()
+        .parent_path() / "celruntime";
+}
+
+bool
+runRuntimeHostHandshake(const std::filesystem::path& runtimeHostDir,
+                        std::string_view hostName,
+                        const celestia::runtime::RuntimeConfig& runtimeConfig)
+{
+#ifdef _WIN32
+    const auto executable = runtimeHostDir / (std::string(hostName) + ".exe");
+#else
+    const auto executable = runtimeHostDir / std::string(hostName);
+#endif
+    if (!std::filesystem::exists(executable))
+        return false;
+
+    const auto inputPath = std::filesystem::temp_directory_path() /
+        ("celestia-sdl-" + std::string(hostName) + ".in");
+    const auto outputPath = std::filesystem::temp_directory_path() /
+        ("celestia-sdl-" + std::string(hostName) + ".out");
+    const auto scriptPath = std::filesystem::temp_directory_path() /
+        ("celestia-sdl-" + std::string(hostName) + ".cmd");
+
+    const auto request = celestia::runtime::ipc::RuntimeMessage::command("runtime.handshake", "sdl");
+    if (!writeText(inputPath, celestia::runtime::ipc::serializeMessage(request)))
+        return false;
+
+    std::filesystem::remove(outputPath);
+
+#ifdef _WIN32
+    if (!writeText(scriptPath,
+                   "@echo off\n" +
+                       quotePath(executable) +
+                       " --stdio --protocol-version=1 --view=" +
+                       runtimeConfig.selectedViewId() +
+                       " --once < " + quotePath(inputPath) + " > " + quotePath(outputPath) + "\n" +
+                       "exit /b %ERRORLEVEL%\n"))
+    {
+        return false;
+    }
+
+    const auto command = "cmd.exe /d /c call " + quotePath(scriptPath);
+#else
+    const auto command =
+        quotePath(executable) +
+        " --stdio --protocol-version=1 --view=" +
+        runtimeConfig.selectedViewId() +
+        " --once < " + quotePath(inputPath) + " > " + quotePath(outputPath);
+#endif
+
+    if (std::system(command.c_str()) != 0)
+        return false;
+
+    const auto responseText = readText(outputPath);
+    if (!responseText.has_value())
+        return false;
+
+    const auto response = celestia::runtime::ipc::deserializeMessage(*responseText);
+    return response.has_value() &&
+           response->kind == celestia::runtime::ipc::MessageKind::Event &&
+           response->name == "runtime.ack";
+}
+
+bool
+runMultiProcessOnce(char* executablePath, const celestia::runtime::RuntimeConfig& runtimeConfig)
+{
+    if (!runtimeConfig.runOnce())
+        return false;
+
+    if (runtimeConfig.selectedViewId() != celestia::runtime::RuntimeConfig::Debug2DViewId)
+        return false;
+
+    const auto runtimeHostDir = runtimeHostDirectory(executablePath);
+    constexpr std::array<std::string_view, 3> hosts = {
+        "celestia-model-host",
+        "celestia-controller-host",
+        "celestia-view-host",
+    };
+
+    for (const auto host : hosts)
+    {
+        if (!runRuntimeHostHandshake(runtimeHostDir, host, runtimeConfig))
+            return false;
+    }
+
+    return true;
+}
+
+bool
+parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runtimeConfig)
+{
     constexpr std::string_view viewOption{ "--view=" };
+    constexpr std::string_view modeOption{ "--mvc-mode=" };
 
     for (int i = 1; i < argc; ++i)
     {
         std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
-        if (argument.compare(0, viewOption.size(), viewOption) == 0)
-            runtimeConfig.setSelectedViewId(std::string(argument.substr(viewOption.size())));
+        if ((argument.compare(0, viewOption.size(), viewOption) == 0 ||
+             argument.compare(0, modeOption.size(), modeOption) == 0 ||
+             argument == "--once") &&
+            !celestia::runtime::applyRuntimeConfigArgument(runtimeConfig, argument))
+        {
+            return false;
+        }
     }
 
-    return runtimeConfig;
+    return true;
 }
 
 }
@@ -90,7 +224,12 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
 
     std::filesystem::path dataDir = getDataDir();
-    celestia::runtime::RuntimeConfig runtimeConfig = parseRuntimeConfig(argc, argv);
+    celestia::runtime::RuntimeConfig runtimeConfig;
+    if (!parseRuntimeConfig(argc, argv, runtimeConfig))
+        return EXIT_FAILURE;
+
+    if (runtimeConfig.runtimeMode() == celestia::runtime::RuntimeMode::MultiProcess)
+        return runMultiProcessOnce(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
 
     std::error_code ec;
     std::filesystem::current_path(dataDir, ec);

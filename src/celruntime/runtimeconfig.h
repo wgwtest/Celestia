@@ -20,6 +20,7 @@ enum class RuntimeMode
 {
     InProcessDirect,
     InProcessChannel,
+    MultiProcess,
 };
 
 std::string_view runtimeModeName(RuntimeMode);
@@ -29,6 +30,7 @@ class RuntimeConfig
 {
 public:
     static constexpr std::string_view DefaultViewId{ "celestia.view3d.opengl" };
+    static constexpr std::string_view Debug2DViewId{ "celestia.view2d.debug" };
     static constexpr RuntimeMode DefaultRuntimeMode{ RuntimeMode::InProcessDirect };
 
     RuntimeConfig();
@@ -39,9 +41,15 @@ public:
     RuntimeMode runtimeMode() const;
     void setRuntimeMode(RuntimeMode);
 
+    bool runOnce() const;
+    void setRunOnce(bool);
+
 private:
     std::string m_selectedViewId;
     RuntimeMode m_runtimeMode;
+    bool m_runOnce;
 };
+
+bool applyRuntimeConfigArgument(RuntimeConfig&, std::string_view);
 
 } // namespace celestia::runtime

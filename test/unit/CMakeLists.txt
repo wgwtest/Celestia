@@ -14,6 +14,7 @@ set(UNIT_TEST_SOURCES
   mvc_step5_frontend_contract_test.cpp
   mvc_step5_forwarding_header_removal_test.cpp
   mvc_step5_ipc_contract_test.cpp
+  mvc_step5_process_mode_test.cpp
   mvc_step5_process_contract_test.cpp
   mvc_step5_runtime_contract_test.cpp
   mvc_step5_view_frame_test.cpp
