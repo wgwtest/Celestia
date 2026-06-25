@@ -72,6 +72,8 @@ if(ENABLE_MINIAUDIO)
   )
 endif()
 
+add_subdirectory(viewproviders)
+
 set(CELESTIA_CORE_LIBS $<TARGET_OBJECTS:cel3ds>
                        $<TARGET_OBJECTS:celastro>
                        $<TARGET_OBJECTS:celestia_model>
@@ -79,6 +81,7 @@ set(CELESTIA_CORE_LIBS $<TARGET_OBJECTS:cel3ds>
                        $<TARGET_OBJECTS:celestia_view_adapter>
                        $<TARGET_OBJECTS:celestia_view3d>
                        $<TARGET_OBJECTS:celestia_runtime>
+                       $<TARGET_OBJECTS:celestia_viewproviders>
                        $<TARGET_OBJECTS:celengine>
                        $<TARGET_OBJECTS:celephem>
                        $<TARGET_OBJECTS:celimage>
