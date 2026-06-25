@@ -10,6 +10,7 @@
 #include "runtimehostcommon.h"
 
 #include "runtimehostloop.h"
+#include "view3dhostloop.h"
 
 #include <istream>
 #include <optional>
@@ -159,6 +160,14 @@ runRuntimeHost(std::string_view role,
 
     if (options->serve)
     {
+        if (role == "view3d")
+        {
+            auto sessionId = options->sessionId;
+            if (sessionId.empty())
+                sessionId = "default";
+            return runRuntimeView3DHostLoop(std::move(sessionId), input, output, error);
+        }
+
         const auto roleValue = runtimeRoleFromHostRole(role);
         if (!roleValue.has_value())
             return fail(error, "unknown runtime host role");

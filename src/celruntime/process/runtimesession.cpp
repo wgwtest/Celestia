@@ -24,6 +24,9 @@
 
 #include <celruntime/protocol/envelope.h>
 #include <celruntime/protocol/lifecycle.h>
+#include <celruntime/protocol/sceneprotocol.h>
+#include <celruntime/protocol/viewinput.h>
+#include <celruntime/runtimeconfig.h>
 
 namespace celestia::runtime::process
 {
@@ -138,11 +141,38 @@ makeHost(RuntimeRole role, std::string name, std::string executableName)
 }
 
 bool
+usesSceneFrame(std::string_view viewId)
+{
+    return viewId == runtime::RuntimeConfig::DefaultViewId ||
+           viewId == "celestia.view3d.opengl";
+}
+
+std::string
+viewExecutableName(std::string_view viewId)
+{
+    return usesSceneFrame(viewId) ? "celestia-view3d-host" : "celestia-view-host";
+}
+
+std::string
+controllerTickPayload(int tick, const RuntimeSessionOptions& options)
+{
+    auto payload = "tick=" + std::to_string(tick);
+    if (usesSceneFrame(options.viewId))
+    {
+        payload += ";view=" + options.viewId;
+        payload += ";dt=" + std::to_string(std::max(options.tickMilliseconds, 1) / 1000.0);
+    }
+
+    return payload;
+}
+
+bool
 startHost(RuntimeHost& host,
           const RuntimeSessionOptions& options,
           std::ostringstream& log)
 {
     const auto executable = hostExecutable(options.runtimeHostDirectory, host.executableName);
+    appendLogLine(log, host.name + " executable=" + host.executableName);
     if (!std::filesystem::exists(executable))
     {
         appendLogLine(log, host.name + " executable missing: " + executable.string());
@@ -208,6 +238,95 @@ receive(RuntimeHost& host, std::chrono::milliseconds timeout, std::ostringstream
     return message;
 }
 
+std::optional<RuntimeEnvelope>
+receiveAvailable(RuntimeHost& host)
+{
+    if (host.process == nullptr)
+        return std::nullopt;
+
+    return host.process->receive(std::chrono::milliseconds(0));
+}
+
+bool
+routePendingViewInputs(RuntimeHost& view,
+                       RuntimeHost& controller,
+                       RuntimeHost& model,
+                       RuntimeSessionResult& result,
+                       std::chrono::milliseconds timeout,
+                       std::ostringstream& log,
+                       bool& shutdownRequested)
+{
+    constexpr int MaxInputsPerFrame = 64;
+
+    for (int routed = 0; routed < MaxInputsPerFrame; ++routed)
+    {
+        const auto viewMessage = receiveAvailable(view);
+        if (!viewMessage.has_value())
+            return true;
+
+        if (viewMessage->kind == RuntimeMessageKind::Error)
+        {
+            appendLogLine(log, "view runtime.error name=" + viewMessage->name +
+                " payload=" + viewMessage->payload);
+            return false;
+        }
+
+        if (viewMessage->kind != RuntimeMessageKind::Event ||
+            viewMessage->name != protocol::ViewInputMessageName)
+        {
+            appendLogLine(log, "view returned unexpected " + viewMessage->name);
+            return false;
+        }
+
+        if (!send(controller, *viewMessage, log))
+            return false;
+
+        const auto controllerMessage = receive(controller, timeout, log);
+        if (!controllerMessage.has_value())
+            return false;
+
+        if (controllerMessage->targetRole == RuntimeRole::Broadcast &&
+            controllerMessage->kind == RuntimeMessageKind::Lifecycle &&
+            controllerMessage->name == protocol::RuntimeShutdown)
+        {
+            ++result.viewInputCount;
+            shutdownRequested = true;
+            appendLogLine(log, "view.input requested shutdown");
+            return true;
+        }
+
+        if (controllerMessage->targetRole != RuntimeRole::Model ||
+            controllerMessage->kind != RuntimeMessageKind::Command ||
+            controllerMessage->name != "model.setViewInput")
+        {
+            appendLogLine(log, "controller routed unexpected " + controllerMessage->name +
+                " to " + std::string(shortRoleName(controllerMessage->targetRole)));
+            return false;
+        }
+
+        if (!send(model, *controllerMessage, log))
+            return false;
+
+        const auto modelMessage = receive(model, timeout, log);
+        if (!modelMessage.has_value())
+            return false;
+
+        if (modelMessage->targetRole != RuntimeRole::View ||
+            modelMessage->kind != RuntimeMessageKind::ViewFrame ||
+            modelMessage->name != protocol::SceneFrameMessageName)
+        {
+            appendLogLine(log, "model routed unexpected " + modelMessage->name +
+                " to " + std::string(shortRoleName(modelMessage->targetRole)));
+            return false;
+        }
+
+        ++result.viewInputCount;
+    }
+
+    appendLogLine(log, "view.input route limit reached");
+    return false;
+}
+
 bool
 expectLifecycle(RuntimeHost& host,
                 std::string_view expectedName,
@@ -237,7 +356,8 @@ consumeStartup(RuntimeHost& host,
     if (!message.has_value())
         return false;
 
-    if (message->kind != RuntimeMessageKind::Lifecycle)
+    if (message->kind != RuntimeMessageKind::Lifecycle &&
+        !(message->kind == RuntimeMessageKind::Event && message->name == "view.ready3d"))
     {
         appendLogLine(log, host.name + " expected startup lifecycle but received " + message->name);
         return false;
@@ -345,7 +465,8 @@ RuntimeSession::run()
 
     auto controller = makeHost(RuntimeRole::Controller, "controller", "celestia-controller-host");
     auto model = makeHost(RuntimeRole::Model, "model", "celestia-model-host");
-    auto view = makeHost(RuntimeRole::View, "view", "celestia-view-host");
+    auto view = makeHost(RuntimeRole::View, "view", viewExecutableName(options_.viewId));
+    const auto sceneFrameMode = usesSceneFrame(options_.viewId);
 
     if (!startHost(controller, options_, log) ||
         !startHost(model, options_, log) ||
@@ -398,12 +519,14 @@ RuntimeSession::run()
 
     const auto tickCount = tickCountForDuration(options_.durationMilliseconds, options_.tickMilliseconds);
     const auto tickTimeout = std::chrono::milliseconds(std::max(options_.tickMilliseconds * 10, 100));
+    int renderedFrameCount = 0;
+    bool shutdownRequested = false;
     for (int tick = 0; tick < tickCount; ++tick)
     {
         const auto tickMessage = command(RuntimeRole::Launcher,
                                          RuntimeRole::Controller,
                                          options_.controllerTickCommandName,
-                                         "tick=" + std::to_string(tick),
+                                         controllerTickPayload(tick, options_),
                                          sequenceId++,
                                          options_.sessionId);
         if (!send(controller, tickMessage, log))
@@ -428,9 +551,13 @@ RuntimeSession::run()
         if (!modelMessage.has_value())
             break;
 
+        const auto expectedFrameName = sceneFrameMode
+            ? std::string(protocol::SceneFrameMessageName)
+            : std::string("view.frame");
+
         if (modelMessage->targetRole != RuntimeRole::View ||
             modelMessage->kind != RuntimeMessageKind::ViewFrame ||
-            modelMessage->name != "view.frame")
+            modelMessage->name != expectedFrameName)
         {
             appendLogLine(log, "model routed unexpected " + modelMessage->name +
                 " to " + std::string(shortRoleName(modelMessage->targetRole)));
@@ -439,6 +566,29 @@ RuntimeSession::run()
 
         if (!send(view, *modelMessage, log))
             break;
+
+        if (sceneFrameMode)
+        {
+            const auto viewMessage = receive(view, tickTimeout, log);
+            if (!viewMessage.has_value())
+                break;
+
+            if (viewMessage->kind != RuntimeMessageKind::Event ||
+                viewMessage->name != "view.frameRendered")
+            {
+                appendLogLine(log, "view returned unexpected " + viewMessage->name);
+                break;
+            }
+
+            ++renderedFrameCount;
+            if (!routePendingViewInputs(view, controller, model, result, tickTimeout,
+                                        log, shutdownRequested))
+            {
+                break;
+            }
+            if (shutdownRequested)
+                break;
+        }
 
         ++result.tickCount;
         ++result.viewFrameCount;
@@ -458,7 +608,16 @@ RuntimeSession::run()
     }
 
     appendLogLine(log, "tick count=" + std::to_string(result.tickCount));
-    appendLogLine(log, "view.frame count=" + std::to_string(result.viewFrameCount));
+    if (sceneFrameMode)
+    {
+        appendLogLine(log, "scene.frame count=" + std::to_string(result.viewFrameCount));
+        appendLogLine(log, "view.frameRendered count=" + std::to_string(renderedFrameCount));
+        appendLogLine(log, "view.input routed count=" + std::to_string(result.viewInputCount));
+    }
+    else
+    {
+        appendLogLine(log, "view.frame count=" + std::to_string(result.viewFrameCount));
+    }
     appendLogLine(log, "heartbeat count=" + std::to_string(result.heartbeatCount));
 
     const auto controllerStopped = shutdownHost(controller, result, sequenceId, options_, log);
@@ -472,7 +631,8 @@ RuntimeSession::run()
                      result.controllerStopped && result.modelStopped && result.viewStopped &&
                      result.controllerExitCode == 0 && result.modelExitCode == 0 &&
                      result.viewExitCode == 0 && result.tickCount == tickCount &&
-                     result.viewFrameCount == tickCount;
+                     result.viewFrameCount == tickCount &&
+                     (!sceneFrameMode || renderedFrameCount == tickCount);
     result.log = log.str();
     return result;
 }

@@ -9,6 +9,8 @@
 
 #include "modelservice.h"
 
+#include "sceneextractor.h"
+
 #include <array>
 #include <cctype>
 #include <cstdint>
@@ -22,6 +24,7 @@
 #include <utility>
 
 #include <celruntime/protocol/lifecycle.h>
+#include <celruntime/protocol/sceneprotocol.h>
 #include <celruntime/viewframecodec.h>
 
 namespace celestia::runtime::model
@@ -174,6 +177,25 @@ parseBool(std::string_view text)
     return text == "true" || text == "1" || text == "yes";
 }
 
+bool
+wantsSceneFrame(const std::unordered_map<std::string, std::string>& payload)
+{
+    if (const auto format = payload.find("format"); format != payload.end())
+    {
+        if (format->second == "scene" || format->second == "scene.frame")
+            return true;
+    }
+
+    if (const auto view = payload.find("view"); view != payload.end())
+    {
+        return view->second == "celestia.view3d.opengl" ||
+               view->second == "view3d" ||
+               view->second == "3d";
+    }
+
+    return false;
+}
+
 std::string
 formatDouble(double value)
 {
@@ -323,6 +345,26 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
 }
 
 RuntimeEnvelope
+ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
+{
+    const auto snapshot = backend_ == nullptr ? ViewFrame{} : backend_->snapshot();
+    auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
+                                   snapshot);
+    if (!lastViewInputAction_.empty())
+        frame.labels.push_back("input:" + lastViewInputAction_);
+
+    auto response = protocol::sceneFrameEnvelope(frame, RuntimeRole::Model, RuntimeRole::View);
+    response.targetRole = RuntimeRole::View;
+    return response;
+}
+
+void
+ModelService::rememberViewInput(std::string action)
+{
+    lastViewInputAction_ = std::move(action);
+}
+
+RuntimeEnvelope
 ModelService::handle(const RuntimeEnvelope& request)
 {
     if (request.kind == RuntimeMessageKind::Lifecycle)
@@ -394,11 +436,30 @@ ModelService::handle(const RuntimeEnvelope& request)
 
         if (running_ && !paused_ && backend_ != nullptr)
             backend_->step(*dt * timeScale_);
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
         return viewFrameResponse(request);
     }
 
+    if (request.name == "model.requestSceneFrame")
+        return sceneFrameResponse(request);
+
+    if (request.name == "model.setViewInput")
+    {
+        const auto action = payload.find("action");
+        if (action == payload.end() || action->second.empty())
+            return errorResponse(request, "model.setViewInput requires action");
+
+        rememberViewInput(action->second);
+        return sceneFrameResponse(request);
+    }
+
     if (request.name == "model.requestSnapshot")
+    {
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
         return viewFrameResponse(request);
+    }
 
     return errorResponse(request, "unknown model command: " + request.name);
 }

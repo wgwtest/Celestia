@@ -31,6 +31,11 @@ set(UNIT_TEST_SOURCES
   mvc_step7_runtime_stability_test.cpp
   mvc_step7_sdl_runtime_test.cpp
   mvc_step7_supervisor_resilience_test.cpp
+  mvc_step8_scene_extractor_test.cpp
+  mvc_step8_scene_protocol_test.cpp
+  mvc_step8_runtime_session_3d_test.cpp
+  mvc_step8_view3d_host_test.cpp
+  mvc_step8_view3d_input_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
@@ -48,6 +53,14 @@ endif()
 
 test_case(unit "${UNIT_TEST_SOURCES}")
 
+target_sources(unit PRIVATE
+  "${PROJECT_SOURCE_DIR}/src/celruntime/process/view3dhostloop.cpp"
+)
+
 if(TARGET celestia-model-host AND TARGET celestia-controller-host AND TARGET celestia-view-host)
   add_dependencies(unit celestia-model-host celestia-controller-host celestia-view-host)
+endif()
+
+if(TARGET celestia-view3d-host)
+  add_dependencies(unit celestia-view3d-host)
 endif()

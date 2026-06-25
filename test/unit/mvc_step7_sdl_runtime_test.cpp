@@ -100,7 +100,8 @@ TEST_CASE("SDL multi-process serve uses live runtime with file fallback")
     CHECK(contains(supervisorHeader, "runRuntime() const"));
     CHECK(contains(sdlMain, "runRuntime()"));
     CHECK(contains(sdlMain, "stdio-files"));
-    CHECK(contains(sdlMain, "3D View processization is Step8"));
+    CHECK(contains(sdlMain, "sdl-step8-serve"));
+    CHECK_FALSE(contains(sdlMain, "multi-process serve currently supports"));
 }
 
 TEST_SUITE_END();

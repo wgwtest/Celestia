@@ -42,6 +42,7 @@ struct RuntimeSessionResult
     int viewExitCode{ -1 };
     int tickCount{ 0 };
     int viewFrameCount{ 0 };
+    int viewInputCount{ 0 };
     int heartbeatCount{ 0 };
     bool terminatedHost{ false };
     std::string log;

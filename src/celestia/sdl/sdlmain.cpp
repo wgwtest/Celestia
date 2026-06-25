@@ -188,19 +188,15 @@ runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfi
     if (!runtimeConfig.serve())
         return false;
 
-    if (runtimeConfig.selectedViewId() != celestia::runtime::RuntimeConfig::Debug2DViewId)
-    {
-        std::cerr << "3D View processization is Step8; multi-process serve currently supports "
-                     "celestia.view2d.debug only.\n";
-        return false;
-    }
-
     celestia::runtime::process::ProcessSupervisorOptions options;
     options.runtimeHostDirectory = runtimeHostDirectory(executablePath);
     options.viewId = runtimeConfig.selectedViewId();
     options.durationMilliseconds = runtimeConfig.durationMilliseconds();
     options.hostTransport = std::string(runtimeConfig.hostTransport());
-    options.sessionId = options.hostTransport == "stdio-files" ? "sdl-step6-serve" : "sdl-step7-serve";
+    if (options.viewId == celestia::runtime::RuntimeConfig::DefaultViewId)
+        options.sessionId = "sdl-step8-serve";
+    else
+        options.sessionId = options.hostTransport == "stdio-files" ? "sdl-step6-serve" : "sdl-step7-serve";
 
     celestia::runtime::process::ProcessSupervisor supervisor(options);
     const auto result = options.hostTransport == "stdio-files"

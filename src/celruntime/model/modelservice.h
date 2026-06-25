@@ -44,11 +44,14 @@ private:
     protocol::RuntimeEnvelope errorResponse(const protocol::RuntimeEnvelope& request,
                                             std::string message) const;
     protocol::RuntimeEnvelope viewFrameResponse(const protocol::RuntimeEnvelope& request) const;
+    protocol::RuntimeEnvelope sceneFrameResponse(const protocol::RuntimeEnvelope& request) const;
+    void rememberViewInput(std::string action);
 
     std::string sessionId_;
     bool running_{ false };
     bool paused_{ false };
     double timeScale_{ 1.0 };
+    std::string lastViewInputAction_;
     std::unique_ptr<SimulationBackend> backend_;
 };
 

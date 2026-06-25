@@ -11,12 +11,18 @@ set(CELESTIA_RUNTIME_SOURCES
   model/modelservice.cpp
   model/modelservice.h
   model/modelsnapshot.h
+  model/sceneextractor.cpp
+  model/sceneextractor.h
   modelruntime.cpp
   modelruntime.h
   protocol/envelope.cpp
   protocol/envelope.h
   protocol/lifecycle.h
   protocol/payloadtype.h
+  protocol/sceneprotocol.cpp
+  protocol/sceneprotocol.h
+  protocol/viewinput.cpp
+  protocol/viewinput.h
   process/hostprocess.cpp
   process/hostprocess.h
   process/hostprocess_win32.cpp
@@ -33,6 +39,8 @@ set(CELESTIA_RUNTIME_SOURCES
   transport/stdiotransport.h
   runtimecomposition.cpp
   runtimecomposition.h
+  view3d/view3dhost.cpp
+  view3d/view3dhost.h
   viewadapterruntime.cpp
   viewadapterruntime.h
   view/viewservice.cpp
@@ -53,6 +61,8 @@ set(CELESTIA_RUNTIME_HOST_COMMON_SOURCES
   process/runtimehostcommon.h
   process/runtimehostloop.cpp
   process/runtimehostloop.h
+  process/view3dhostloop.cpp
+  process/view3dhostloop.h
 )
 
 add_executable(celestia-model-host
@@ -72,3 +82,22 @@ add_executable(celestia-view-host
   ${CELESTIA_RUNTIME_HOST_COMMON_SOURCES}
   $<TARGET_OBJECTS:celestia_runtime>
 )
+
+add_executable(celestia-view3d-host
+  process/view3dhostmain.cpp
+  ${CELESTIA_RUNTIME_HOST_COMMON_SOURCES}
+  $<TARGET_OBJECTS:celestia_runtime>
+)
+
+if(ENABLE_SDL)
+  find_package(SDL2 CONFIG REQUIRED)
+  target_sources(celestia-view3d-host PRIVATE
+    view3d/view3dloop.cpp
+    view3d/view3dloop.h
+  )
+  target_compile_definitions(celestia-view3d-host PRIVATE CELESTIA_RUNTIME_VIEW3D_SDL)
+  target_link_libraries(celestia-view3d-host PRIVATE SDL2::SDL2main SDL2::SDL2)
+  if(TARGET OpenGL::GL)
+    target_link_libraries(celestia-view3d-host PRIVATE OpenGL::GL)
+  endif()
+endif()

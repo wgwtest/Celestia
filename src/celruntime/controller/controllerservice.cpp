@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <celruntime/protocol/lifecycle.h>
+#include <celruntime/protocol/viewinput.h>
 
 namespace celestia::runtime::controller
 {
@@ -50,6 +51,18 @@ parsePayload(std::string_view payload)
     }
 
     return fields;
+}
+
+std::string
+serializeModelInputCommand(const protocol::ViewInputEvent& input)
+{
+    return "action=" + input.action +
+           ";key=" + input.key +
+           ";pointerX=" + std::to_string(input.pointer[0]) +
+           ";pointerY=" + std::to_string(input.pointer[1]) +
+           ";wheelX=" + std::to_string(input.wheel[0]) +
+           ";wheelY=" + std::to_string(input.wheel[1]) +
+           ";modifiers=" + input.modifiers;
 }
 
 RuntimeEnvelope
@@ -126,10 +139,39 @@ ControllerService::handle(const RuntimeEnvelope& request)
     }
 
     if (request.kind == RuntimeMessageKind::Command && request.name == "controller.tick")
+    {
+        const auto fields = parsePayload(request.payload);
+        const auto view = fields.find("view");
+        if (view != fields.end() && view->second == "celestia.view3d.opengl")
+        {
+            const auto dt = fields.find("dt");
+            auto payload = std::string("dt=") + (dt == fields.end() ? "0.125" : dt->second);
+            payload += ";view=celestia.view3d.opengl";
+            return { commandToModel(request, "model.step", std::move(payload)) };
+        }
+
         return { commandToModel(request, "model.requestSnapshot") };
+    }
 
     if (request.kind != RuntimeMessageKind::Event)
         return { errorResponse(request, "controller service expects input events or controller commands") };
+
+    if (request.name == protocol::ViewInputMessageName)
+    {
+        const auto input = protocol::deserializeViewInputEvent(request.payload);
+        if (!input.has_value())
+            return { errorResponse(request, "invalid view.input payload") };
+
+        if (input->action == "Quit")
+        {
+            auto shutdown = makeEnvelope(request, RuntimeRole::Broadcast, RuntimeMessageKind::Lifecycle,
+                                         protocol::RuntimeShutdown);
+            shutdown.sequenceId = request.sequenceId;
+            return { shutdown };
+        }
+
+        return { commandToModel(request, "model.setViewInput", serializeModelInputCommand(*input)) };
+    }
 
     if (request.name == "input.key")
     {
