@@ -205,7 +205,8 @@ shared memory 高吞吐数据面已经完成。
 后续 Step7 / Step8 / Step9 必须复用本协议：
 
 ```text
-Step7: 3D View 进程化时，View 进程持有窗口、OpenGL context 和 GPU 资源；Model 只发送 scene/view state。
-Step8: View 插件 ABI / DLL hot reload 只能挂在协议和 runtime 装配层之后，不能让插件反向依赖 Model 内部对象。
-Step9: shared memory 只作为数据面扩展，控制面仍使用 RuntimeEnvelope lifecycle / command / event。
+Step7: 长期 IPC + ProcessSupervisor runtime 化，live stdio pipe 作为本机长期 IPC 第一实现。
+Step8: 3D View 进程化时，View 进程持有窗口、OpenGL context 和 GPU 资源；Model 只发送 scene/view state。
+Step9: View 插件 ABI / DLL hot reload 只能挂在协议和 runtime 装配层之后，不能让插件反向依赖 Model 内部对象。
+Step10: shared memory 只作为数据面扩展，控制面仍使用 RuntimeEnvelope lifecycle / command / event。
 ```
