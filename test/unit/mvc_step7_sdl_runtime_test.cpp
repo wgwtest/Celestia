@@ -50,8 +50,8 @@ TEST_CASE("RuntimeConfig accepts Step7 host transport names")
     celestia::runtime::RuntimeConfig config;
     CHECK(config.hostTransport() == "stdio-pipe");
 
-    CHECK(celestia::runtime::applyRuntimeConfigArgument(config, "--host-transport=stdio-files"));
-    CHECK(config.hostTransport() == "stdio-files");
+    CHECK_FALSE(celestia::runtime::applyRuntimeConfigArgument(config, "--host-transport=stdio-files"));
+    CHECK(config.hostTransport() == "stdio-pipe");
 
     CHECK(celestia::runtime::applyRuntimeConfigArgument(config, "--host-transport=stdio"));
     CHECK(config.hostTransport() == "stdio-pipe");
@@ -87,7 +87,7 @@ TEST_CASE("ProcessSupervisor runs live runtime through stdio-pipe")
 #endif
 }
 
-TEST_CASE("SDL multi-process serve uses live runtime with file fallback")
+TEST_CASE("SDL multi-process serve uses live runtime without file fallback")
 {
     const auto runtimeHeader = readSourceFile("src/celruntime/runtimeconfig.h");
     const auto runtimeSource = readSourceFile("src/celruntime/runtimeconfig.cpp");
@@ -96,11 +96,13 @@ TEST_CASE("SDL multi-process serve uses live runtime with file fallback")
 
     CHECK(contains(runtimeHeader, "setHostTransport"));
     CHECK(contains(runtimeSource, "stdio-pipe"));
-    CHECK(contains(runtimeSource, "stdio-files"));
     CHECK(contains(supervisorHeader, "runRuntime() const"));
     CHECK(contains(sdlMain, "runRuntime()"));
-    CHECK(contains(sdlMain, "stdio-files"));
     CHECK(contains(sdlMain, "sdl-step8-serve"));
+    CHECK_FALSE(contains(runtimeSource, "stdio-files"));
+    CHECK_FALSE(contains(supervisorHeader, "runServeSmoke"));
+    CHECK_FALSE(contains(sdlMain, "stdio-files"));
+    CHECK_FALSE(contains(sdlMain, "sdl-step6-serve"));
     CHECK_FALSE(contains(sdlMain, "multi-process serve currently supports"));
 }
 

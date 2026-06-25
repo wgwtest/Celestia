@@ -296,12 +296,6 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
             return true;
         }
 
-        if (transport == "stdio-files")
-        {
-            config.setHostTransport("stdio-files");
-            return true;
-        }
-
         if (transport == "local-socket" || transport == "local_socket")
         {
             config.setHostTransport("local-socket");

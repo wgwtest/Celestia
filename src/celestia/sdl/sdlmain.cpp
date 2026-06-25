@@ -200,12 +200,10 @@ runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfi
     if (options.viewId == celestia::runtime::RuntimeConfig::DefaultViewId)
         options.sessionId = "sdl-step8-serve";
     else
-        options.sessionId = options.hostTransport == "stdio-files" ? "sdl-step6-serve" : "sdl-step7-serve";
+        options.sessionId = "sdl-step7-serve";
 
     celestia::runtime::process::ProcessSupervisor supervisor(options);
-    const auto result = options.hostTransport == "stdio-files"
-        ? supervisor.runServeSmoke()
-        : supervisor.runRuntime();
+    const auto result = supervisor.runRuntime();
     std::cout << result.log;
     return result.success;
 }

@@ -45,25 +45,25 @@ contains(std::string_view text, std::string_view token)
 
 TEST_SUITE_BEGIN("MVC Step6 multi-process runtime");
 
-TEST_CASE("ProcessSupervisor runs a three-host serve smoke")
+TEST_CASE("ProcessSupervisor runs a three-host runtime smoke")
 {
     celestia::runtime::process::ProcessSupervisorOptions options;
     options.runtimeHostDirectory = buildRoot() / "src" / "celruntime";
     options.viewId = std::string(celestia::runtime::RuntimeConfig::Debug2DViewId);
     options.durationMilliseconds = 1000;
-    options.hostTransport = "stdio";
+    options.hostTransport = "stdio-pipe";
     options.sessionId = "step6-supervisor-test";
 
     celestia::runtime::process::ProcessSupervisor supervisor(options);
-    const auto result = supervisor.runServeSmoke();
+    const auto result = supervisor.runRuntime();
 
     CHECK(result.success);
     CHECK(result.modelReady);
     CHECK(result.controllerReady);
     CHECK(result.viewReady);
     CHECK(result.viewFrameCount >= 4);
-    CHECK(contains(result.log, "model ready"));
     CHECK(contains(result.log, "controller ready"));
+    CHECK(contains(result.log, "model ready"));
     CHECK(contains(result.log, "view ready"));
     CHECK(contains(result.log, "all hosts stopped"));
 }

@@ -1,16 +1,18 @@
 # Celestia MVC Runtime Protocol v1
 
+> Step11 update: the protocol remains valid, but the runtime is no longer limited to framed stdio. The implemented transports now include `stdio-pipe` and same-machine `local-socket`; the old `stdio-files` file-script fallback has been removed.
+
 > 本文定义 Step6 后 M / C / V 独立进程之间共享的运行时协议。它是 transport-independent 的协议说明，不绑定 stdio、named pipe、local socket 或 TCP。当前代码只实现 framed stdio，后续 transport 必须复用本协议语义。
 
 ## 1. 状态
 
 ```text
-Status: Implemented in Step6 smoke path
+Status: Implemented through Step11 runtime closure
 Date: 2026-06-25
-Primary transport: framed stdio
-Primary runtime mode: local multi-process smoke
-Primary view path: Debug 2D / headless ViewService
-3D OpenGL cross-process rendering: not implemented in Step6
+Primary transport: stdio-pipe and local-socket
+Primary runtime mode: local multi-process runtime assembly
+Primary view path: Debug2D ViewService and OpenGL3D View host
+3D OpenGL cross-process rendering: implemented by Step8 and validated again in Step10/Step11
 ```
 
 ## 2. 角色
@@ -228,7 +230,7 @@ launcher / ProcessSupervisor / RuntimeSession
 RuntimeEnvelope 字段不因 transport 改变。
 RuntimeEnvelope 消息名不因 transport 改变。
 live stdio pipe 只替换传输方式，不替换 lifecycle / command / event / view.frame 语义。
-stdio-files 仅保留为 Step6 fallback smoke，用于回归和故障隔离。
+stdio-files 已在 Step11 从生产运行路径移除；历史 Step6/Step7 文档中的 fallback 描述仅作为迁移记录保留。
 stdio CLI 兼容别名映射为 stdio-pipe。
 named pipe / local socket / TCP 可在后续阶段替换 transport，但不得改变 Runtime Protocol v1 的语义。
 shared memory 只能作为高吞吐数据面扩展，控制面仍走 RuntimeEnvelope。

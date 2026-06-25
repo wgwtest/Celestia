@@ -50,7 +50,6 @@ class ProcessSupervisor
 public:
     explicit ProcessSupervisor(ProcessSupervisorOptions);
 
-    ProcessSupervisorResult runServeSmoke() const;
     ProcessSupervisorResult runRuntime() const;
 
 private:

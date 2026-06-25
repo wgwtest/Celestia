@@ -1,0 +1,19 @@
+session:
+  id: step11-3d-stdio
+  durationMs: 3000
+  tickMs: 125
+  readyTimeoutMs: 3000
+  shutdownTimeoutMs: 3000
+resources:
+  contentRoot: .
+transport:
+  control:
+    kind: stdio-pipe
+  data:
+    kind: framed-envelope
+view:
+  id: celestia.view3d.opengl
+supervisor:
+  restartPolicy: never
+  maxRestarts: 0
+  traceFile: step11-3d-stdio.trace

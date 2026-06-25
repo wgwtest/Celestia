@@ -48,6 +48,8 @@ set(UNIT_TEST_SOURCES
   mvc_step10_shared_memory_dataplane_test.cpp
   mvc_step10_supervisor_policy_test.cpp
   mvc_step10_transport_factory_test.cpp
+  mvc_step11_compatibility_closure_test.cpp
+  mvc_step11_runtime_acceptance_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
