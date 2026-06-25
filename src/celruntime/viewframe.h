@@ -10,6 +10,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -27,8 +28,10 @@ struct ViewFrameSelection
 
 struct ViewFrame
 {
+    std::uint64_t frameId{ 0 };
     double time{ 0.0 };
     std::vector<ViewFrameSelection> selections;
+    std::string summary;
 };
 
 } // namespace celestia::runtime

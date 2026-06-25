@@ -6,6 +6,9 @@ set(CELESTIA_RUNTIME_SOURCES
   ipc/localchannel.h
   ipc/message.cpp
   ipc/message.h
+  model/modelservice.cpp
+  model/modelservice.h
+  model/modelsnapshot.h
   modelruntime.cpp
   modelruntime.h
   protocol/envelope.cpp

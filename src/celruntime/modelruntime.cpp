@@ -12,10 +12,24 @@
 namespace celestia::runtime
 {
 
+ModelRuntime::ModelRuntime() = default;
+
 bool
 ModelRuntime::isInitialized() const
 {
     return true;
+}
+
+model::ModelService&
+ModelRuntime::service()
+{
+    return service_;
+}
+
+const model::ModelService&
+ModelRuntime::service() const
+{
+    return service_;
 }
 
 } // namespace celestia::runtime
