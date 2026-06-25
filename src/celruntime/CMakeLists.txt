@@ -1,6 +1,14 @@
 set(CELESTIA_RUNTIME_SOURCES
+  controllerruntime.cpp
+  controllerruntime.h
+  modelruntime.cpp
+  modelruntime.h
   runtimeconfig.cpp
   runtimeconfig.h
+  runtimecomposition.cpp
+  runtimecomposition.h
+  viewadapterruntime.cpp
+  viewadapterruntime.h
   viewprovider.h
   viewproviderregistry.cpp
   viewproviderregistry.h

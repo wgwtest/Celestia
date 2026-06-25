@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 
+#include <celruntime/runtimecomposition.h>
 #include <celruntime/viewproviderregistry.h>
 
 namespace
@@ -112,6 +113,52 @@ TEST_CASE("view provider registry registers and selects providers by id")
     CHECK(runtime->id() == "celestia.view2d.debug");
 
     CHECK(registry.create("missing.view") == nullptr);
+}
+
+TEST_CASE("runtime composition headers remain renderer-free")
+{
+    constexpr std::string_view runtimeHeaders[] = {
+        "src/celruntime/runtimecomposition.h",
+        "src/celruntime/modelruntime.h",
+        "src/celruntime/controllerruntime.h",
+        "src/celruntime/viewadapterruntime.h",
+    };
+
+    constexpr std::string_view forbiddenTokens[] = {
+        "Renderer",
+        "render.h",
+        "meshmanager.h",
+        "texmanager.h",
+        "shadermanager.h",
+    };
+
+    for (const auto header : runtimeHeaders)
+    {
+        const auto source = readSourceFile(header);
+        CAPTURE(header);
+        for (const auto token : forbiddenTokens)
+        {
+            CAPTURE(token);
+            CHECK_FALSE(contains(source, token));
+        }
+    }
+}
+
+TEST_CASE("runtime composition exposes config runtimes and provider registry")
+{
+    celestia::runtime::RuntimeComposition composition;
+
+    CHECK(composition.selectedViewId() == "celestia.view3d.opengl");
+    CHECK(composition.viewProviders().empty());
+
+    CHECK(composition.viewProviders().registerProvider(makeFakeProvider("celestia.view2d.debug", "2d")));
+    auto runtime = composition.viewProviders().create("celestia.view2d.debug");
+    REQUIRE(runtime != nullptr);
+    CHECK(runtime->id() == "celestia.view2d.debug");
+
+    CHECK(composition.modelRuntime().isInitialized());
+    CHECK(composition.controllerRuntime().isInitialized());
+    CHECK(composition.viewAdapterRuntime().isInitialized());
 }
 
 TEST_SUITE_END();
