@@ -11,6 +11,8 @@
 
 #include <string_view>
 
+#include "viewframe.h"
+
 namespace celestia::runtime
 {
 
@@ -20,6 +22,8 @@ public:
     virtual ~ViewRuntime() = default;
 
     virtual std::string_view id() const = 0;
+    virtual void present(const ViewFrame&) {}
+    virtual std::string_view lastFrameSummary() const { return {}; }
 };
 
 } // namespace celestia::runtime

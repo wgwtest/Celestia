@@ -76,6 +76,7 @@
 #include <celestia/progressnotifier.h>
 #include <celestia/textprintposition.h>
 #include <celestia/viewmanager.h>
+#include <celestia/viewproviders/debug2dprovider.h>
 #include <celestia/viewproviders/view3dprovider.h>
 #include <celestia/url.h>
 #include <celmath/geomutil.h>
@@ -2342,6 +2343,7 @@ CelestiaCore::initRuntimeView(const celestia::runtime::RuntimeConfig& runtimeCon
 {
     runtimeComposition = std::make_unique<celestia::runtime::RuntimeComposition>(runtimeConfig);
     runtimeComposition->viewProviders().registerProvider(celestia::viewproviders::makeOpenGLViewProvider());
+    runtimeComposition->viewProviders().registerProvider(celestia::viewproviders::makeDebug2DViewProvider());
     activeViewRuntime = runtimeComposition->viewProviders().create(runtimeComposition->selectedViewId());
 
     return activeViewRuntime != nullptr;

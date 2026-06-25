@@ -74,10 +74,10 @@ TEST_CASE("OpenGL 3D view provider registers without exposing renderer in public
 TEST_CASE("view provider target is linked through the application shell only")
 {
     const auto viewProviderCmake = readSourceFile("src/celestia/viewproviders/CMakeLists.txt");
-    CHECK(contains(viewProviderCmake, "add_library(celestia_viewproviders OBJECT"));
+    CHECK(contains(viewProviderCmake, "add_library(celestia_viewprovider_3d OBJECT"));
 
     const auto appCmake = readSourceFile("src/celestia/CMakeLists.txt");
-    CHECK(contains(appCmake, "$<TARGET_OBJECTS:celestia_viewproviders>"));
+    CHECK(contains(appCmake, "$<TARGET_OBJECTS:celestia_viewprovider_3d>"));
 }
 
 TEST_CASE("CelestiaCore exposes runtime view initialization bridge")
