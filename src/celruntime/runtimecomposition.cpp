@@ -9,16 +9,22 @@
 
 #include "runtimecomposition.h"
 
+#include "ipc/localchannel.h"
+
 #include <utility>
 
 namespace celestia::runtime
 {
 
-RuntimeComposition::RuntimeComposition() = default;
+RuntimeComposition::RuntimeComposition()
+{
+    configureChannel();
+}
 
 RuntimeComposition::RuntimeComposition(RuntimeConfig config) :
     m_config(std::move(config))
 {
+    configureChannel();
 }
 
 const RuntimeConfig&
@@ -37,6 +43,12 @@ const std::string&
 RuntimeComposition::selectedViewId() const
 {
     return m_config.selectedViewId();
+}
+
+RuntimeMode
+RuntimeComposition::runtimeMode() const
+{
+    return m_config.runtimeMode();
 }
 
 const ModelRuntime&
@@ -85,6 +97,27 @@ ViewProviderRegistry&
 RuntimeComposition::viewProviders()
 {
     return m_viewProviders;
+}
+
+const ipc::Channel*
+RuntimeComposition::runtimeChannel() const
+{
+    return m_runtimeChannel.get();
+}
+
+ipc::Channel*
+RuntimeComposition::runtimeChannel()
+{
+    return m_runtimeChannel.get();
+}
+
+void
+RuntimeComposition::configureChannel()
+{
+    if (m_config.runtimeMode() == RuntimeMode::InProcessChannel)
+        m_runtimeChannel = std::make_unique<ipc::LocalChannel>();
+    else
+        m_runtimeChannel.reset();
 }
 
 } // namespace celestia::runtime

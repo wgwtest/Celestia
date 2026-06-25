@@ -9,24 +9,39 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 
 namespace celestia::runtime
 {
 
+enum class RuntimeMode
+{
+    InProcessDirect,
+    InProcessChannel,
+};
+
+std::string_view runtimeModeName(RuntimeMode);
+std::optional<RuntimeMode> runtimeModeFromString(std::string_view);
+
 class RuntimeConfig
 {
 public:
     static constexpr std::string_view DefaultViewId{ "celestia.view3d.opengl" };
+    static constexpr RuntimeMode DefaultRuntimeMode{ RuntimeMode::InProcessDirect };
 
     RuntimeConfig();
 
     const std::string& selectedViewId() const;
     void setSelectedViewId(std::string);
 
+    RuntimeMode runtimeMode() const;
+    void setRuntimeMode(RuntimeMode);
+
 private:
     std::string m_selectedViewId;
+    RuntimeMode m_runtimeMode;
 };
 
 } // namespace celestia::runtime

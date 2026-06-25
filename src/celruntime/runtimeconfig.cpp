@@ -14,8 +14,33 @@
 namespace celestia::runtime
 {
 
+std::string_view
+runtimeModeName(RuntimeMode mode)
+{
+    switch (mode)
+    {
+    case RuntimeMode::InProcessDirect:
+        return "in_process_direct";
+    case RuntimeMode::InProcessChannel:
+        return "in_process_channel";
+    }
+
+    return "in_process_direct";
+}
+
+std::optional<RuntimeMode>
+runtimeModeFromString(std::string_view mode)
+{
+    if (mode == "in_process_direct")
+        return RuntimeMode::InProcessDirect;
+    if (mode == "in_process_channel")
+        return RuntimeMode::InProcessChannel;
+    return std::nullopt;
+}
+
 RuntimeConfig::RuntimeConfig() :
-    m_selectedViewId(DefaultViewId)
+    m_selectedViewId(DefaultViewId),
+    m_runtimeMode(DefaultRuntimeMode)
 {
 }
 
@@ -29,6 +54,18 @@ void
 RuntimeConfig::setSelectedViewId(std::string viewId)
 {
     m_selectedViewId = std::move(viewId);
+}
+
+RuntimeMode
+RuntimeConfig::runtimeMode() const
+{
+    return m_runtimeMode;
+}
+
+void
+RuntimeConfig::setRuntimeMode(RuntimeMode mode)
+{
+    m_runtimeMode = mode;
 }
 
 } // namespace celestia::runtime

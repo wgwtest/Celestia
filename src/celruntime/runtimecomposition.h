@@ -9,9 +9,11 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include "controllerruntime.h"
+#include "ipc/channel.h"
 #include "modelruntime.h"
 #include "runtimeconfig.h"
 #include "viewadapterruntime.h"
@@ -30,6 +32,7 @@ public:
     RuntimeConfig& config();
 
     const std::string& selectedViewId() const;
+    RuntimeMode runtimeMode() const;
 
     const ModelRuntime& modelRuntime() const;
     ModelRuntime& modelRuntime();
@@ -43,12 +46,18 @@ public:
     const ViewProviderRegistry& viewProviders() const;
     ViewProviderRegistry& viewProviders();
 
+    const ipc::Channel* runtimeChannel() const;
+    ipc::Channel* runtimeChannel();
+
 private:
+    void configureChannel();
+
     RuntimeConfig m_config;
     ModelRuntime m_modelRuntime;
     ControllerRuntime m_controllerRuntime;
     ViewAdapterRuntime m_viewAdapterRuntime;
     ViewProviderRegistry m_viewProviders;
+    std::unique_ptr<ipc::Channel> m_runtimeChannel;
 };
 
 } // namespace celestia::runtime

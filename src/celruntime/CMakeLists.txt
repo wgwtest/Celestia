@@ -1,6 +1,11 @@
 set(CELESTIA_RUNTIME_SOURCES
   controllerruntime.cpp
   controllerruntime.h
+  ipc/channel.h
+  ipc/localchannel.cpp
+  ipc/localchannel.h
+  ipc/message.cpp
+  ipc/message.h
   modelruntime.cpp
   modelruntime.h
   runtimeconfig.cpp
