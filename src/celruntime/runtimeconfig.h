@@ -65,11 +65,15 @@ public:
     const std::string& switchViewId() const;
     void setSwitchViewId(std::string);
 
+    const std::string& runtimeConfigPath() const;
+    void setRuntimeConfigPath(std::string);
+
 private:
     std::string m_selectedViewId;
     std::string m_hostTransport;
     std::string m_pluginDirectory;
     std::string m_switchViewId;
+    std::string m_runtimeConfigPath;
     RuntimeMode m_runtimeMode;
     bool m_runOnce;
     bool m_serve;

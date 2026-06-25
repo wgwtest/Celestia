@@ -1,8 +1,21 @@
 set(CELESTIA_RUNTIME_SOURCES
+  assembly/runtimeassembly.cpp
+  assembly/runtimeassembly.h
+  assembly/runtimeassemblyconfig.cpp
+  assembly/runtimeassemblyconfig.h
+  assembly/runtimeassemblyrunner.cpp
+  assembly/runtimeassemblyrunner.h
   controller/controllerservice.cpp
   controller/controllerservice.h
   controllerruntime.cpp
   controllerruntime.h
+  dataplane/dataplanechannel.h
+  dataplane/dataplaneref.cpp
+  dataplane/dataplaneref.h
+  dataplane/inprocessdataplane.cpp
+  dataplane/inprocessdataplane.h
+  dataplane/sharedmemorydataplane.cpp
+  dataplane/sharedmemorydataplane.h
   ipc/channel.h
   ipc/localchannel.cpp
   ipc/localchannel.h
@@ -35,8 +48,15 @@ set(CELESTIA_RUNTIME_SOURCES
   transport/framedmessage.cpp
   transport/framedmessage.h
   transport/framedtransport.h
+  transport/localsockettransport.cpp
+  transport/localsockettransport.h
+  transport/runtimetransport.h
+  transport/stdiopipetransport.cpp
+  transport/stdiopipetransport.h
   transport/stdiotransport.cpp
   transport/stdiotransport.h
+  transport/transportfactory.cpp
+  transport/transportfactory.h
   runtimecomposition.cpp
   runtimecomposition.h
   view3d/view3dhost.cpp

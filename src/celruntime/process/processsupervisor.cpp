@@ -21,8 +21,10 @@
 #include <utility>
 #include <vector>
 
+#include <celruntime/assembly/runtimeassemblyrunner.h>
 #include <celruntime/protocol/envelope.h>
 #include <celruntime/protocol/lifecycle.h>
+#include <celruntime/runtimeconfig.h>
 #include <celruntime/transport/framedmessage.h>
 
 namespace celestia::runtime::process
@@ -374,23 +376,34 @@ ProcessSupervisor::runRuntime() const
     ProcessSupervisorResult result;
     std::ostringstream log;
 
-    if (options_.hostTransport != "stdio-pipe" && options_.hostTransport != "stdio")
+    if (options_.hostTransport != "stdio-pipe" &&
+        options_.hostTransport != "stdio" &&
+        options_.hostTransport != "local-socket")
     {
         appendLogLine(log, "unsupported host transport: " + options_.hostTransport);
         result.log = log.str();
         return result;
     }
 
-    RuntimeSessionOptions sessionOptions;
-    sessionOptions.runtimeHostDirectory = options_.runtimeHostDirectory;
-    sessionOptions.viewId = options_.viewId;
-    sessionOptions.sessionId = options_.sessionId;
-    sessionOptions.durationMilliseconds = options_.durationMilliseconds;
-    sessionOptions.switchViewAfterMilliseconds = options_.switchViewAfterMilliseconds;
-    sessionOptions.switchViewId = options_.switchViewId;
+    RuntimeConfig runtimeConfig;
+    runtimeConfig.setRuntimeMode(RuntimeMode::MultiProcess);
+    runtimeConfig.setSelectedViewId(options_.viewId);
+    runtimeConfig.setHostTransport(options_.hostTransport == "stdio"
+        ? "stdio-pipe"
+        : options_.hostTransport);
+    runtimeConfig.setDurationMilliseconds(options_.durationMilliseconds);
+    if (options_.switchViewAfterMilliseconds > 0)
+        runtimeConfig.setSwitchViewAfterMilliseconds(options_.switchViewAfterMilliseconds);
+    if (!options_.switchViewId.empty())
+        runtimeConfig.setSwitchViewId(options_.switchViewId);
 
-    RuntimeSession session(sessionOptions);
-    const auto sessionResult = session.run();
+    auto assemblyConfig = assembly::RuntimeAssemblyConfig::fromRuntimeConfig(
+        runtimeConfig,
+        options_.runtimeHostDirectory,
+        options_.runtimeHostDirectory,
+        options_.sessionId);
+    assembly::RuntimeAssemblyRunner runner(std::move(assemblyConfig));
+    const auto sessionResult = runner.run();
 
     result.success = sessionResult.success;
     result.modelReady = sessionResult.modelReady;

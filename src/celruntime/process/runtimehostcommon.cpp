@@ -13,6 +13,7 @@
 #include "view3dhostloop.h"
 
 #include <istream>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <sstream>
@@ -21,6 +22,7 @@
 
 #include <celruntime/ipc/message.h>
 #include <celruntime/runtimeconfig.h>
+#include <celruntime/transport/localsockettransport.h>
 
 namespace celestia::runtime::process
 {
@@ -30,6 +32,7 @@ namespace
 struct RuntimeHostOptions
 {
     bool stdio{ false };
+    std::string localSocketEndpoint;
     bool once{ false };
     bool serve{ false };
     int protocolVersion{ ipc::CurrentProtocolVersion };
@@ -72,6 +75,10 @@ parseOptions(int argc, char* argv[], std::string& error)
         if (argument == "--stdio")
         {
             options.stdio = true;
+        }
+        else if (startsWith(argument, "--local-socket="))
+        {
+            options.localSocketEndpoint = std::string(argument.substr(15));
         }
         else if (argument == "--once")
         {
@@ -149,8 +156,9 @@ runRuntimeHost(std::string_view role,
     if (!options.has_value())
         return fail(error, optionError);
 
-    if (!options->stdio)
-        return fail(error, "--stdio is required for the first process-host contract");
+    const auto localSocket = !options->localSocketEndpoint.empty();
+    if (options->stdio == localSocket)
+        return fail(error, "exactly one host transport is required");
 
     if (options->once == options->serve)
         return fail(error, "exactly one of --once or --serve is required");
@@ -160,11 +168,23 @@ runRuntimeHost(std::string_view role,
 
     if (options->serve)
     {
+        std::unique_ptr<transport::FramedTransport> localTransport;
+        if (localSocket)
+        {
+            std::string transportError;
+            localTransport = transport::connectLocalSocketEndpoint(options->localSocketEndpoint,
+                                                                   &transportError);
+            if (localTransport == nullptr)
+                return fail(error, transportError);
+        }
+
         if (role == "view3d")
         {
             auto sessionId = options->sessionId;
             if (sessionId.empty())
                 sessionId = "default";
+            if (localTransport != nullptr)
+                return runRuntimeView3DHostLoop(std::move(sessionId), *localTransport, error);
             return runRuntimeView3DHostLoop(std::move(sessionId), input, output, error);
         }
 
@@ -175,6 +195,8 @@ runRuntimeHost(std::string_view role,
         auto sessionId = options->sessionId;
         if (sessionId.empty())
             sessionId = "default";
+        if (localTransport != nullptr)
+            return runRuntimeHostLoop(*roleValue, std::move(sessionId), *localTransport, error);
         return runRuntimeHostLoop(*roleValue, std::move(sessionId), input, output, error);
     }
 

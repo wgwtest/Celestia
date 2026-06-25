@@ -41,6 +41,13 @@ set(UNIT_TEST_SOURCES
   mvc_step9_view_plugin_loader_test.cpp
   mvc_step9_view_registry_test.cpp
   mvc_step9_view_switch_test.cpp
+  mvc_step10_assembly_config_test.cpp
+  mvc_step10_dataplane_contract_test.cpp
+  mvc_step10_local_socket_transport_test.cpp
+  mvc_step10_runtime_assembly_test.cpp
+  mvc_step10_shared_memory_dataplane_test.cpp
+  mvc_step10_supervisor_policy_test.cpp
+  mvc_step10_transport_factory_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp

@@ -28,6 +28,7 @@ struct RuntimeSessionOptions
     std::string controllerTickCommandName{ "controller.tick" };
     int switchViewAfterMilliseconds{ 0 };
     std::string switchViewId;
+    std::string hostTransport{ "stdio-pipe" };
 };
 
 struct RuntimeSessionResult

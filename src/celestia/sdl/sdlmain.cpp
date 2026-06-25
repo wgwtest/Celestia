@@ -21,6 +21,7 @@
 #include <utility>
 
 #include <celestia/celestiacore.h>
+#include <celruntime/assembly/runtimeassemblyrunner.h>
 #include <celruntime/ipc/message.h>
 #include <celruntime/process/processsupervisor.h>
 #include <celruntime/runtimeconfig.h>
@@ -210,6 +211,27 @@ runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfi
 }
 
 bool
+runRuntimeAssemblyConfig(char* executablePath, const celestia::runtime::RuntimeConfig& runtimeConfig)
+{
+    std::string error;
+    auto config = celestia::runtime::assembly::loadRuntimeAssemblyConfig(
+        runtimeConfig.runtimeConfigPath(),
+        runtimeHostDirectory(executablePath),
+        getDataDir(),
+        &error);
+    if (!config.has_value())
+    {
+        std::cerr << error << '\n';
+        return false;
+    }
+
+    celestia::runtime::assembly::RuntimeAssemblyRunner runner(std::move(*config));
+    const auto result = runner.run();
+    std::cout << result.log;
+    return result.success;
+}
+
+bool
 listRuntimeViews(const celestia::runtime::RuntimeConfig& runtimeConfig)
 {
     auto registry = celestia::runtime::viewplugin::builtinViewPluginRegistry();
@@ -238,10 +260,20 @@ parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runt
     constexpr std::string_view pluginDirOption{ "--plugin-dir=" };
     constexpr std::string_view switchAfterOption{ "--switch-view-after-ms=" };
     constexpr std::string_view switchViewOption{ "--switch-view=" };
+    constexpr std::string_view runtimeConfigOption{ "--runtime-config=" };
 
     for (int i = 1; i < argc; ++i)
     {
         std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
+        if (argument == "--runtime-config")
+        {
+            if (i + 1 >= argc || argv[i + 1] == nullptr)
+                return false;
+
+            runtimeConfig.setRuntimeConfigPath(argv[++i]);
+            continue;
+        }
+
         if ((argument.compare(0, viewOption.size(), viewOption) == 0 ||
              argument.compare(0, modeOption.size(), modeOption) == 0 ||
              argument.compare(0, durationOption.size(), durationOption) == 0 ||
@@ -249,6 +281,7 @@ parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runt
              argument.compare(0, pluginDirOption.size(), pluginDirOption) == 0 ||
              argument.compare(0, switchAfterOption.size(), switchAfterOption) == 0 ||
              argument.compare(0, switchViewOption.size(), switchViewOption) == 0 ||
+             argument.compare(0, runtimeConfigOption.size(), runtimeConfigOption) == 0 ||
              argument == "--once" ||
              argument == "--serve" ||
              argument == "--list-views") &&
@@ -290,6 +323,9 @@ main(int argc, char **argv)
 
     if (runtimeConfig.listViews())
         return listRuntimeViews(runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+    if (!runtimeConfig.runtimeConfigPath().empty())
+        return runRuntimeAssemblyConfig(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
 
     if (runtimeConfig.runtimeMode() == celestia::runtime::RuntimeMode::MultiProcess)
     {

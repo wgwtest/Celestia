@@ -175,6 +175,18 @@ RuntimeConfig::setSwitchViewId(std::string switchViewId)
     m_switchViewId = std::move(switchViewId);
 }
 
+const std::string&
+RuntimeConfig::runtimeConfigPath() const
+{
+    return m_runtimeConfigPath;
+}
+
+void
+RuntimeConfig::setRuntimeConfigPath(std::string runtimeConfigPath)
+{
+    m_runtimeConfigPath = std::move(runtimeConfigPath);
+}
+
 namespace
 {
 
@@ -207,6 +219,7 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     constexpr std::string_view pluginDirOption{ "--plugin-dir=" };
     constexpr std::string_view switchAfterOption{ "--switch-view-after-ms=" };
     constexpr std::string_view switchViewOption{ "--switch-view=" };
+    constexpr std::string_view runtimeConfigOption{ "--runtime-config=" };
 
     if (argument.compare(0, viewOption.size(), viewOption) == 0)
     {
@@ -289,7 +302,19 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
             return true;
         }
 
+        if (transport == "local-socket" || transport == "local_socket")
+        {
+            config.setHostTransport("local-socket");
+            return true;
+        }
+
         return false;
+    }
+
+    if (argument.compare(0, runtimeConfigOption.size(), runtimeConfigOption) == 0)
+    {
+        config.setRuntimeConfigPath(std::string(argument.substr(runtimeConfigOption.size())));
+        return true;
     }
 
     return false;

@@ -1,0 +1,19 @@
+session:
+  id: step10-2d-stdio
+  durationMs: 1500
+  tickMs: 125
+  readyTimeoutMs: 3000
+  shutdownTimeoutMs: 3000
+resources:
+  contentRoot: .
+transport:
+  control:
+    kind: stdio-pipe
+  data:
+    kind: framed-envelope
+view:
+  id: celestia.view2d.debug
+supervisor:
+  restartPolicy: never
+  maxRestarts: 0
+  traceFile: step10-2d-stdio.trace

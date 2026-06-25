@@ -9,8 +9,6 @@
 
 #include "runtimesession.h"
 
-#include "hostprocess.h"
-
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -27,6 +25,8 @@
 #include <celruntime/protocol/sceneprotocol.h>
 #include <celruntime/protocol/viewinput.h>
 #include <celruntime/runtimeconfig.h>
+#include <celruntime/transport/runtimetransport.h>
+#include <celruntime/transport/transportfactory.h>
 
 namespace celestia::runtime::process
 {
@@ -36,13 +36,14 @@ namespace
 using protocol::RuntimeEnvelope;
 using protocol::RuntimeMessageKind;
 using protocol::RuntimeRole;
+using transport::RuntimeTransport;
 
 struct RuntimeHost
 {
     RuntimeRole role{ RuntimeRole::Launcher };
     std::string name;
     std::string executableName;
-    std::unique_ptr<HostProcess> process;
+    std::unique_ptr<RuntimeTransport> transport;
 };
 
 void
@@ -184,17 +185,26 @@ startHost(RuntimeHost& host,
     processOptions.executable = executable;
     processOptions.workingDirectory = options.runtimeHostDirectory;
     processOptions.arguments = {
-        "--stdio",
         "--protocol-version=1",
         "--view=" + std::string(viewId),
         "--serve",
         "--session=" + options.sessionId,
     };
 
-    host.process = std::make_unique<HostProcess>(std::move(processOptions));
-    if (!host.process->start())
+    std::string transportError;
+    host.transport = transport::createRuntimeTransport(options.hostTransport,
+                                                       std::move(processOptions),
+                                                       &transportError);
+    if (host.transport == nullptr)
     {
-        appendLogLine(log, host.name + " failed to start");
+        appendLogLine(log, host.name + " transport failed: " + transportError);
+        return false;
+    }
+
+    appendLogLine(log, host.name + " transport=" + std::string(host.transport->kind()));
+    if (!host.transport->open(&transportError))
+    {
+        appendLogLine(log, host.name + " failed to start: " + transportError);
         return false;
     }
 
@@ -241,7 +251,7 @@ startViewHost(RuntimeHost& view,
 bool
 send(RuntimeHost& host, const RuntimeEnvelope& envelope, std::ostringstream& log)
 {
-    if (host.process == nullptr || !host.process->send(envelope))
+    if (host.transport == nullptr || !host.transport->send(envelope))
     {
         appendLogLine(log, host.name + " send failed: " + envelope.name);
         return false;
@@ -253,13 +263,13 @@ send(RuntimeHost& host, const RuntimeEnvelope& envelope, std::ostringstream& log
 std::optional<RuntimeEnvelope>
 receive(RuntimeHost& host, std::chrono::milliseconds timeout, std::ostringstream& log)
 {
-    if (host.process == nullptr)
+    if (host.transport == nullptr)
     {
-        appendLogLine(log, host.name + " process not started");
+        appendLogLine(log, host.name + " transport not started");
         return std::nullopt;
     }
 
-    auto message = host.process->receive(timeout);
+    auto message = host.transport->receive(timeout);
     if (!message.has_value())
     {
         appendLogLine(log, host.name + " receive timeout");
@@ -279,10 +289,10 @@ receive(RuntimeHost& host, std::chrono::milliseconds timeout, std::ostringstream
 std::optional<RuntimeEnvelope>
 receiveAvailable(RuntimeHost& host)
 {
-    if (host.process == nullptr)
+    if (host.transport == nullptr)
         return std::nullopt;
 
-    return host.process->receive(std::chrono::milliseconds(0));
+    return host.transport->receive(std::chrono::milliseconds(0));
 }
 
 bool
@@ -439,7 +449,7 @@ shutdownHost(RuntimeHost& host,
              const RuntimeSessionOptions& options,
              std::ostringstream& log)
 {
-    if (host.process == nullptr)
+    if (host.transport == nullptr)
         return false;
 
     if (!send(host, lifecycle(host.role, protocol::RuntimeShutdown, sequenceId++, options.sessionId), log))
@@ -448,7 +458,7 @@ shutdownHost(RuntimeHost& host,
     if (options.shutdownTimeoutMilliseconds <= 0)
     {
         appendLogLine(log, host.name + " shutdown wait timeout");
-        if (host.process->terminate())
+        if (host.transport->terminate())
             result.terminatedHost = true;
         return false;
     }
@@ -457,12 +467,12 @@ shutdownHost(RuntimeHost& host,
                                          std::chrono::milliseconds(options.shutdownTimeoutMilliseconds),
                                          log);
 
-    const auto exitCode = host.process->wait(
+    const auto exitCode = host.transport->wait(
         std::chrono::milliseconds(options.shutdownTimeoutMilliseconds));
     if (!exitCode.has_value())
     {
         appendLogLine(log, host.name + " shutdown wait timeout");
-        if (host.process->terminate())
+        if (host.transport->terminate())
             result.terminatedHost = true;
     }
 
@@ -500,6 +510,7 @@ RuntimeSession::run()
     std::uint64_t sequenceId = 1;
 
     appendLogLine(log, "sessionId=" + options_.sessionId);
+    appendLogLine(log, "transport=" + options_.hostTransport);
 
     auto controller = makeHost(RuntimeRole::Controller, "controller", "celestia-controller-host");
     auto model = makeHost(RuntimeRole::Model, "model", "celestia-model-host");

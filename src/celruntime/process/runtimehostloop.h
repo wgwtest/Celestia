@@ -15,6 +15,7 @@
 #include <string_view>
 
 #include <celruntime/protocol/envelope.h>
+#include <celruntime/transport/framedtransport.h>
 
 namespace celestia::runtime::process
 {
@@ -23,6 +24,11 @@ int runRuntimeHostLoop(celestia::runtime::protocol::RuntimeRole role,
                        std::string sessionId,
                        std::istream& input,
                        std::ostream& output,
+                       std::ostream& error);
+
+int runRuntimeHostLoop(celestia::runtime::protocol::RuntimeRole role,
+                       std::string sessionId,
+                       celestia::runtime::transport::FramedTransport& transport,
                        std::ostream& error);
 
 std::optional<celestia::runtime::protocol::RuntimeRole> runtimeRoleFromHostRole(std::string_view);

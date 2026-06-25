@@ -15,6 +15,7 @@
 
 #include <celruntime/protocol/sceneprotocol.h>
 #include <celruntime/protocol/viewinput.h>
+#include <celruntime/transport/framedtransport.h>
 
 namespace celestia::runtime::process
 {
@@ -32,6 +33,10 @@ void setRuntimeView3DHostCallbacks(View3DHostCallbacks callbacks);
 int runRuntimeView3DHostLoop(std::string sessionId,
                              std::istream& input,
                              std::ostream& output,
+                             std::ostream& error);
+
+int runRuntimeView3DHostLoop(std::string sessionId,
+                             celestia::runtime::transport::FramedTransport& transport,
                              std::ostream& error);
 
 } // namespace celestia::runtime::process

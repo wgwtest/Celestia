@@ -1,0 +1,21 @@
+session:
+  id: step10-switch-2d-to-3d-local-socket
+  durationMs: 6000
+  tickMs: 125
+  readyTimeoutMs: 3000
+  shutdownTimeoutMs: 3000
+resources:
+  contentRoot: .
+transport:
+  control:
+    kind: local-socket
+  data:
+    kind: framed-envelope
+view:
+  id: celestia.view2d.debug
+  switchAfterMs: 2000
+  switchView: celestia.view3d.opengl
+supervisor:
+  restartPolicy: never
+  maxRestarts: 0
+  traceFile: step10-switch-2d-to-3d-local-socket.trace

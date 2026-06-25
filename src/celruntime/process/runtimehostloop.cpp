@@ -99,6 +99,15 @@ runRuntimeHostLoop(RuntimeRole role,
                    std::ostream& error)
 {
     transport::StdioTransport transport(input, output);
+    return runRuntimeHostLoop(role, std::move(sessionId), transport, error);
+}
+
+int
+runRuntimeHostLoop(RuntimeRole role,
+                   std::string sessionId,
+                   transport::FramedTransport& transport,
+                   std::ostream& error)
+{
     model::ModelService modelService(sessionId);
     controller::ControllerService controllerService(sessionId);
     view::ViewService viewService(sessionId);

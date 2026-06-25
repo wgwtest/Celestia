@@ -95,6 +95,14 @@ runRuntimeView3DHostLoop(std::string sessionId,
                          std::ostream& error)
 {
     transport::StdioTransport transport(input, output);
+    return runRuntimeView3DHostLoop(std::move(sessionId), transport, error);
+}
+
+int
+runRuntimeView3DHostLoop(std::string sessionId,
+                         transport::FramedTransport& transport,
+                         std::ostream& error)
+{
     view3d::View3DHost viewHost(sessionId);
 
     for (;;)
