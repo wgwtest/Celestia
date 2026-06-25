@@ -22,6 +22,11 @@
 
 class CelestiaCore;
 
+namespace celestia::runtime
+{
+class RuntimeConfig;
+}
+
 namespace celestia::sdl
 {
 
@@ -46,7 +51,7 @@ public:
     ~AppWindow();
 
     void dumpGLInfo() const;
-    bool run(const Settings&);
+    bool run(const Settings&, const celestia::runtime::RuntimeConfig&);
     bool update();
 
     void getSize(int& width, int& height) const;

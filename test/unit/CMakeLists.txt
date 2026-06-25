@@ -10,6 +10,7 @@ set(UNIT_TEST_SOURCES
   mvc_step2_contract_test.cpp
   mvc_step3_contract_test.cpp
   mvc_step4_directory_contract_test.cpp
+  mvc_step5_frontend_contract_test.cpp
   mvc_step5_runtime_contract_test.cpp
   mvc_step5_view_provider_test.cpp
   ranges_test.cpp

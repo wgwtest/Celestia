@@ -9,10 +9,13 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <string>
+#include <string_view>
 #include <system_error>
 #include <utility>
 
 #include <celestia/celestiacore.h>
+#include <celruntime/runtimeconfig.h>
 #include <celutil/gettext.h>
 #include "alerter.h"
 #include "appwindow.h"
@@ -48,6 +51,22 @@ getDataDir()
     return CONFIG_DATA_DIR;
 }
 
+celestia::runtime::RuntimeConfig
+parseRuntimeConfig(int argc, char** argv)
+{
+    celestia::runtime::RuntimeConfig runtimeConfig;
+    constexpr std::string_view viewOption{ "--view=" };
+
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
+        if (argument.compare(0, viewOption.size(), viewOption) == 0)
+            runtimeConfig.setSelectedViewId(std::string(argument.substr(viewOption.size())));
+    }
+
+    return runtimeConfig;
+}
+
 }
 
 int
@@ -71,6 +90,7 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
 
     std::filesystem::path dataDir = getDataDir();
+    celestia::runtime::RuntimeConfig runtimeConfig = parseRuntimeConfig(argc, argv);
 
     std::error_code ec;
     std::filesystem::current_path(dataDir, ec);
@@ -94,5 +114,5 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
 
     window->dumpGLInfo();
-    return window->run(settings) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return window->run(settings, runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

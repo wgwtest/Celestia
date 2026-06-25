@@ -24,6 +24,7 @@
 #include <emscripten.h>
 #endif
 
+#include <celruntime/runtimeconfig.h>
 #include <celestia/celestiacore.h>
 #include <celutil/gettext.h>
 #include <celutil/tzutil.h>
@@ -177,9 +178,15 @@ AppWindow::dumpGLInfo() const
 }
 
 bool
-AppWindow::run(const Settings& settings)
+AppWindow::run(const Settings& settings, const celestia::runtime::RuntimeConfig& runtimeConfig)
 {
-    m_appCore->initRenderer(settings.textureResolution);
+    if (!m_appCore->initRuntimeView(runtimeConfig) || m_appCore->getActiveViewRuntime() == nullptr)
+        return false;
+
+    // MVC Step5 legacy renderer bridge: the existing 3D path still owns GL renderer setup
+    // until the renderer lifetime moves fully behind ViewRuntime.
+    if (!m_appCore->initRenderer(settings.textureResolution))
+        return false;
 
     auto renderer = m_appCore->getRenderer();
     const auto* config = m_appCore->getConfig();
