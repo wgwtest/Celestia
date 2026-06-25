@@ -22,3 +22,26 @@ set(CELESTIA_RUNTIME_SOURCES
 )
 
 add_library(celestia_runtime OBJECT ${CELESTIA_RUNTIME_SOURCES})
+
+set(CELESTIA_RUNTIME_HOST_COMMON_SOURCES
+  process/runtimehostcommon.cpp
+  process/runtimehostcommon.h
+)
+
+add_executable(celestia-model-host
+  process/modelhostmain.cpp
+  ${CELESTIA_RUNTIME_HOST_COMMON_SOURCES}
+  $<TARGET_OBJECTS:celestia_runtime>
+)
+
+add_executable(celestia-controller-host
+  process/controllerhostmain.cpp
+  ${CELESTIA_RUNTIME_HOST_COMMON_SOURCES}
+  $<TARGET_OBJECTS:celestia_runtime>
+)
+
+add_executable(celestia-view-host
+  process/viewhostmain.cpp
+  ${CELESTIA_RUNTIME_HOST_COMMON_SOURCES}
+  $<TARGET_OBJECTS:celestia_runtime>
+)
