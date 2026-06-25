@@ -12,18 +12,18 @@
 #include <cassert>
 #include <cstddef>
 
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/color.h>
 #include <celutil/flag.h>
 #include <celutil/texhandle.h>
-#include "atmosphere.h"
-#include "body.h"
-#include "bodyrenderassets.h"
-#include "lightenv.h"
-#include "rendcontext.h"
-#include "render.h"
-#include "texmanager.h"
-#include "texture.h"
+#include <celengine/model/atmosphere.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/view3d/lightenv.h>
+#include <celengine/view3d/rendcontext.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/texmanager.h>
+#include <celengine/view3d/texture.h>
 
 namespace engine = celestia::engine;
 namespace gl = celestia::gl;

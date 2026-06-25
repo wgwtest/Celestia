@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "warpmesh.h"
+#include <celengine/view3d/warpmesh.h>
 
 #include <algorithm>
 #include <array>
@@ -23,12 +23,12 @@
 #include <utility>
 
 #include <celmath/mathlib.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/array_view.h>
 #include <celutil/fsutils.h>
 #include <celutil/logger.h>
-#include "shadermanager.h"
+#include <celengine/view3d/shadermanager.h>
 
 using namespace std::string_view_literals;
 using celestia::util::GetLogger;

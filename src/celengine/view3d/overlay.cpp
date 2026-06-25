@@ -12,10 +12,10 @@
 #include <Eigen/Core>
 #include <celmath/geomutil.h>
 #include <celutil/color.h>
-#include "overlay.h"
-#include "rectangle.h"
-#include "render.h"
-#include "textlayout.h"
+#include <celengine/view3d/overlay.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/textlayout.h>
 
 using namespace std;
 using namespace Eigen;

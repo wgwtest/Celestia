@@ -21,12 +21,12 @@
 #include <Eigen/Core>
 
 #include <celutil/blockarray.h>
-#include "astroobj.h"
-#include "category.h"
-#include "parseobject.h"
-#include "star.h"
-#include "stardb.h"
-#include "starname.h"
+#include <celengine/model/astroobj.h>
+#include <celengine/model/category.h>
+#include <celengine/model/parseobject.h>
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/starname.h>
 
 class StarDatabase;
 

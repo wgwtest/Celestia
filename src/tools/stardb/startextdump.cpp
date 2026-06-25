@@ -16,7 +16,7 @@
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>
 #include <celutil/bytes.h>
-#include <celengine/stellarclass.h>
+#include <celengine/model/stellarclass.h>
 
 using namespace std;
 

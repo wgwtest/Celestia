@@ -17,10 +17,10 @@
 #include <cstdint>
 #include <string>
 
-#include <celengine/body.h>
-#include <celengine/renderflags.h>
-#include <celengine/starcolors.h>
-#include <celengine/texmanager.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/renderflags.h>
+#include <celengine/view3d/starcolors.h>
+#include <celengine/view3d/texmanager.h>
 
 #include <windows.h>
 

@@ -11,7 +11,7 @@
 
 #include <cstdio>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
 #include <fmt/format.h>
 #include <imgui.h>

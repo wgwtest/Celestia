@@ -18,7 +18,7 @@
 #include <string_view>
 #include <vector>
 
-#include <celengine/astroobj.h>
+#include <celengine/model/astroobj.h>
 #include <celutil/stringutils.h>
 
 // TODO: this can be "detemplatized" by creating e.g. a global-scope enum InvalidCatalogNumber since there

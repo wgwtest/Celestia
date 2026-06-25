@@ -29,9 +29,9 @@
 #include <celcompat/numbers.h>
 #include <celutil/flag.h>
 
-#include "selection.h"
-#include "shared.h"
-#include "univcoord.h"
+#include <celengine/controller/selection.h>
+#include <celengine/model/shared.h>
+#include <celengine/model/univcoord.h>
 
 namespace celestia::engine
 {

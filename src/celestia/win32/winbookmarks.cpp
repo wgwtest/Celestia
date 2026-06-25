@@ -21,7 +21,7 @@
 #include <string_view>
 #include <utility>
 
-#include <celengine/body.h>
+#include <celengine/model/body.h>
 #include <celestia/celestiacore.h>
 #include <celestia/favorites.h>
 #include <celutil/gettext.h>

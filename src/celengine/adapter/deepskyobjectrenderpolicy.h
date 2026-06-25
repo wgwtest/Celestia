@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <celengine/renderflags.h>
+#include <celengine/view3d/renderflags.h>
 
 class DeepSkyObject;
 

@@ -7,16 +7,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "largestarrenderer.h"
+#include <celrender/view3d/largestarrenderer.h>
 
 #include <array>
 #include <cstddef>
 
-#include <celengine/glsupport.h>
-#include <celengine/render.h>
-#include <celengine/shadermanager.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/array_view.h>
 #include <celutil/color.h>
 

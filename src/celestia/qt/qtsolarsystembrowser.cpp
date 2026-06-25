@@ -32,14 +32,14 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#include <celengine/body.h>
-#include <celengine/marker.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/solarsys.h>
-#include <celengine/star.h>
-#include <celengine/stardb.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celutil/array_view.h>
 #include <celutil/gettext.h>

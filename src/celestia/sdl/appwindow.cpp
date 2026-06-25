@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
 #include <SDL_clipboard.h>
 #include <SDL_keyboard.h>

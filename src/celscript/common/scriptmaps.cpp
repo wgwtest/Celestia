@@ -1,9 +1,9 @@
 #include "scriptmaps.h"
 
-#include <celengine/body.h>
-#include <celengine/location.h>
-#include <celengine/render.h>
-#include <celengine/rendercolors.h>
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/rendercolors.h>
 #include <celestia/celestiacore.h>
 #include <celestia/hud.h>
 

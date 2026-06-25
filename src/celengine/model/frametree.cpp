@@ -10,15 +10,15 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "frametree.h"
+#include <celengine/model/frametree.h>
 
 #include <algorithm>
 #include <cassert>
 
 #include <celephem/orbit.h>
-#include "frame.h"
-#include "timeline.h"
-#include "timelinephase.h"
+#include <celengine/model/frame.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
 
 /* A FrameTree is hierarchy of solar system bodies organized according to
  * the relationship of their reference frames. An object will appear in as

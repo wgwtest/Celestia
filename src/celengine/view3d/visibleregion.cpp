@@ -10,7 +10,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "visibleregion.h"
+#include <celengine/view3d/visibleregion.h>
 
 #include <algorithm>
 
@@ -18,11 +18,11 @@
 
 #include <celcompat/numbers.h>
 #include <celmath/mathlib.h>
-#include <celrender/linerenderer.h>
-#include <celrender/referencemarkrenderer.h>
-#include "body.h"
-#include "glsupport.h"
-#include "render.h"
+#include <celrender/view3d/linerenderer.h>
+#include <celrender/view3d/referencemarkrenderer.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
 
 using namespace std::string_view_literals;
 

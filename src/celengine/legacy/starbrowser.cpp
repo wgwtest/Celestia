@@ -14,16 +14,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "starbrowser.h"
+#include <celengine/legacy/starbrowser.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 
-#include "star.h"
-#include "stardb.h"
-#include "univcoord.h"
-#include "universe.h"
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/univcoord.h>
+#include <celengine/model/universe.h>
 
 namespace celestia::engine
 {

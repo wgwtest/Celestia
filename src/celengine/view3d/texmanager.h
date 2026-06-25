@@ -22,7 +22,7 @@
 #include <celutil/flag.h>
 #include <celutil/fsutils.h>
 #include <celutil/texhandle.h>
-#include "texture.h"
+#include <celengine/view3d/texture.h>
 
 namespace celestia::engine
 {

@@ -11,7 +11,7 @@
 
 #include <Eigen/Core>
 
-#include <celengine/projectionmode.h>
+#include <celengine/view3d/projectionmode.h>
 
 namespace celestia::engine
 {

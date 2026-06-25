@@ -16,11 +16,11 @@
 
 #include <fmt/printf.h>
 
-#include <celengine/render.h>
+#include <celengine/view3d/render.h>
 #include <celmath/randutils.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
-#include "globular.h"
+#include <celengine/legacy/globular.h>
 
 namespace astro = celestia::astro;
 namespace math = celestia::math;

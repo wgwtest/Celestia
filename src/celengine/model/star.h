@@ -24,8 +24,8 @@
 
 #include <celutil/array_view.h>
 #include <celutil/flag.h>
-#include "astroobj.h"
-#include "stellarclass.h"
+#include <celengine/model/astroobj.h>
+#include <celengine/model/stellarclass.h>
 
 class Selection;
 class Star;

@@ -14,8 +14,8 @@
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 
 #include <celutil/texhandle.h>
-#include "meshmanager.h"
-#include "stellarclass.h"
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/stellarclass.h>
 
 class Star;
 class StarDetails;

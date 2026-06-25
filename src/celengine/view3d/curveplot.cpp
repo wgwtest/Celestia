@@ -29,11 +29,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <celrender/linerenderer.h>
+#include <celrender/view3d/linerenderer.h>
 
-#include "curveplot.h"
-#include "render.h"
-#include "shadermanager.h"
+#include <celengine/view3d/curveplot.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
 
 using celestia::render::LineRenderer;
 

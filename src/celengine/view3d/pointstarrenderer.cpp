@@ -8,22 +8,22 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "pointstarrenderer.h"
+#include <celengine/view3d/pointstarrenderer.h>
 
 #include <algorithm>
 #include <cmath>
 
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>
-#include <celengine/glsupport.h>
-#include <celengine/starcolors.h>
-#include <celengine/star.h>
-#include <celengine/univcoord.h>
-#include <celrender/psfglowlargerenderer.h>
-#include "observer.h"
-#include "pointstarvertexbuffer.h"
-#include "psfstarvertexbuffer.h"
-#include "render.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/starcolors.h>
+#include <celengine/model/star.h>
+#include <celengine/model/univcoord.h>
+#include <celrender/view3d/psfglowlargerenderer.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/pointstarvertexbuffer.h>
+#include <celengine/view3d/psfstarvertexbuffer.h>
+#include <celengine/view3d/render.h>
 
 #include <fmt/printf.h>
 

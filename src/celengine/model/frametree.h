@@ -15,8 +15,8 @@
 #include <memory>
 #include <vector>
 
-#include "body.h"
-#include "selection.h"
+#include <celengine/model/body.h>
+#include <celengine/controller/selection.h>
 
 class ReferenceFrame;
 class Star;

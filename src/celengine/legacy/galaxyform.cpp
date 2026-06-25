@@ -14,10 +14,10 @@
 #include <celimage/image.h>
 #include <celmath/randutils.h>
 #include <celutil/logger.h>
-#include "render.h"
-#include "texture.h"
-#include "galaxy.h"
-#include "galaxyform.h"
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/texture.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/galaxyform.h>
 
 namespace celestia::engine
 {

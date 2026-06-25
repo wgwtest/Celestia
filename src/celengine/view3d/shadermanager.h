@@ -22,7 +22,7 @@
 
 #include <celutil/color.h>
 #include <celutil/flag.h>
-#include <celengine/glshader.h>
+#include <celengine/view3d/glshader.h>
 
 struct Atmosphere;
 class LightingState;

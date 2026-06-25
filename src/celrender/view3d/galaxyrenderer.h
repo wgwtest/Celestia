@@ -15,7 +15,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/galaxyform.h>
+#include <celengine/legacy/galaxyform.h>
 
 class CelestiaGLProgram;
 class Galaxy;

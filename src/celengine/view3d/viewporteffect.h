@@ -14,10 +14,10 @@
 #include <string>
 #include <string_view>
 
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
-#include "framebuffer.h"
-#include "shadermanager.h"
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/shadermanager.h>
 
 class Renderer;
 class CelestiaGLProgram;

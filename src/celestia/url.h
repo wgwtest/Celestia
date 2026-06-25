@@ -17,8 +17,8 @@
 #include <Eigen/Geometry>
 
 #include <celastro/date.h>
-#include <celengine/observer.h>
-#include <celengine/selection.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/selection.h>
 
 #include "celestiastate.h"
 

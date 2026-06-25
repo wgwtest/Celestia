@@ -15,16 +15,16 @@
 #include <string_view>
 #include <vector>
 
-#include <celengine/boundaries.h>
-#include <celengine/completion.h>
-#include <celengine/univcoord.h>
-#include <celengine/stardb.h>
-#include <celengine/dsodb.h>
-#include <celengine/solarsys.h>
-#include <celengine/deepskyobj.h>
-#include <celengine/marker.h>
-#include <celengine/selection.h>
-#include <celengine/asterism.h>
+#include <celengine/model/boundaries.h>
+#include <celengine/model/completion.h>
+#include <celengine/model/univcoord.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/asterism.h>
 #include <celutil/array_view.h>
 
 namespace celestia::engine

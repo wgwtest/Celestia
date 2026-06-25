@@ -17,7 +17,7 @@
 #include <string_view>
 #include <vector>
 
-#include <celengine/completion.h>
+#include <celengine/model/completion.h>
 #include <celutil/array_view.h>
 
 class Color;

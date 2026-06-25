@@ -14,7 +14,7 @@
 
 #include <QObject>
 
-#include <celengine/render.h>
+#include <celengine/view3d/render.h>
 
 class QAction;
 class QMenu;

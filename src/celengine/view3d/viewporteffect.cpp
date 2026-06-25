@@ -8,13 +8,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "viewporteffect.h"
+#include <celengine/view3d/viewporteffect.h>
 
 #include <array>
 
-#include "framebuffer.h"
-#include "render.h"
-#include "warpmesh.h"
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/warpmesh.h>
 
 namespace gl = celestia::gl;
 namespace util = celestia::util;

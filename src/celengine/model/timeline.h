@@ -14,7 +14,7 @@
 
 #include <memory>
 #include <vector>
-#include "timelinephase.h"
+#include <celengine/model/timelinephase.h>
 
 class Timeline
 {

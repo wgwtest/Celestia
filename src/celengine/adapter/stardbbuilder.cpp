@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "stardbbuilder.h"
+#include <celengine/adapter/stardbbuilder.h>
 
 #include <algorithm>
 #include <array>
@@ -39,12 +39,12 @@
 #include <celutil/parser.h>
 #include <celutil/timer.h>
 #include <celutil/tokenizer.h>
-#include "meshmanager.h"
-#include "octreebuilder.h"
-#include "stardb.h"
-#include "starrenderassets.h"
-#include "stellarclass.h"
-#include "urlmanager.h"
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/octreebuilder.h>
+#include <celengine/model/stardb.h>
+#include <celengine/adapter/starrenderassets.h>
+#include <celengine/model/stellarclass.h>
+#include <celengine/model/urlmanager.h>
 
 using namespace std::string_view_literals;
 

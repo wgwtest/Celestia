@@ -8,20 +8,20 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "atmosphererenderer.h"
+#include <celrender/view3d/atmosphererenderer.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstring>
 
 #include <celcompat/numbers.h>
-#include <celengine/atmosphere.h>
-#include <celengine/glsupport.h>
-#include <celengine/lightenv.h>
-#include <celengine/lodspheremesh.h>
-#include <celengine/render.h>
-#include <celengine/renderinfo.h>
-#include <celengine/shadermanager.h>
+#include <celengine/model/atmosphere.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/lightenv.h>
+#include <celengine/view3d/lodspheremesh.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/renderinfo.h>
+#include <celengine/view3d/shadermanager.h>
 #include <celmath/mathlib.h>
 #include <celmath/vecgl.h>
 #include <celutil/indexlist.h>

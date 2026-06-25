@@ -10,7 +10,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "planetgrid.h"
+#include <celengine/view3d/planetgrid.h>
 
 #include <algorithm>
 #include <cassert>
@@ -27,10 +27,10 @@
 #include <celmath/intersect.h>
 #include <celmath/mathlib.h>
 #include <celmath/vecgl.h>
-#include <celrender/linerenderer.h>
-#include <celrender/referencemarkrenderer.h>
-#include "body.h"
-#include "render.h"
+#include <celrender/view3d/linerenderer.h>
+#include <celrender/view3d/referencemarkrenderer.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/render.h>
 
 using namespace std::string_view_literals;
 

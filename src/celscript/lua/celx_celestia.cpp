@@ -17,10 +17,10 @@
 
 #include <fmt/format.h>
 
-#include <celengine/category.h>
-#include <celengine/texture.h>
+#include <celengine/model/category.h>
+#include <celengine/view3d/texture.h>
 #ifdef USE_FFMPEG
-#include <celengine/videooverlay.h>
+#include <celengine/view3d/videooverlay.h>
 #endif
 #include <celestia/audiosession.h>
 #include <celestia/configfile.h>

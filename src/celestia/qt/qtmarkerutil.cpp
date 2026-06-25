@@ -13,7 +13,7 @@
 
 #include <QComboBox>
 
-#include <celengine/marker.h>
+#include <celengine/legacy/marker.h>
 #include <celutil/gettext.h>
 
 namespace celestia::qt

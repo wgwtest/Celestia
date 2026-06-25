@@ -24,10 +24,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/marker.h>
-#include <celengine/observer.h>
-#include <celengine/renderflags.h>
-#include <celengine/texmanager.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/renderflags.h>
+#include <celengine/view3d/texmanager.h>
 #include <celutil/color.h>
 
 enum class BodyClassification : std::uint32_t;

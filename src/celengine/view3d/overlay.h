@@ -16,7 +16,7 @@
 #include <vector>
 #include <fmt/printf.h>
 #include <Eigen/Core>
-#include <celengine/textlayout.h>
+#include <celengine/view3d/textlayout.h>
 
 class Color;
 class Overlay;

@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <celmath/mathlib.h>
-#include "imageoverlay.h"
-#include "rectangle.h"
-#include "render.h"
+#include <celengine/view3d/imageoverlay.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/view3d/render.h>
 
 ImageOverlay::ImageOverlay(const std::filesystem::path& f, Renderer *r) :
     texture(LoadTextureFromFile(f.is_relative() ? "images" / f : f,

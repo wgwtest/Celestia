@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <celengine/starrenderassets.h>
+#include <celengine/adapter/starrenderassets.h>
 #ifdef CELX
 #include <celutil/associativearray.h>
 #endif

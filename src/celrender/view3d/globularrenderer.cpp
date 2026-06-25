@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "globularrenderer.h"
+#include <celrender/view3d/globularrenderer.h>
 
 #include <algorithm>
 #include <array>
@@ -19,16 +19,16 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/globular.h>
-#include <celengine/glsupport.h>
-#include <celengine/render.h>
-#include <celengine/shadermanager.h>
-#include <celengine/texture.h>
+#include <celengine/legacy/globular.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texture.h>
 #include <celimage/pixelformat.h>
 #include <celmath/geomutil.h>
 #include <celmath/randutils.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/color.h>
 
 namespace gl = celestia::gl;

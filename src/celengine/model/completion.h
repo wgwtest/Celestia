@@ -12,7 +12,7 @@
 #include <functional>
 #include <string>
 #include <variant>
-#include <celengine/selection.h>
+#include <celengine/controller/selection.h>
 
 namespace celestia::engine
 {

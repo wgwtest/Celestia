@@ -17,8 +17,8 @@
 
 #include <Eigen/Geometry>
 
-#include <celengine/observer.h>
-#include <celengine/univcoord.h>
+#include <celengine/controller/observer.h>
+#include <celengine/model/univcoord.h>
 
 struct FavoritesEntry
 {

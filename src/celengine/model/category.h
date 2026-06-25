@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <celengine/parseobject.h>
-#include <celengine/selection.h>
+#include <celengine/model/parseobject.h>
+#include <celengine/controller/selection.h>
 #include <celutil/array_view.h>
 
 namespace celestia::util

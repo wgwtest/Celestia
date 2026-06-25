@@ -24,7 +24,7 @@
 #include <Eigen/Core>
 
 #include <celastro/date.h>
-#include <celengine/selection.h>
+#include <celengine/controller/selection.h>
 #include <celestia/overlaymanager.h>
 #include <celestia/textinput.h>
 #include <celestia/textprintposition.h>

@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <celengine/starbrowser.h>
+#include <celengine/legacy/starbrowser.h>
 
 #include <windows.h>
 

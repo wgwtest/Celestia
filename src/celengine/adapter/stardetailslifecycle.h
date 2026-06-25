@@ -11,7 +11,7 @@
 
 #include <functional>
 
-#include "stellarclass.h"
+#include <celengine/model/stellarclass.h>
 
 class StarDetails;
 

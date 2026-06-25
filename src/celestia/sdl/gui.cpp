@@ -14,12 +14,12 @@
 
 #include <algorithm>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 
-#include <celengine/simulation.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 #include <celutil/stringutils.h>
 #include "aboutdialog.h"

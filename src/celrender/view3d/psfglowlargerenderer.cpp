@@ -7,14 +7,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "psfglowlargerenderer.h"
+#include <celrender/view3d/psfglowlargerenderer.h>
 
 #include <algorithm>
 
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>
-#include <celengine/glsupport.h>
-#include <celengine/shadermanager.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/shadermanager.h>
 
 namespace celestia::render
 {

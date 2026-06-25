@@ -21,11 +21,11 @@
 #include <string_view>
 #include <utility>
 #include <celastro/astro.h>
-#include <celengine/asterism.h>
+#include <celengine/model/asterism.h>
 #include <celscript/legacy/cmdparser.h>
 #include <celscript/legacy/execution.h>
-#include <celengine/timeline.h>
-#include <celengine/timelinephase.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include <celutil/logger.h>

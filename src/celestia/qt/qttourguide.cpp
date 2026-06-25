@@ -12,10 +12,10 @@
 
 #include "qttourguide.h"
 
-#include <celengine/simulation.h>
-#include <celengine/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/controller/selection.h>
 #include <celestia/celestiacore.h>
-#include <celengine/observer.h>
+#include <celengine/controller/observer.h>
 #include <celutil/gettext.h>
 
 #include <string>

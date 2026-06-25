@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 #include <celutil/array_view.h>
 
 namespace celestia::gl

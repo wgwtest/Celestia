@@ -12,7 +12,7 @@
 #include "celx.h"
 #include "celx_internal.h"
 #include "celx_object.h"
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 #include "glcompat.h"
 
 

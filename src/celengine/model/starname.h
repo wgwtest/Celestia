@@ -19,7 +19,7 @@
 #include <memory>
 #include <string_view>
 
-#include <celengine/name.h>
+#include <celengine/model/name.h>
 
 enum class StarCatalog : unsigned int
 {

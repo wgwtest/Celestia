@@ -18,7 +18,7 @@
 #include <Eigen/Geometry>
 
 #include <celutil/texhandle.h>
-#include "renderflags.h"
+#include <celengine/view3d/renderflags.h>
 
 struct Atmosphere;
 class LightingState;

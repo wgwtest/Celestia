@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "meshmanager.h"
+#include <celengine/view3d/meshmanager.h>
 
 class Nebula;
 

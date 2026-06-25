@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 
-#include <celengine/constellation.h>
+#include <celengine/model/constellation.h>
 
 #include <doctest.h>
 

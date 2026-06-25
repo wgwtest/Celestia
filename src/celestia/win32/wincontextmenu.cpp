@@ -22,13 +22,13 @@
 
 #include <fmt/format.h>
 
-#include <celengine/body.h>
-#include <celengine/bodyrenderassets.h>
-#include <celengine/dsodb.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/stardb.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/universe.h>
 #include <celutil/gettext.h>
 
 #include "res/resource.h"

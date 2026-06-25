@@ -7,12 +7,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "asterismrenderer.h"
+#include <celrender/view3d/asterismrenderer.h>
 
 #include <cassert>
 #include <cstddef>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 #include <celutil/color.h>
 
 namespace celestia::render

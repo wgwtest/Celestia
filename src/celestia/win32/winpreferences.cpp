@@ -19,9 +19,9 @@
 
 #include <fmt/format.h>
 
-#include <celengine/galaxy.h>
-#include <celengine/observer.h>
-#include <celengine/simulation.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 #include <celutil/gettext.h>
 #include <celutil/logger.h>

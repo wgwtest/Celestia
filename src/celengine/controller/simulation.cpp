@@ -10,15 +10,15 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "simulation.h"
+#include <celengine/controller/simulation.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <utility>
 
 #include <celutil/strnatcmp.h>
-#include "body.h"
-#include "location.h"
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
 
 
 Simulation::Simulation(std::unique_ptr<Universe>&& universe,

@@ -1,4 +1,4 @@
-#include "name.h"
+#include <celengine/model/name.h>
 
 #include <utility>
 

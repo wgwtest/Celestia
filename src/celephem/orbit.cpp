@@ -17,7 +17,7 @@
 #include <utility>
 
 #include <celcompat/numbers.h>
-#include <celengine/body.h>
+#include <celengine/model/body.h>
 #include <celmath/mathlib.h>
 #include <celmath/solve.h>
 #include <celmath/geomutil.h>

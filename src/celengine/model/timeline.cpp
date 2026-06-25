@@ -10,11 +10,11 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "timeline.h"
+#include <celengine/model/timeline.h>
 
 #include <utility>
 
-#include "frametree.h"
+#include <celengine/model/frametree.h>
 
 bool
 Timeline::appendPhase(std::unique_ptr<TimelinePhase>&& phase)

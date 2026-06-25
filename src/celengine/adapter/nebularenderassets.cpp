@@ -7,12 +7,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "nebularenderassets.h"
+#include <celengine/adapter/nebularenderassets.h>
 
 #include <unordered_map>
 
-#include "nebula.h"
-#include "nebulalifecycle.h"
+#include <celengine/model/nebula.h>
+#include <celengine/adapter/nebulalifecycle.h>
 
 namespace engine = celestia::engine;
 

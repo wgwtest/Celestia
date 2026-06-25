@@ -1,7 +1,7 @@
 #include <doctest.h>
 
-#include <celengine/category.h>
-#include <celengine/star.h>
+#include <celengine/model/category.h>
+#include <celengine/model/star.h>
 
 TEST_SUITE_BEGIN("Category");
 

@@ -16,12 +16,12 @@
 #include <celmath/frustum.h>
 #include <celmath/mathlib.h>
 #include <celmath/vecgl.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
-#include <celrender/linerenderer.h>
-#include "marker.h"
-#include "observer.h"
-#include "render.h"
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
+#include <celrender/view3d/linerenderer.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/render.h>
 
 using namespace celestia;
 using celestia::render::LineRenderer;

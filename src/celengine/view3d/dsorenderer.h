@@ -17,9 +17,9 @@
 
 #include <celmath/frustum.h>
 #include <celmath/mathlib.h>
-#include <celrender/rendererfwd.h>
-#include "objectrenderer.h"
-#include "projectionmode.h"
+#include <celrender/view3d/rendererfwd.h>
+#include <celengine/view3d/objectrenderer.h>
+#include <celengine/view3d/projectionmode.h>
 
 class DeepSkyObject;
 class DSODatabase;

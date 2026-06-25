@@ -16,8 +16,8 @@
 #include <celmodel/material.h>
 #include <celmodel/mesh.h>
 
-#include "glsupport.h"
-#include "shadermanager.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/shadermanager.h>
 
 struct Atmosphere;
 class Color;

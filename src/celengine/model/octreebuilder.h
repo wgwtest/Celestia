@@ -27,7 +27,7 @@
 #include <Eigen/Geometry>
 
 #include <celutil/blockarray.h>
-#include "octree.h"
+#include <celengine/model/octree.h>
 
 namespace celestia::engine
 {

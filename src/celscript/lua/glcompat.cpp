@@ -16,8 +16,8 @@
 #include <memory>
 #include <Eigen/Core>
 #include <fmt/format.h>
-#include <celengine/glsupport.h>
-#include <celengine/shadermanager.h>    // CelestiaGLProgram::*Index
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/shadermanager.h>    // CelestiaGLProgram::*Index
 #include <celmath/vecgl.h>              // math::translate
 #include "glcompat.h"
 

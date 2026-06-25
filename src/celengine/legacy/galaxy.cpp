@@ -14,9 +14,9 @@
 #include <celutil/associativearray.h>
 #include <celutil/gettext.h>
 #include <celutil/stringutils.h>
-#include "galaxy.h"
-#include "galaxyform.h"
-#include "render.h"
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/galaxyform.h>
+#include <celengine/view3d/render.h>
 
 using namespace std::string_view_literals;
 

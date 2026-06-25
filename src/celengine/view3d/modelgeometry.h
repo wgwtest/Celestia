@@ -15,7 +15,7 @@
 #include <Eigen/Geometry>
 
 #include <celmodel/model.h>
-#include "geometry.h"
+#include <celengine/view3d/geometry.h>
 
 class RenderContext;
 

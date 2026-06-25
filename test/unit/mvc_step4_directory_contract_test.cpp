@@ -127,13 +127,13 @@ TEST_CASE("celengine CMake buckets use directory-qualified paths")
     checkNoToken(cmake, "\n  galaxy.cpp");
 }
 
-TEST_CASE("public celengine include compatibility is preserved by forwarding headers")
+TEST_CASE("Step5 removes public celengine forwarding headers after include migration")
 {
-    checkContains(readSourceFile("src/celengine/body.h"), "#include \"model/body.h\"");
-    checkContains(readSourceFile("src/celengine/simulation.h"), "#include \"controller/simulation.h\"");
-    checkContains(readSourceFile("src/celengine/selectionpicker.h"), "#include \"adapter/selectionpicker.h\"");
-    checkContains(readSourceFile("src/celengine/render.h"), "#include \"view3d/render.h\"");
-    checkContains(readSourceFile("src/celengine/galaxy.h"), "#include \"legacy/galaxy.h\"");
+    checkPathMissing("src/celengine/body.h");
+    checkPathMissing("src/celengine/simulation.h");
+    checkPathMissing("src/celengine/selectionpicker.h");
+    checkPathMissing("src/celengine/render.h");
+    checkPathMissing("src/celengine/galaxy.h");
 }
 
 TEST_CASE("celrender renderer helpers live under view3d")

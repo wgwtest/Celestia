@@ -8,21 +8,21 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "galaxyrenderer.h"
+#include <celrender/view3d/galaxyrenderer.h>
 
 #include <cassert>
 #include <cstdint>
 #include <cmath>
 
-#include <celengine/galaxy.h>
-#include <celengine/galaxyform.h>
-#include <celengine/glsupport.h>
-#include <celengine/render.h>
-#include <celengine/shadermanager.h>
-#include <celengine/texture.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/galaxyform.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texture.h>
 #include <celmath/geomutil.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 
 using celestia::engine::GalacticFormManager;
 

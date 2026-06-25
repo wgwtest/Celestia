@@ -9,12 +9,12 @@
 
 #include "view.h"
 
-#include <celengine/framebuffer.h>
-#include <celengine/glsupport.h>
-#include <celengine/overlay.h>
-#include <celengine/rectangle.h>
-#include <celengine/shadermanager.h>
-#include <celengine/viewporteffect.h>
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/overlay.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/viewporteffect.h>
 #include <celutil/logger.h>
 
 using celestia::util::GetLogger;

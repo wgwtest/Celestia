@@ -24,11 +24,11 @@
 
 #include <celcompat/charconv.h>
 #include <celutil/r128util.h>
-#include <celengine/body.h>
-#include <celengine/location.h>
-#include <celengine/render.h>
-#include <celengine/simulation.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/universe.h>
 #include <celutil/gettext.h>
 #include <celutil/logger.h>
 #include <celutil/stringutils.h>

@@ -16,7 +16,7 @@
 #include <windows.h>
 #include <commctrl.h>
 
-#include <celengine/render.h>
+#include <celengine/view3d/render.h>
 #include <celestia/celestiacore.h>
 
 namespace celestia::win32

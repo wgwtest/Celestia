@@ -22,9 +22,9 @@
 #include <QMenu>
 #include <QString>
 
-#include <celengine/body.h>
-#include <celengine/simulation.h>
-#include <celengine/texmanager.h>
+#include <celengine/model/body.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/view3d/texmanager.h>
 #include <celestia/hud.h>
 #include <celestia/celestiacore.h>
 #include <celutil/gettext.h>

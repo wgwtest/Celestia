@@ -11,9 +11,9 @@
 
 #include <Eigen/Core>
 
-#include <celengine/renderflags.h>
-#include <celengine/selection.h>
-#include <celengine/univcoord.h>
+#include <celengine/view3d/renderflags.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/univcoord.h>
 
 class SolarSystem;
 class Universe;

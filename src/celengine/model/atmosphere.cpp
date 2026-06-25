@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "atmosphere.h"
+#include <celengine/model/atmosphere.h>
 
 #ifndef HAVE_CONSTEXPR_CMATH
 #include <cmath>

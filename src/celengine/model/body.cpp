@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "body.h"
+#include <celengine/model/body.h>
 
 #include <algorithm>
 #include <cassert>
@@ -20,18 +20,18 @@
 #include <celephem/rotation.h>
 #include <celmath/mathlib.h>
 #include <celutil/gettext.h>
-#include "atmosphere.h"
-#include "bodylifecycle.h"
-#include "frame.h"
-#include "frametree.h"
-#include "location.h"
-#include "referencemark.h"
-#include "selection.h"
-#include "star.h"
-#include "stardb.h"
-#include "timeline.h"
-#include "timelinephase.h"
-#include "univcoord.h"
+#include <celengine/model/atmosphere.h>
+#include <celengine/adapter/bodylifecycle.h>
+#include <celengine/model/frame.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/referencemark.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
+#include <celengine/model/univcoord.h>
 
 namespace astro = celestia::astro;
 namespace numbers = celestia::numbers;

@@ -24,8 +24,8 @@
 #include <QMap>
 #include <QTextStream>
 
-#include <celengine/framebuffer.h>
-#include <celengine/texture.h>
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/texture.h>
 #include <celestia/qt/qtpathutil.h>
 #include <celimage/image.h>
 #include <celmath/geomutil.h>

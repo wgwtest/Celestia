@@ -12,8 +12,8 @@
 
 #include <cstdint>
 
-#include "octree.h"
-#include "renderflags.h"
+#include <celengine/model/octree.h>
+#include <celengine/view3d/renderflags.h>
 
 class Observer;
 class Renderer;

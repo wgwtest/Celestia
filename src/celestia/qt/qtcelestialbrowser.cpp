@@ -44,16 +44,16 @@
 #include <QVBoxLayout>
 
 #include <celastro/date.h>
-#include <celengine/astroobj.h>
-#include <celengine/marker.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/solarsys.h>
-#include <celengine/star.h>
-#include <celengine/starbrowser.h>
-#include <celengine/stardb.h>
-#include <celengine/univcoord.h>
-#include <celengine/universe.h>
+#include <celengine/model/astroobj.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/star.h>
+#include <celengine/legacy/starbrowser.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/univcoord.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celutil/color.h>
 #include <celutil/flag.h>

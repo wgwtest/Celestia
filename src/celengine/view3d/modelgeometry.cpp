@@ -12,13 +12,13 @@
 #include <array>
 #include <vector>
 #include <utility>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/gettext.h>
 #include <celutil/logger.h>
-#include "glsupport.h"
-#include "modelgeometry.h"
-#include "rendcontext.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/modelgeometry.h>
+#include <celengine/view3d/rendcontext.h>
 
 using celestia::util::GetLogger;
 namespace gl = celestia::gl;

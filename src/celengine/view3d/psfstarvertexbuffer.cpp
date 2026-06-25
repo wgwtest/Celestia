@@ -7,20 +7,20 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "psfstarvertexbuffer.h"
+#include <celengine/view3d/psfstarvertexbuffer.h>
 
 #include <cmath>
 
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>
 #include <celutil/color.h>
 
-#include "glsupport.h"
-#include "render.h"
-#include "shadermanager.h"
-#include "starpipelineowner.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/starpipelineowner.h>
 
 namespace gl  = celestia::gl;
 namespace util = celestia::util;

@@ -19,7 +19,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "deepskyobj.h"
+#include <celengine/model/deepskyobj.h>
 
 struct Matrices;
 

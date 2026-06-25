@@ -12,7 +12,7 @@
 
 #include <Eigen/Core>
 #include <celephem/orbit.h>
-#include "curveplot.h"
+#include <celengine/view3d/curveplot.h>
 
 class OrbitSampler : public celestia::ephem::OrbitSampleProc
 {

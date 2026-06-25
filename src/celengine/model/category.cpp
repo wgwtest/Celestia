@@ -1,4 +1,4 @@
-#include "category.h"
+#include <celengine/model/category.h>
 
 #include <algorithm>
 #include <cassert>

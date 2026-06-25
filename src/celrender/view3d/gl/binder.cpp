@@ -9,7 +9,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-#include "binder.h"
+#include <celrender/view3d/gl/binder.h>
 
 namespace celestia::gl
 {

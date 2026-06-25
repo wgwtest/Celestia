@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "cometrenderer.h"
+#include <celrender/view3d/cometrenderer.h>
 
 #include <algorithm>
 #include <cmath>
@@ -17,11 +17,11 @@
 
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>
-#include <celengine/body.h>
-#include <celengine/glsupport.h>
-#include <celengine/observer.h>
-#include <celengine/render.h>
-#include <celengine/shadermanager.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
 #include <celmath/mathlib.h>
 #include <celmath/vecgl.h>
 #include <celutil/indexlist.h>

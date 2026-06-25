@@ -16,7 +16,7 @@
 #include <celscript/legacy/cmdparser.h>
 #include <celscript/legacy/execenv.h>
 #include <celscript/legacy/execution.h>
-#include <celengine/textlayout.h>
+#include <celengine/view3d/textlayout.h>
 #include <celestia/celestiacore.h>
 #include <celttf/truetypefont.h>
 #include <celutil/gettext.h>

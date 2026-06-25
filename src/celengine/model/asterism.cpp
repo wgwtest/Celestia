@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "asterism.h"
+#include <celengine/model/asterism.h>
 
 #include <memory>
 #include <string_view>
@@ -17,8 +17,8 @@
 #include <celutil/greek.h>
 #include <celutil/logger.h>
 #include <celutil/tokenizer.h>
-#include "star.h"
-#include "stardb.h"
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
 
 namespace util = celestia::util;
 

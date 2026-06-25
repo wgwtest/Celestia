@@ -20,7 +20,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
 #include <boost/version.hpp>
 #include <Eigen/Core>

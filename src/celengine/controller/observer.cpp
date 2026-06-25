@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "observer.h"
+#include <celengine/controller/observer.h>
 
 #include <algorithm>
 #include <cassert>
@@ -22,12 +22,12 @@
 #include <celmath/solve.h>
 #include <celmath/sphere.h>
 #include <celutil/r128.h>
-#include "body.h"
-#include "frame.h"
-#include "frametree.h"
-#include "location.h"
-#include "star.h"
-#include "timeline.h"
+#include <celengine/model/body.h>
+#include <celengine/model/frame.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/location.h>
+#include <celengine/model/star.h>
+#include <celengine/model/timeline.h>
 
 namespace astro = celestia::astro;
 namespace math = celestia::math;

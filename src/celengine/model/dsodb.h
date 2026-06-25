@@ -21,8 +21,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/completion.h>
-#include <celengine/dsooctree.h>
+#include <celengine/model/completion.h>
+#include <celengine/model/dsooctree.h>
 
 class DeepSkyObject;
 class DSODatabaseBuilder;

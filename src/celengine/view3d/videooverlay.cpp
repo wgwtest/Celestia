@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "videooverlay.h"
+#include <celengine/view3d/videooverlay.h>
 
 #ifdef USE_FFMPEG
 
@@ -29,10 +29,10 @@ extern "C"
 }
 
 #include <celutil/logger.h>
-#include "glsupport.h"
-#include "rectangle.h"
-#include "render.h"
-#include "texture.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/texture.h>
 
 using celestia::util::GetLogger;
 

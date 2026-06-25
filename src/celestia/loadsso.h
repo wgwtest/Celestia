@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <celengine/solarsys.h>
+#include <celengine/adapter/solarsys.h>
 
 class ProgressNotifier;
 class Universe;

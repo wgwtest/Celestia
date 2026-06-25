@@ -10,10 +10,10 @@
 #include <QString>
 
 #include <celastro/astro.h>
-#include <celengine/body.h>
-#include <celengine/observer.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
+#include <celengine/model/body.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 #include <celmath/mathlib.h>
 

@@ -1,4 +1,4 @@
-﻿// solarsys.cpp
+// solarsys.cpp
 //
 // Copyright (C) 2001-2009, the Celestia Development Team
 // Original version by Chris Laurel <claurel@gmail.com>
@@ -36,23 +36,23 @@
 #include <celutil/parser.h>
 #include <celutil/stringutils.h>
 #include <celutil/tokenizer.h>
-#include "atmosphere.h"
-#include "body.h"
-#include "bodyrenderassets.h"
-#include "category.h"
-#include "frame.h"
-#include "frametree.h"
-#include "location.h"
-#include "meshmanager.h"
-#include "parseobject.h"
-#include "selection.h"
-#include "solarsys.h"
-#include "surface.h"
-#include "texmanager.h"
-#include "timeline.h"
-#include "timelinephase.h"
-#include "universe.h"
-#include "urlmanager.h"
+#include <celengine/model/atmosphere.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/model/category.h>
+#include <celengine/model/frame.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/parseobject.h>
+#include <celengine/controller/selection.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/surface.h>
+#include <celengine/view3d/texmanager.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
+#include <celengine/model/universe.h>
+#include <celengine/model/urlmanager.h>
 
 // size_t and strncmp are used by the gperf output code
 using std::size_t;

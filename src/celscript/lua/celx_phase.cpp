@@ -13,8 +13,8 @@
 #include "celx.h"
 #include "celx_internal.h"
 #include "celx_phase.h"
-#include <celengine/frametree.h>
-#include <celengine/timelinephase.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/timelinephase.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
 

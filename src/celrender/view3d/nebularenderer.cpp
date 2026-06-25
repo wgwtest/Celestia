@@ -9,14 +9,14 @@
 // of the License, or (at your option) any later version.
 
 #include <algorithm>
-#include <celengine/meshmanager.h>
-#include <celengine/nebula.h>
-#include <celengine/nebularenderassets.h>
-#include <celengine/rendcontext.h>
-#include <celengine/render.h>
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/nebula.h>
+#include <celengine/adapter/nebularenderassets.h>
+#include <celengine/view3d/rendcontext.h>
+#include <celengine/view3d/render.h>
 #include <celmath/geomutil.h>
 #include <celmath/vecgl.h>
-#include "nebularenderer.h"
+#include <celrender/view3d/nebularenderer.h>
 
 
 namespace celestia::render

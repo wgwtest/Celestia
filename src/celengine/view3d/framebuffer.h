@@ -11,7 +11,7 @@
 #pragma once
 
 #include <celutil/flag.h>
-#include "glsupport.h"
+#include <celengine/view3d/glsupport.h>
 
 class FramebufferObject
 {

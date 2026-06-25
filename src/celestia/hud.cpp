@@ -26,15 +26,15 @@
 #endif
 
 #include <celcompat/numbers.h>
-#include <celengine/body.h>
-#include <celengine/location.h>
-#include <celengine/observer.h>
-#include <celengine/overlay.h>
-#include <celengine/rectangle.h>
-#include <celengine/simulation.h>
-#include <celengine/star.h>
-#include <celengine/textlayout.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/overlay.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/star.h>
+#include <celengine/view3d/textlayout.h>
+#include <celengine/model/universe.h>
 #include <celephem/rotation.h>
 #include <celmath/geomutil.h>
 #include <celmath/mathlib.h>

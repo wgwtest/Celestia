@@ -20,7 +20,7 @@
 
 #include <celastro/date.h>
 #include <celcompat/charconv.h>
-#include <celengine/simulation.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 
 namespace celestia::sdl

@@ -21,8 +21,8 @@
 #include <Eigen/Geometry>
 
 #include <celutil/classops.h>
-#include "selection.h"
-#include "shared.h"
+#include <celengine/controller/selection.h>
+#include <celengine/model/shared.h>
 
 class ReferenceFrame;
 

@@ -46,12 +46,12 @@
 #include <QVBoxLayout>
 
 #include <celastro/astro.h>
-#include <celengine/deepskyobj.h>
-#include <celengine/dsodb.h>
-#include <celengine/marker.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/universe.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celutil/color.h>
 #include <celutil/gettext.h>

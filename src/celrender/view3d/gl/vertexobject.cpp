@@ -9,9 +9,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "binder.h"
-#include "buffer.h"
-#include "vertexobject.h"
+#include <celrender/view3d/gl/binder.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 
 #define PTR(p) (reinterpret_cast<void*>(p))
 

@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "selectionpicker.h"
+#include <celengine/adapter/selectionpicker.h>
 
 #include <algorithm>
 #include <cassert>
@@ -21,16 +21,16 @@
 #include <celmath/mathlib.h>
 #include <celmath/ray.h>
 #include <celutil/flag.h>
-#include "body.h"
-#include "deepskyobj.h"
-#include "deepskyobjectpicker.h"
-#include "deepskyobjectrenderpolicy.h"
-#include "frametree.h"
-#include "selectiongeometryprovider.h"
-#include "solarsys.h"
-#include "stardb.h"
-#include "timelinephase.h"
-#include "universe.h"
+#include <celengine/model/body.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/adapter/deepskyobjectpicker.h>
+#include <celengine/adapter/deepskyobjectrenderpolicy.h>
+#include <celengine/model/frametree.h>
+#include <celengine/adapter/selectiongeometryprovider.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/timelinephase.h>
+#include <celengine/model/universe.h>
 
 namespace engine = celestia::engine;
 namespace math = celestia::math;

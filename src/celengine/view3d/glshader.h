@@ -14,7 +14,7 @@
 
 #include <Eigen/Core>
 
-#include "glsupport.h"
+#include <celengine/view3d/glsupport.h>
 
 enum class GLShaderStatus
 {

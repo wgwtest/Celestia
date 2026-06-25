@@ -18,13 +18,13 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/completion.h>
-#include <celengine/texture.h>
-#include <celengine/universe.h>
-#include <celengine/galaxy.h>
-#include <celengine/globular.h>
-#include <celengine/frame.h>
-#include <celengine/observer.h>
+#include <celengine/model/completion.h>
+#include <celengine/view3d/texture.h>
+#include <celengine/model/universe.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/globular.h>
+#include <celengine/model/frame.h>
+#include <celengine/controller/observer.h>
 
 class Simulation
 {

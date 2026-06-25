@@ -13,7 +13,7 @@
 #include <fstream>
 #include <type_traits>
 
-#include <celengine/texmanager.h>
+#include <celengine/view3d/texmanager.h>
 #include <celutil/associativearray.h>
 #include <celutil/fsutils.h>
 #include <celutil/logger.h>

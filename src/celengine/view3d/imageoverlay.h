@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "texture.h"
+#include <celengine/view3d/texture.h>
 
 class Renderer;
 

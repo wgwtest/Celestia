@@ -26,16 +26,16 @@
 #include <QFont>
 #include <QString>
 
-#include <celengine/body.h>
-#include <celengine/bodyrenderassets.h>
-#include <celengine/frametree.h>
-#include <celengine/marker.h>
-#include <celengine/render.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/solarsys.h>
-#include <celengine/timeline.h>
-#include <celengine/timelinephase.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/model/frametree.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
 #include <celestia/celestiacore.h>
 #include <celestia/helper.h>
 #include <celutil/gettext.h>

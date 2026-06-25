@@ -7,14 +7,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "location.h"
+#include <celengine/model/location.h>
 
 #include <cstddef>
 #include <cstring>
 
 #include <Eigen/Geometry>
 
-#include <celengine/body.h>
+#include <celengine/model/body.h>
 #include <celutil/gettext.h>
 
 // size_t and strncmp are used by the gperf output code

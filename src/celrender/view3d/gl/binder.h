@@ -11,10 +11,10 @@
 
 #pragma once
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
-#include "buffer.h"
-#include "vertexobject.h"
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 
 namespace celestia::gl
 {

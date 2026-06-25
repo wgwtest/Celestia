@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "meshmanager.h"
+#include <celengine/view3d/meshmanager.h>
 
 #include <cassert>
 #include <cstring>
@@ -32,8 +32,8 @@
 #include <celutil/logger.h>
 #include <celutil/parser.h>
 #include <celutil/tokenizer.h>
-#include "modelgeometry.h"
-#include "spheremesh.h"
+#include <celengine/view3d/modelgeometry.h>
+#include <celengine/view3d/spheremesh.h>
 
 using celestia::util::GetLogger;
 

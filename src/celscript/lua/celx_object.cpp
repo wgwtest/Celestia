@@ -13,15 +13,15 @@
 #include <cstring>
 #include <iostream>
 
-#include <celengine/atmosphere.h>
-#include <celengine/axisarrow.h>
-#include <celengine/body.h>
-#include <celengine/frametree.h>
-#include <celengine/location.h>
-#include <celengine/planetgrid.h>
-#include <celengine/timeline.h>
-#include <celengine/timelinephase.h>
-#include <celengine/visibleregion.h>
+#include <celengine/model/atmosphere.h>
+#include <celengine/view3d/axisarrow.h>
+#include <celengine/model/body.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/planetgrid.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
+#include <celengine/view3d/visibleregion.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
 #include <celestia/celestiacore.h>

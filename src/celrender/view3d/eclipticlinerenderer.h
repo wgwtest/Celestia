@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "linerenderer.h"
+#include <celrender/view3d/linerenderer.h>
 
 class Renderer;
 

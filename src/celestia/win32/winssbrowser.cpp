@@ -13,11 +13,11 @@
 
 #include <commctrl.h>
 
-#include <celengine/body.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/solarsys.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include "res/resource.h"
 #include "wstringutils.h"

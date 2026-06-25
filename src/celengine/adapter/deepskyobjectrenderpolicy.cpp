@@ -7,9 +7,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "deepskyobjectrenderpolicy.h"
+#include <celengine/adapter/deepskyobjectrenderpolicy.h>
 
-#include "deepskyobj.h"
+#include <celengine/model/deepskyobj.h>
 
 RenderFlags
 getDeepSkyObjectRenderMask(const DeepSkyObject& dso)

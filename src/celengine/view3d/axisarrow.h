@@ -16,10 +16,10 @@
 #include <Eigen/Geometry>
 
 #include <celutil/color.h>
-#include <celengine/referencemark.h>
-#include <celengine/selection.h>
-#include <celengine/shadermanager.h>
-#include <celrender/rendererfwd.h>
+#include <celengine/view3d/referencemark.h>
+#include <celengine/controller/selection.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celrender/view3d/rendererfwd.h>
 
 class Body;
 struct Matrices;

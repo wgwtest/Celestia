@@ -14,9 +14,9 @@
 #include <utility>
 #include <vector>
 
-#include <celengine/imageoverlay.h>
+#include <celengine/view3d/imageoverlay.h>
 #ifdef USE_FFMPEG
-#include <celengine/videooverlay.h>
+#include <celengine/view3d/videooverlay.h>
 #endif
 
 namespace celestia

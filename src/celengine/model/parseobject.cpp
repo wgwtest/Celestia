@@ -11,7 +11,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "parseobject.h"
+#include <celengine/model/parseobject.h>
 
 #include <cassert>
 #include <cmath>
@@ -34,11 +34,11 @@
 #include <celutil/fsutils.h>
 #include <celutil/logger.h>
 #include <celutil/stringutils.h>
-#include "body.h"
-#include "rotationmanager.h"
-#include "selection.h"
-#include "trajmanager.h"
-#include "universe.h"
+#include <celengine/model/body.h>
+#include <celengine/model/rotationmanager.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/trajmanager.h>
+#include <celengine/model/universe.h>
 
 #ifdef CELX
 #include <celephem/scriptorbit.h>

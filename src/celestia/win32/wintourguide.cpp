@@ -15,9 +15,9 @@
 
 #include <commctrl.h>
 
-#include <celengine/observer.h>
-#include <celengine/simulation.h>
-#include <celengine/selection.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/controller/selection.h>
 #include <celestia/celestiacore.h>
 #include <celestia/destination.h>
 

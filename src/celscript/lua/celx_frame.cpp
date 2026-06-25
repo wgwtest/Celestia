@@ -13,7 +13,7 @@
 #include "celx_internal.h"
 #include "celx_frame.h"
 #include <celestia/celestiacore.h>
-#include <celengine/observer.h>
+#include <celengine/controller/observer.h>
 #include <Eigen/Geometry>
 
 using namespace std;

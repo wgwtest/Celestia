@@ -27,8 +27,8 @@
 #include <celastro/date.h>
 #include <celutil/array_view.h>
 #include <celutil/flag.h>
-#include "solarsys.h"
-#include "univcoord.h"
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/univcoord.h>
 
 class Star;
 class Universe;

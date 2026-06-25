@@ -19,12 +19,12 @@
 #include <vector>
 
 #include <celcompat/charconv.h>
-#include <celengine/glsupport.h>
-#include <celengine/render.h>
-#include <celengine/texture.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/texture.h>
 #include <celimage/image.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/logger.h>
 #include <celutil/utf8.h>
 #include <ft2build.h>

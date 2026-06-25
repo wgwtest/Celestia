@@ -5,7 +5,7 @@
 #include <map>
 #include <string_view>
 
-#include <celengine/renderflags.h>
+#include <celengine/view3d/renderflags.h>
 
 class Color;
 enum class BodyClassification : std::uint32_t;

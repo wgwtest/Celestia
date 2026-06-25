@@ -10,7 +10,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "frame.h"
+#include <celengine/model/frame.h>
 
 #include <algorithm>
 #include <cassert>
@@ -21,12 +21,12 @@
 #include <celastro/date.h>
 #include <celephem/rotation.h>
 #include <celmath/geomutil.h>
-#include "body.h"
-#include "location.h"
-#include "selection.h"
-#include "star.h"
-#include "timeline.h"
-#include "univcoord.h"
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/star.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/univcoord.h>
 
 namespace astro = celestia::astro;
 namespace math = celestia::math;

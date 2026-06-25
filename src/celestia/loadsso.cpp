@@ -12,8 +12,8 @@
 #include <fstream>
 #include <memory>
 
-#include <celengine/frame.h>
-#include <celengine/universe.h>
+#include <celengine/model/frame.h>
+#include <celengine/model/universe.h>
 #include <celestia/configfile.h>
 #include <celestia/progressnotifier.h>
 #include <celestia/catalogloader.h>

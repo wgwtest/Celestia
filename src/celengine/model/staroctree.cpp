@@ -10,7 +10,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "staroctree.h"
+#include <celengine/model/staroctree.h>
 
 #include <celastro/astro.h>
 #include <celcompat/numbers.h>

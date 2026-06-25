@@ -63,13 +63,13 @@
 #include <QLineEdit>
 #endif
 
-#include <celengine/body.h>
-#include <celengine/location.h>
-#include <celengine/observer.h>
-#include <celengine/render.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/model/location.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiastate.h>
 #include <celestia/configfile.h>
 #include <celestia/progressnotifier.h>

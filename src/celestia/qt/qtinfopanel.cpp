@@ -28,9 +28,9 @@
 #include <celastro/astro.h>
 #include <celastro/date.h>
 #include <celcompat/numbers.h>
-#include <celengine/body.h>
-#include <celengine/selection.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/controller/selection.h>
+#include <celengine/model/universe.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
 #include <celestia/celestiacore.h>

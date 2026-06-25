@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "deepskyobj.h"
+#include <celengine/model/deepskyobj.h>
 
 #include <cmath>
 #include <utility>
@@ -21,7 +21,7 @@
 #include <celutil/gettext.h>
 #include <celutil/infourl.h>
 #include <celutil/logger.h>
-#include "urlmanager.h"
+#include <celengine/model/urlmanager.h>
 
 namespace astro = celestia::astro;
 namespace engine = celestia::engine;

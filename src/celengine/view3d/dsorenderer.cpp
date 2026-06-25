@@ -8,20 +8,20 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "dsorenderer.h"
+#include <celengine/view3d/dsorenderer.h>
 
-#include <celrender/galaxyrenderer.h>
-#include <celrender/globularrenderer.h>
-#include <celrender/nebularenderer.h>
-#include <celrender/openclusterrenderer.h>
-#include "dsodb.h"
-#include "deepskyobj.h"
-#include "deepskyobjectrenderpolicy.h"
-#include "galaxy.h"
-#include "globular.h"
-#include "nebula.h"
-#include "opencluster.h"
-#include "render.h"
+#include <celrender/view3d/galaxyrenderer.h>
+#include <celrender/view3d/globularrenderer.h>
+#include <celrender/view3d/nebularenderer.h>
+#include <celrender/view3d/openclusterrenderer.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/adapter/deepskyobjectrenderpolicy.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/globular.h>
+#include <celengine/model/nebula.h>
+#include <celengine/model/opencluster.h>
+#include <celengine/view3d/render.h>
 
 namespace astro = celestia::astro;
 namespace math = celestia::math;

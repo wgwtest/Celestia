@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <celengine/body.h>
+#include <celengine/model/body.h>
 
 class Selection;
 class Renderer;

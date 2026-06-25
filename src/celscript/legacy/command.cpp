@@ -14,18 +14,18 @@
 #include <memory>
 #include <sstream>
 
-#include <celengine/asterism.h>
-#include <celengine/body.h>
-#include <celengine/bodyrenderassets.h>
-#include <celengine/dsodb.h>
-#include <celengine/galaxy.h>
-#include <celengine/imageoverlay.h>
-#include <celengine/render.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/solarsys.h>
-#include <celengine/stardb.h>
-#include <celengine/universe.h>
+#include <celengine/model/asterism.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/view3d/imageoverlay.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/universe.h>
 #ifdef USE_MINIAUDIO
 #include <celestia/audiosession.h>
 #endif

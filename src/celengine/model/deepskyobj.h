@@ -19,7 +19,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "astroobj.h"
+#include <celengine/model/astroobj.h>
 
 class Galaxy;
 class Globular;

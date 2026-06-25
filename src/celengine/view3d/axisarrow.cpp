@@ -17,19 +17,19 @@
 #include <celmath/geomutil.h>
 #include <celmath/mathlib.h>
 #include <celmath/vecgl.h>
-#include <celrender/linerenderer.h>
-#include <celrender/referencemarkrenderer.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
-#include "axisarrow.h"
-#include "body.h"
-#include "frame.h"
-#include "frametree.h"
-#include "render.h"
-#include "selection.h"
-#include "shadermanager.h"
-#include "timeline.h"
-#include "timelinephase.h"
+#include <celrender/view3d/linerenderer.h>
+#include <celrender/view3d/referencemarkrenderer.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
+#include <celengine/view3d/axisarrow.h>
+#include <celengine/model/body.h>
+#include <celengine/model/frame.h>
+#include <celengine/model/frametree.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/selection.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
 
 using namespace std::string_view_literals;
 

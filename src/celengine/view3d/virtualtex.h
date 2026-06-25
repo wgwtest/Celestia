@@ -14,7 +14,7 @@
 #include <memory>
 #include <string>
 
-#include <celengine/texture.h>
+#include <celengine/view3d/texture.h>
 
 class VirtualTexture : public Texture
 {

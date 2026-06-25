@@ -8,18 +8,18 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "selection.h"
+#include <celengine/controller/selection.h>
 
 #include <cassert>
 
 #include <fmt/format.h>
 
-#include "body.h"
-#include "deepskyobj.h"
-#include "frametree.h"
-#include "location.h"
-#include "star.h"
-#include "timeline.h"
+#include <celengine/model/body.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/location.h>
+#include <celengine/model/star.h>
+#include <celengine/model/timeline.h>
 
 namespace astro = celestia::astro;
 

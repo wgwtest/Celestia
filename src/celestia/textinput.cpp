@@ -16,9 +16,9 @@
 #include <cstdint>
 #include <cwctype>
 
-#include <celengine/overlay.h>
-#include <celengine/rectangle.h>
-#include <celengine/simulation.h>
+#include <celengine/view3d/overlay.h>
+#include <celengine/view3d/rectangle.h>
+#include <celengine/controller/simulation.h>
 #include <celutil/color.h>
 #include <celutil/gettext.h>
 #include <celutil/utf8.h>

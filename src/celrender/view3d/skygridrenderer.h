@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Eigen/Core>
-#include "linerenderer.h"
+#include <celrender/view3d/linerenderer.h>
 
 class Color;
 class Renderer;

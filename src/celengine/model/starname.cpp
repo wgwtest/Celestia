@@ -10,7 +10,7 @@
 //
 //
 
-#include "starname.h"
+#include <celengine/model/starname.h>
 
 #include <algorithm>
 #include <cassert>
@@ -32,8 +32,8 @@
 #include <celutil/greek.h>
 #include <celutil/logger.h>
 #include <celutil/timer.h>
-#include "astroobj.h"
-#include "constellation.h"
+#include <celengine/model/astroobj.h>
+#include <celengine/model/constellation.h>
 
 using namespace std::string_view_literals;
 

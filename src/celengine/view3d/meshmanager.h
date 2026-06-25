@@ -20,8 +20,8 @@
 
 #include <celutil/classops.h>
 #include <celutil/fsutils.h>
-#include "geometry.h"
-#include "texmanager.h"
+#include <celengine/view3d/geometry.h>
+#include <celengine/view3d/texmanager.h>
 
 namespace celestia::engine
 {

@@ -2,7 +2,7 @@
 
 #include <doctest.h>
 
-#include <celengine/stellarclass.h>
+#include <celengine/model/stellarclass.h>
 
 #define CHECK_NORMAL_STAR(u, _class)                                    \
         REQUIRE(u.getStarType() == StellarClass::NormalStar);           \

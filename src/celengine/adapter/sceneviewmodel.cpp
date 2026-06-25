@@ -7,18 +7,18 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "sceneviewmodel.h"
+#include <celengine/adapter/sceneviewmodel.h>
 
 #include <array>
 #include <string>
 
-#include "body.h"
-#include "deepskyobj.h"
-#include "location.h"
-#include "selection.h"
-#include "simulation.h"
-#include "star.h"
-#include "univcoord.h"
+#include <celengine/model/body.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/model/location.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/star.h>
+#include <celengine/model/univcoord.h>
 
 namespace
 {

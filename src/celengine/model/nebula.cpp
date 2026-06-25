@@ -13,8 +13,8 @@
 #include <celutil/gettext.h>
 #include <celutil/stringutils.h>
 #include <fmt/format.h>
-#include "nebula.h"
-#include "nebulalifecycle.h"
+#include <celengine/model/nebula.h>
+#include <celengine/adapter/nebulalifecycle.h>
 
 namespace util = celestia::util;
 

@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "glshader.h"
+#include <celengine/view3d/glshader.h>
 
 #include <cassert>
 #include <limits>

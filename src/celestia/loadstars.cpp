@@ -12,8 +12,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include <celengine/stardb.h>
-#include <celengine/stardbbuilder.h>
+#include <celengine/model/stardb.h>
+#include <celengine/adapter/stardbbuilder.h>
 #include <celestia/catalogloader.h>
 #include <celestia/configfile.h>
 #include <celestia/progressnotifier.h>

@@ -14,14 +14,14 @@
 #include <cmath>
 #include <vector>
 
-#include "glsupport.h"
+#include <celengine/view3d/glsupport.h>
 
 #include <celutil/filetype.h>
 #include <celutil/gettext.h>
 #include <celutil/logger.h>
-#include "framebuffer.h"
-#include "texture.h"
-#include "virtualtex.h"
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/texture.h>
+#include <celengine/view3d/virtualtex.h>
 
 
 using namespace celestia;

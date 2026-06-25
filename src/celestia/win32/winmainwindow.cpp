@@ -26,13 +26,13 @@
 
 #include <fmt/format.h>
 
-#include <celengine/body.h>
-#include <celengine/bodyrenderassets.h>
-#include <celengine/glsupport.h>
-#include <celengine/marker.h>
-#include <celengine/render.h>
-#include <celengine/simulation.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/legacy/marker.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celestia/celestiastate.h>
 #include <celestia/configfile.h>

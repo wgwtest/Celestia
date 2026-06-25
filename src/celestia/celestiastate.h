@@ -13,8 +13,8 @@
 #include <map>
 #include <string>
 #include <Eigen/Geometry>
-#include <celengine/observer.h>
-#include <celengine/renderflags.h>
+#include <celengine/controller/observer.h>
+#include <celengine/view3d/renderflags.h>
 
 class CelestiaCore;
 

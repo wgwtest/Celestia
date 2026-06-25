@@ -15,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include <celengine/univcoord.h>
+#include <celengine/model/univcoord.h>
 
 class Star;
 class Body;

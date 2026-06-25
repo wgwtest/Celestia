@@ -11,8 +11,8 @@
 
 #include <vector>
 
-#include <celengine/asterism.h>
-#include <celrender/linerenderer.h>
+#include <celengine/model/asterism.h>
+#include <celrender/view3d/linerenderer.h>
 
 class Color;
 class Renderer;

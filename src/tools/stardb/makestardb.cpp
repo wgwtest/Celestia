@@ -16,7 +16,7 @@
 #include <cassert>
 #include <celastro/astro.h>
 #include <celutil/bytes.h>
-#include <celengine/star.h>
+#include <celengine/model/star.h>
 
 using namespace std;
 

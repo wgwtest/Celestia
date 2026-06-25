@@ -19,7 +19,7 @@
 #include <celmath/randutils.h>
 #include <celmodel/mesh.h>
 
-#include "spheremesh.h"
+#include <celengine/view3d/spheremesh.h>
 
 namespace math = celestia::math;
 

@@ -7,10 +7,10 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "perspectiveprojectionmode.h"
+#include <celengine/view3d/perspectiveprojectionmode.h>
 #include <celmath/frustum.h>
 #include <celmath/geomutil.h>
-#include <celengine/shadermanager.h>
+#include <celengine/view3d/shadermanager.h>
 
 namespace celestia::engine
 {

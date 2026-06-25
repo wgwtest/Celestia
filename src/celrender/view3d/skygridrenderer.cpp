@@ -11,7 +11,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "skygridrenderer.h"
+#include <celrender/view3d/skygridrenderer.h>
 
 #include <algorithm>
 #include <array>
@@ -25,13 +25,13 @@
 #include <fmt/format.h>
 
 #include <celcompat/numbers.h>
-#include <celengine/render.h>
-#include <celengine/skygrid.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/skygrid.h>
 #include <celmath/mathlib.h>
 #include <celmath/geomutil.h>
 #include <celmath/vecgl.h>
 #include <celutil/color.h>
-#include "linerenderer.h"
+#include <celrender/view3d/linerenderer.h>
 
 using namespace std::string_view_literals;
 

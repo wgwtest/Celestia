@@ -16,7 +16,7 @@
 
 #include <QMenu>
 
-#include <celengine/selection.h>
+#include <celengine/controller/selection.h>
 
 class QAction;
 class QPoint;

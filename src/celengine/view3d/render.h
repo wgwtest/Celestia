@@ -19,22 +19,22 @@
 
 #include <Eigen/Core>
 
-#include <celengine/body.h>
-#include <celengine/lightenv.h>
-#include <celengine/meshmanager.h>
-#include <celengine/universe.h>
-#include <celengine/selection.h>
-#include <celengine/shadermanager.h>
-#include <celengine/starcolors.h>
-#include <celengine/projectionmode.h>
-#include <celengine/rendcontext.h>
-#include <celengine/renderlistentry.h>
-#include <celengine/texmanager.h>
-#include <celengine/textlayout.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/lightenv.h>
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/universe.h>
+#include <celengine/controller/selection.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/starcolors.h>
+#include <celengine/view3d/projectionmode.h>
+#include <celengine/view3d/rendcontext.h>
+#include <celengine/view3d/renderlistentry.h>
+#include <celengine/view3d/texmanager.h>
+#include <celengine/view3d/textlayout.h>
 #include <celimage/pixelformat.h>
-#include <celrender/rendererfwd.h>
-#include "rendercolors.h"
-#include "renderflags.h"
+#include <celrender/view3d/rendererfwd.h>
+#include <celengine/view3d/rendercolors.h>
+#include <celengine/view3d/renderflags.h>
 
 class RendererWatcher;
 class FrameTree;

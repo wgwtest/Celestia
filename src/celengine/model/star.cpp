@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "star.h"
+#include <celengine/model/star.h>
 
 #include <algorithm>
 #include <cassert>
@@ -23,8 +23,8 @@
 #include <celastro/date.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
-#include "stardetailslifecycle.h"
-#include "univcoord.h"
+#include <celengine/adapter/stardetailslifecycle.h>
+#include <celengine/model/univcoord.h>
 
 using namespace std::string_view_literals;
 

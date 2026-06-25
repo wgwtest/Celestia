@@ -13,9 +13,9 @@
 
 #include <cstdint>
 #include <vector>
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
-#include "buffer.h"
+#include <celrender/view3d/gl/buffer.h>
 
 namespace celestia::gl
 {

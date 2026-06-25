@@ -14,8 +14,8 @@
 
 #include <memory>
 
-#include "frame.h"
-#include "selection.h"
+#include <celengine/model/frame.h>
+#include <celengine/controller/selection.h>
 
 class FrameTree;
 class Body;

@@ -19,8 +19,8 @@
 
 #include <fmt/format.h>
 
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 
 #include "res/resource.h"

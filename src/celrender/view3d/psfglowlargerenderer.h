@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <celrender/largestarrenderer.h>
+#include <celrender/view3d/largestarrenderer.h>
 
 namespace celestia::render
 {

@@ -7,16 +7,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "deepskyobjectpicker.h"
+#include <celengine/adapter/deepskyobjectpicker.h>
 
 #include <celmath/intersect.h>
 #include <celmath/ray.h>
 #include <celmath/sphere.h>
-#include "deepskyobj.h"
-#include "galaxy.h"
-#include "galaxyform.h"
-#include "globular.h"
-#include "opencluster.h"
+#include <celengine/model/deepskyobj.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/galaxyform.h>
+#include <celengine/legacy/globular.h>
+#include <celengine/model/opencluster.h>
 
 namespace math = celestia::math;
 

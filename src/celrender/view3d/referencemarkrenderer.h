@@ -14,7 +14,7 @@
 
 #include "gl/buffer.h"
 #include "gl/vertexobject.h"
-#include "linerenderer.h"
+#include <celrender/view3d/linerenderer.h>
 
 class CelestiaGLProgram;
 

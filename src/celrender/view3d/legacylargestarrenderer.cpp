@@ -7,12 +7,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "legacylargestarrenderer.h"
+#include <celrender/view3d/legacylargestarrenderer.h>
 
-#include <celengine/glsupport.h>
-#include <celengine/render.h>
-#include <celengine/shadermanager.h>
-#include <celengine/texture.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texture.h>
 
 namespace celestia::render
 {

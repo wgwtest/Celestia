@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "lodspheremesh.h"
+#include <celengine/view3d/lodspheremesh.h>
 
 #include <algorithm>
 #include <cassert>
@@ -19,8 +19,8 @@
 #include <boost/container/static_vector.hpp>
 
 #include <celcompat/numbers.h>
-#include <celengine/shadermanager.h>
-#include <celengine/texture.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texture.h>
 #include <celmath/frustum.h>
 #include <celmath/mathlib.h>
 

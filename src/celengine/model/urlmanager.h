@@ -14,7 +14,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "selection.h"
+#include <celengine/controller/selection.h>
 
 namespace celestia::engine
 {

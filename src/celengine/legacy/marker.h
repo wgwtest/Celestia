@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 #include <celutil/color.h>
-#include <celengine/selection.h>
+#include <celengine/controller/selection.h>
 
 class Renderer;
 struct Matrices;

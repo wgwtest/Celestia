@@ -16,9 +16,9 @@
 
 #include <celutil/color.h>
 
-#include "objectrenderer.h"
-#include "renderflags.h"
-#include "renderlistentry.h"
+#include <celengine/view3d/objectrenderer.h>
+#include <celengine/view3d/renderflags.h>
+#include <celengine/view3d/renderlistentry.h>
 
 class ColorTemperatureTable;
 class PointStarVertexBuffer;

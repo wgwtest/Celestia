@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "projectionmode.h"
+#include <celengine/view3d/projectionmode.h>
 
 namespace celestia::engine
 {

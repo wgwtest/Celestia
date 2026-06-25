@@ -27,8 +27,8 @@
 #include <fmt/xchar.h>
 
 #include <celastro/date.h>
-#include <celengine/render.h>
-#include <celengine/simulation.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/simulation.h>
 #include <celestia/celestiacore.h>
 #include <celestia/configfile.h>
 #include <celestia/progressnotifier.h>

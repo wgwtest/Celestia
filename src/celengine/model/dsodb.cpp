@@ -10,14 +10,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "dsodb.h"
+#include <celengine/model/dsodb.h>
 
 #include <algorithm>
 #include <array>
 #include <utility>
 
 #include <celutil/gettext.h>
-#include "name.h"
+#include <celengine/model/name.h>
 
 namespace engine = celestia::engine;
 

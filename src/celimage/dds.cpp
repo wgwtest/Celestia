@@ -15,7 +15,7 @@
 #include <fstream>
 #include <algorithm>
 #include <memory>
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 #include <celutil/logger.h>
 #include <celutil/bytes.h>
 #include "dds_decompress.h"

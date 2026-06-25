@@ -22,17 +22,17 @@
 #include <vector>
 #include <celutil/filetype.h>
 #include <celutil/timer.h>
-#include <celengine/solarsys.h>
-#include <celengine/overlay.h>
-#include <celengine/texture.h>
-#include <celengine/universe.h>
-#include <celengine/render.h>
-#include <celengine/simulation.h>
-#include <celengine/imageoverlay.h>
+#include <celengine/adapter/solarsys.h>
+#include <celengine/view3d/overlay.h>
+#include <celengine/view3d/texture.h>
+#include <celengine/model/universe.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/view3d/imageoverlay.h>
 #ifdef USE_FFMPEG
-#include <celengine/videooverlay.h>
+#include <celengine/view3d/videooverlay.h>
 #endif
-#include <celengine/viewporteffect.h>
+#include <celengine/view3d/viewporteffect.h>
 #include <celimage/pixelformat.h>
 #include <celutil/flag.h>
 #include <celutil/tee.h>

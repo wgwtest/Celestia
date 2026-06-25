@@ -32,7 +32,7 @@
 
 #include <celastro/astro.h>
 #include <celastro/date.h>
-#include <celengine/render.h>
+#include <celengine/view3d/render.h>
 #ifdef USE_MINIAUDIO
 #include <celestia/audiosession.h>
 #endif

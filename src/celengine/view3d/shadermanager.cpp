@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "shadermanager.h"
+#include <celengine/view3d/shadermanager.h>
 
 #include <algorithm>
 #include <cassert>
@@ -32,9 +32,9 @@
 
 #include <celutil/flag.h>
 #include <celutil/logger.h>
-#include "atmosphere.h"
-#include "glsupport.h"
-#include "lightenv.h"
+#include <celengine/model/atmosphere.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/lightenv.h>
 
 
 using celestia::util::GetLogger;

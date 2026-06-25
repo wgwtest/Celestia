@@ -22,7 +22,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <celutil/color.h>
-#include <celengine/timelinephase.h>
+#include <celengine/model/timelinephase.h>
 #include "celx.h"
 
 namespace celestia::util

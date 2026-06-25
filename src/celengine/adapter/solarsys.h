@@ -20,8 +20,8 @@
 
 #include <celutil/associativearray.h>
 #include <celutil/blockarray.h>
-#include "astroobj.h"
-#include "parseobject.h"
+#include <celengine/model/astroobj.h>
+#include <celengine/model/parseobject.h>
 
 class FrameCache;
 class FrameTree;

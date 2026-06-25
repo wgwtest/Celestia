@@ -24,11 +24,11 @@
 #include <fmt/xchar.h>
 
 #include <celastro/date.h>
-#include <celengine/body.h>
-#include <celengine/star.h>
-#include <celengine/stardb.h>
-#include <celengine/univcoord.h>
-#include <celengine/universe.h>
+#include <celengine/model/body.h>
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/univcoord.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celmath/geomutil.h>
 #include <celmath/mathlib.h>

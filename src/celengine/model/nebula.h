@@ -15,7 +15,7 @@
 #include <string>
 #include <string_view>
 
-#include "deepskyobj.h"
+#include <celengine/model/deepskyobj.h>
 
 namespace celestia::util
 {

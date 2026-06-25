@@ -16,7 +16,7 @@ extern "C"
 #include <vector>
 #include <fmt/format.h>
 
-#include <celengine/render.h>
+#include <celengine/view3d/render.h>
 #include <celimage/pixelformat.h>
 
 using namespace std;

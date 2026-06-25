@@ -7,14 +7,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "nebularenderassetloader.h"
+#include <celengine/adapter/nebularenderassetloader.h>
 
 #include <celutil/associativearray.h>
 #include <celutil/fsutils.h>
 #include <celutil/logger.h>
-#include "meshmanager.h"
-#include "nebula.h"
-#include "nebularenderassets.h"
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/nebula.h>
+#include <celengine/adapter/nebularenderassets.h>
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;

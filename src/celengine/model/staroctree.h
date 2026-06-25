@@ -17,8 +17,8 @@
 
 #include <Eigen/Geometry>
 
-#include <celengine/star.h>
-#include <celengine/octree.h>
+#include <celengine/model/star.h>
+#include <celengine/model/octree.h>
 
 namespace celestia::engine
 {

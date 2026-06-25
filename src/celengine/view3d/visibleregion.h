@@ -16,9 +16,9 @@
 
 #include <Eigen/Core>
 
-#include <celengine/referencemark.h>
-#include <celengine/selection.h>
-#include <celrender/rendererfwd.h>
+#include <celengine/view3d/referencemark.h>
+#include <celengine/controller/selection.h>
+#include <celrender/view3d/rendererfwd.h>
 #include <celutil/color.h>
 
 class Body;

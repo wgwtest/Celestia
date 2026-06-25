@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 #include <SDL_events.h>
 #include <SDL_stdinc.h>
 #include <SDL_video.h>

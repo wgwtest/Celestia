@@ -10,7 +10,7 @@
 #pragma once
 
 #include "celx_internal.h"
-#include <celengine/category.h>
+#include <celengine/model/category.h>
 
 
 inline int celxClassId(UserCategoryId)

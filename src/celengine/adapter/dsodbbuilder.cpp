@@ -10,7 +10,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "dsodbbuilder.h"
+#include <celengine/adapter/dsodbbuilder.h>
 
 #include <algorithm>
 #include <cstdint>
@@ -27,17 +27,17 @@
 #include <celutil/parser.h>
 #include <celutil/stringutils.h>
 #include <celutil/tokenizer.h>
-#include "category.h"
-#include "deepskyobj.h"
-#include "dsodb.h"
-#include "dsooctree.h"
-#include "galaxy.h"
-#include "globular.h"
-#include "nebula.h"
-#include "nebularenderassetloader.h"
-#include "octree.h"
-#include "octreebuilder.h"
-#include "opencluster.h"
+#include <celengine/model/category.h>
+#include <celengine/model/deepskyobj.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/model/dsooctree.h>
+#include <celengine/legacy/galaxy.h>
+#include <celengine/legacy/globular.h>
+#include <celengine/model/nebula.h>
+#include <celengine/adapter/nebularenderassetloader.h>
+#include <celengine/model/octree.h>
+#include <celengine/model/octreebuilder.h>
+#include <celengine/model/opencluster.h>
 
 namespace astro = celestia::astro;
 namespace engine = celestia::engine;

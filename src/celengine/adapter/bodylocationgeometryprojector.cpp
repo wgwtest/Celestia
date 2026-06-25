@@ -7,18 +7,18 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "bodylocationgeometryprojector.h"
+#include <celengine/adapter/bodylocationgeometryprojector.h>
 
 #include <cassert>
 
 #include <Eigen/Geometry>
 
 #include <celmath/ray.h>
-#include "body.h"
-#include "bodyrenderassets.h"
-#include "geometry.h"
-#include "location.h"
-#include "meshmanager.h"
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/view3d/geometry.h>
+#include <celengine/model/location.h>
+#include <celengine/view3d/meshmanager.h>
 
 namespace engine = celestia::engine;
 namespace math = celestia::math;

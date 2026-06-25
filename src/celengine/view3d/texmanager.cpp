@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "texmanager.h"
+#include <celengine/view3d/texmanager.h>
 
 #include <array>
 #include <cstddef>
@@ -20,7 +20,7 @@
 #include <boost/container_hash/hash.hpp>
 
 #include <celutil/logger.h>
-#include "texture.h"
+#include <celengine/view3d/texture.h>
 
 using namespace std::string_view_literals;
 using celestia::util::GetLogger;

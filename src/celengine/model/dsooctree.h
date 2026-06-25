@@ -19,8 +19,8 @@
 #include <Eigen/Geometry>
 
 #include <celutil/array_view.h>
-#include "deepskyobj.h"
-#include "octree.h"
+#include <celengine/model/deepskyobj.h>
+#include <celengine/model/octree.h>
 
 namespace celestia::engine
 {

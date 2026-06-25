@@ -23,23 +23,23 @@
 #include <celmath/geomutil.h>
 #include <celmath/mathlib.h>
 #include <celmodel/material.h>
-#include <celrender/gl/buffer.h>
-#include <celrender/gl/vertexobject.h>
+#include <celrender/view3d/gl/buffer.h>
+#include <celrender/view3d/gl/vertexobject.h>
 #include <celutil/color.h>
 #include <celutil/flag.h>
-#include "atmosphere.h"
-#include "body.h"
-#include "bodyrenderassets.h"
-#include "framebuffer.h"
-#include "geometry.h"
-#include "glsupport.h"
-#include "lodspheremesh.h"
-#include "rendcontext.h"
-#include "render.h"
-#include "renderglsl.h"
-#include "renderinfo.h"
-#include "shadermanager.h"
-#include "texture.h"
+#include <celengine/model/atmosphere.h>
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/view3d/framebuffer.h>
+#include <celengine/view3d/geometry.h>
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/lodspheremesh.h>
+#include <celengine/view3d/rendcontext.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/renderglsl.h>
+#include <celengine/view3d/renderinfo.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texture.h>
 
 using namespace celestia;
 

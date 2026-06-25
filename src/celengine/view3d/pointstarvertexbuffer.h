@@ -13,7 +13,7 @@
 #include <memory>
 #include <Eigen/Core>
 
-#include "starpipelineowner.h"
+#include <celengine/view3d/starpipelineowner.h>
 
 class Color;
 class Renderer;

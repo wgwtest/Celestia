@@ -17,8 +17,8 @@
 #include <Eigen/Geometry>
 
 #include <celutil/texhandle.h>
-#include "meshmanager.h"
-#include "surface.h"
+#include <celengine/view3d/meshmanager.h>
+#include <celengine/model/surface.h>
 
 class Body;
 struct RingSystem;

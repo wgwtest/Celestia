@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "framebuffer.h"
+#include <celengine/view3d/framebuffer.h>
 
 #include <array>
 #include <cassert>

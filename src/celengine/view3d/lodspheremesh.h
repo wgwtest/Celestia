@@ -17,8 +17,8 @@
 
 #include <Eigen/Core>
 
-#include <celengine/glsupport.h>
-#include <celrender/gl/buffer.h>
+#include <celengine/view3d/glsupport.h>
+#include <celrender/view3d/gl/buffer.h>
 
 class Texture;
 

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <celrender/linerenderer.h>
+#include <celrender/view3d/linerenderer.h>
 
 class Color;
 class ConstellationBoundaries;

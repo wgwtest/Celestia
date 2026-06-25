@@ -10,18 +10,18 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "universe.h"
+#include <celengine/model/universe.h>
 
 #include <algorithm>
 #include <utility>
 
 #include <celutil/greek.h>
 #include <celutil/utf8.h>
-#include "asterism.h"
-#include "body.h"
-#include "boundaries.h"
-#include "location.h"
-#include "urlmanager.h"
+#include <celengine/model/asterism.h>
+#include <celengine/model/body.h>
+#include <celengine/model/boundaries.h>
+#include <celengine/model/location.h>
+#include <celengine/model/urlmanager.h>
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;

@@ -7,11 +7,11 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "boundariesrenderer.h"
+#include <celrender/view3d/boundariesrenderer.h>
 
 #include <numeric>
 
-#include <celengine/boundaries.h>
+#include <celengine/model/boundaries.h>
 
 namespace celestia::render
 {

@@ -22,12 +22,12 @@
 #include <fmt/format.h>
 #include <fmt/xchar.h>
 
-#include <celengine/observer.h>
-#include <celengine/selection.h>
-#include <celengine/simulation.h>
-#include <celengine/star.h>
-#include <celengine/stardb.h>
-#include <celengine/universe.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/selection.h>
+#include <celengine/controller/simulation.h>
+#include <celengine/model/star.h>
+#include <celengine/model/stardb.h>
+#include <celengine/model/universe.h>
 #include <celestia/celestiacore.h>
 #include <celmath/mathlib.h>
 #include <celutil/gettext.h>

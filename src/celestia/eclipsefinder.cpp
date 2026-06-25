@@ -17,11 +17,11 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/body.h>
-#include <celengine/frametree.h>
-#include <celengine/star.h>
-#include <celengine/timeline.h>
-#include <celengine/timelinephase.h>
+#include <celengine/model/body.h>
+#include <celengine/model/frametree.h>
+#include <celengine/model/star.h>
+#include <celengine/model/timeline.h>
+#include <celengine/model/timelinephase.h>
 #include <celmath/distance.h>
 
 namespace math = celestia::math;

@@ -34,10 +34,10 @@
 #include <QString>
 #include <QWheelEvent>
 
-#include <celengine/body.h>
-#include <celengine/render.h>
-#include <celengine/starcolors.h>
-#include <celengine/texmanager.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/starcolors.h>
+#include <celengine/view3d/texmanager.h>
 #include <celestia/configfile.h>
 #include <celutil/gettext.h>
 #include "qtdraghandler.h"

@@ -17,8 +17,8 @@
 #include <tuple>
 #include <utility>
 
-#include <celengine/observer.h>
-#include <celengine/simulation.h>
+#include <celengine/controller/observer.h>
+#include <celengine/controller/simulation.h>
 #include <celutil/color.h>
 #include "windowmetrics.h"
 

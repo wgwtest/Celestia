@@ -8,9 +8,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include <celengine/opencluster.h>
-#include <celengine/render.h>
-#include "openclusterrenderer.h"
+#include <celengine/model/opencluster.h>
+#include <celengine/view3d/render.h>
+#include <celrender/view3d/openclusterrenderer.h>
 
 
 namespace celestia::render

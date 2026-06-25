@@ -19,10 +19,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/astroobj.h>
-#include <celengine/completion.h>
-#include <celengine/starname.h>
-#include <celengine/staroctree.h>
+#include <celengine/model/astroobj.h>
+#include <celengine/model/completion.h>
+#include <celengine/model/starname.h>
+#include <celengine/model/staroctree.h>
 
 class Star;
 class StarDatabaseBuilder;

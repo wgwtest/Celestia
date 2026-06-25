@@ -14,9 +14,9 @@
 
 #include <imgui.h>
 
-#include <celengine/render.h>
-#include <celengine/starcolors.h>
-#include <celengine/texmanager.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/starcolors.h>
+#include <celengine/view3d/texmanager.h>
 #include <celestia/celestiacore.h>
 #include "helpers.h"
 

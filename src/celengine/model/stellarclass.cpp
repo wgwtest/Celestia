@@ -10,7 +10,7 @@
 #include <cassert>
 #include <cctype>
 
-#include "stellarclass.h"
+#include <celengine/model/stellarclass.h>
 
 namespace
 {

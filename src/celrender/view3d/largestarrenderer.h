@@ -15,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include <celengine/starpipelineowner.h>
+#include <celengine/view3d/starpipelineowner.h>
 
 class Color;
 class Renderer;

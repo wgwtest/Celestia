@@ -14,7 +14,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include <celengine/glsupport.h>
+#include <celengine/view3d/glsupport.h>
 
 #include <QtGlobal>
 #include <QColor>
@@ -32,7 +32,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/glshader.h>
+#include <celengine/view3d/glshader.h>
 #include <celmodel/material.h>
 #include <celmodel/mesh.h>
 

@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "console.h"
+#include <celengine/view3d/console.h>
 
 #include <algorithm>
 #include <cassert>
@@ -15,9 +15,9 @@
 #include <celmath/geomutil.h>
 #include <celttf/truetypefont.h>
 #include <celutil/color.h>
-#include "glsupport.h"
-#include "render.h"
-#include "shadermanager.h"
+#include <celengine/view3d/glsupport.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/shadermanager.h>
 
 namespace math = celestia::math;
 

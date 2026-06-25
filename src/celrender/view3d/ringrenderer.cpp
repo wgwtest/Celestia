@@ -8,7 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "ringrenderer.h"
+#include <celrender/view3d/ringrenderer.h>
 
 #include <algorithm>
 #include <cmath>
@@ -16,15 +16,15 @@
 
 #include <Eigen/Core>
 
-#include <celengine/bodyrenderassets.h>
+#include <celengine/adapter/bodyrenderassets.h>
 #include <celcompat/numbers.h>
-#include <celengine/body.h>
-#include <celengine/lightenv.h>
-#include <celengine/render.h>
-#include <celengine/renderinfo.h>
-#include <celengine/shadermanager.h>
-#include <celengine/texmanager.h>
-#include <celengine/texture.h>
+#include <celengine/model/body.h>
+#include <celengine/view3d/lightenv.h>
+#include <celengine/view3d/render.h>
+#include <celengine/view3d/renderinfo.h>
+#include <celengine/view3d/shadermanager.h>
+#include <celengine/view3d/texmanager.h>
+#include <celengine/view3d/texture.h>
 #include <celmath/mathlib.h>
 
 namespace celestia::render

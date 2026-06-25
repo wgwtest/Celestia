@@ -19,7 +19,7 @@
 #include <lua.hpp>
 
 #include <celutil/timer.h>
-#include <celengine/observer.h>
+#include <celengine/controller/observer.h>
 
 #ifndef LUA_VERSION_NUM
 #define LUA_VERSION_NUM 501

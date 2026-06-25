@@ -8,7 +8,7 @@
 // of the License, or (at your option) any later version.
 
 
-#include "virtualtex.h"
+#include <celengine/view3d/virtualtex.h>
 
 #include <cassert>
 #include <cstdio>

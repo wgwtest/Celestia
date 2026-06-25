@@ -11,8 +11,8 @@
 
 #include <fstream>
 
-#include <celengine/dsodb.h>
-#include <celengine/dsodbbuilder.h>
+#include <celengine/model/dsodb.h>
+#include <celengine/adapter/dsodbbuilder.h>
 #include <celestia/catalogloader.h>
 #include <celestia/configfile.h>
 #include <celestia/progressnotifier.h>

@@ -17,8 +17,8 @@
 #include <memory>
 #include <vector>
 
-#include "astroobj.h"
-#include "name.h"
+#include <celengine/model/astroobj.h>
+#include <celengine/model/name.h>
 
 class DeepSkyObject;
 class DSODatabase;

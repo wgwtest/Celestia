@@ -1,6 +1,6 @@
 #include <fmt/printf.h>
-#include <celengine/render.h>
-#include <celengine/selection.h>
+#include <celengine/view3d/render.h>
+#include <celengine/controller/selection.h>
 #include <celutil/flag.h>
 #include <celutil/gettext.h>
 #include "helper.h"

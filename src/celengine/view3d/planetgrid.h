@@ -16,8 +16,8 @@
 
 #include <Eigen/Core>
 
-#include <celengine/referencemark.h>
-#include <celrender/rendererfwd.h>
+#include <celengine/view3d/referencemark.h>
+#include <celrender/view3d/rendererfwd.h>
 
 class Body;
 struct Matrices;

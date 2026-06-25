@@ -16,7 +16,7 @@
 
 #include <commctrl.h>
 
-#include <celengine/body.h>
+#include <celengine/model/body.h>
 #include <celutil/flag.h>
 #include "res/resource.h"
 

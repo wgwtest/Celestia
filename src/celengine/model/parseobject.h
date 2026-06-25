@@ -16,7 +16,7 @@
 #include <memory>
 #include <string_view>
 
-#include "frame.h"
+#include <celengine/model/frame.h>
 
 class Body;
 class Universe;

@@ -7,13 +7,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "bodyrenderassets.h"
+#include <celengine/adapter/bodyrenderassets.h>
 
 #include <map>
 #include <unordered_map>
 
-#include "body.h"
-#include "bodylifecycle.h"
+#include <celengine/model/body.h>
+#include <celengine/adapter/bodylifecycle.h>
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;

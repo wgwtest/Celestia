@@ -1,7 +1,7 @@
 #include <string>
 #include <fmt/format.h>
-#include <celengine/category.h>
-#include <celengine/selection.h>
+#include <celengine/model/category.h>
+#include <celengine/controller/selection.h>
 #include "celx.h"
 #include "celx_internal.h"
 #include "celx_category.h"

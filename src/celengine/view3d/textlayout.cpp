@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include "textlayout.h"
+#include <celengine/view3d/textlayout.h>
 
 #include <cstddef>
 
