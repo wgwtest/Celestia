@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -26,6 +27,14 @@ std::filesystem::path
 buildRoot()
 {
     return std::filesystem::current_path().parent_path().parent_path();
+}
+
+std::string
+tempName(std::string_view target, std::string_view suffix)
+{
+    const auto buildId = std::hash<std::string>{}(buildRoot().string());
+    return "celestia-" + std::string(target) + "-" + std::to_string(buildId) +
+        "-handshake." + std::string(suffix);
 }
 
 std::filesystem::path
@@ -90,12 +99,9 @@ runHostHandshake(std::string_view target, std::string_view role)
     CAPTURE(exe.string());
     REQUIRE(std::filesystem::exists(exe));
 
-    const auto inputPath = std::filesystem::temp_directory_path() /
-        ("celestia-" + std::string(target) + "-handshake.in");
-    const auto outputPath = std::filesystem::temp_directory_path() /
-        ("celestia-" + std::string(target) + "-handshake.out");
-    const auto scriptPath = std::filesystem::temp_directory_path() /
-        ("celestia-" + std::string(target) + "-handshake.cmd");
+    const auto inputPath = std::filesystem::temp_directory_path() / tempName(target, "in");
+    const auto outputPath = std::filesystem::temp_directory_path() / tempName(target, "out");
+    const auto scriptPath = std::filesystem::temp_directory_path() / tempName(target, "cmd");
 
     writeText(inputPath,
               "protocolVersion=1\n"

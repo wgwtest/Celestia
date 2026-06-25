@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -31,6 +32,14 @@ std::filesystem::path
 buildRoot()
 {
     return std::filesystem::current_path().parent_path().parent_path();
+}
+
+std::string
+tempName(std::string_view target, std::string_view suffix)
+{
+    const auto buildId = std::hash<std::string>{}(buildRoot().string());
+    return "celestia-" + std::string(target) + "-" + std::to_string(buildId) +
+        "-serve." + std::string(suffix);
 }
 
 std::filesystem::path
@@ -148,9 +157,9 @@ TEST_CASE("process host serve mode handles lifecycle frames until shutdown")
     CAPTURE(exe.string());
     REQUIRE(std::filesystem::exists(exe));
 
-    const auto inputPath = std::filesystem::temp_directory_path() / "celestia-model-host-serve.in";
-    const auto outputPath = std::filesystem::temp_directory_path() / "celestia-model-host-serve.out";
-    const auto scriptPath = std::filesystem::temp_directory_path() / "celestia-model-host-serve.cmd";
+    const auto inputPath = std::filesystem::temp_directory_path() / tempName("celestia-model-host", "in");
+    const auto outputPath = std::filesystem::temp_directory_path() / tempName("celestia-model-host", "out");
+    const auto scriptPath = std::filesystem::temp_directory_path() / tempName("celestia-model-host", "cmd");
 
     const auto input =
         celestia::runtime::transport::encodeFrame(lifecycle(celestia::runtime::protocol::RuntimeHello)) +
