@@ -114,6 +114,19 @@ command(RuntimeRole source,
     return envelope;
 }
 
+RuntimeEnvelope
+heartbeat(RuntimeRole target, std::uint64_t sequenceId, std::string_view sessionId)
+{
+    RuntimeEnvelope envelope;
+    envelope.sessionId = std::string(sessionId);
+    envelope.sequenceId = sequenceId;
+    envelope.sourceRole = RuntimeRole::Launcher;
+    envelope.targetRole = target;
+    envelope.kind = RuntimeMessageKind::Heartbeat;
+    envelope.name = protocol::RuntimeHeartbeat;
+    return envelope;
+}
+
 RuntimeHost
 makeHost(RuntimeRole role, std::string name, std::string executableName)
 {
@@ -187,7 +200,8 @@ receive(RuntimeHost& host, std::chrono::milliseconds timeout, std::ostringstream
 
     if (message->kind == RuntimeMessageKind::Error)
     {
-        appendLogLine(log, host.name + " runtime.error: " + message->payload);
+        appendLogLine(log, host.name + " runtime.error name=" + message->name +
+            " payload=" + message->payload);
         return std::nullopt;
     }
 
@@ -234,6 +248,33 @@ consumeStartup(RuntimeHost& host,
 }
 
 bool
+expectHeartbeat(RuntimeHost& host,
+                RuntimeSessionResult& result,
+                std::uint64_t& sequenceId,
+                const RuntimeSessionOptions& options,
+                std::ostringstream& log)
+{
+    if (!send(host, heartbeat(host.role, sequenceId++, options.sessionId), log))
+        return false;
+
+    const auto message = receive(host,
+                                 std::chrono::milliseconds(options.hostReadyTimeoutMilliseconds),
+                                 log);
+    if (!message.has_value())
+        return false;
+
+    if (message->kind != RuntimeMessageKind::Heartbeat ||
+        message->name != protocol::RuntimeHeartbeat)
+    {
+        appendLogLine(log, host.name + " expected heartbeat but received " + message->name);
+        return false;
+    }
+
+    ++result.heartbeatCount;
+    return true;
+}
+
+bool
 shutdownHost(RuntimeHost& host,
              RuntimeSessionResult& result,
              std::uint64_t& sequenceId,
@@ -246,6 +287,14 @@ shutdownHost(RuntimeHost& host,
     if (!send(host, lifecycle(host.role, protocol::RuntimeShutdown, sequenceId++, options.sessionId), log))
         return false;
 
+    if (options.shutdownTimeoutMilliseconds <= 0)
+    {
+        appendLogLine(log, host.name + " shutdown wait timeout");
+        if (host.process->terminate())
+            result.terminatedHost = true;
+        return false;
+    }
+
     const auto stopped = expectLifecycle(host, protocol::RuntimeStopped,
                                          std::chrono::milliseconds(options.shutdownTimeoutMilliseconds),
                                          log);
@@ -255,7 +304,8 @@ shutdownHost(RuntimeHost& host,
     if (!exitCode.has_value())
     {
         appendLogLine(log, host.name + " shutdown wait timeout");
-        host.process->terminate();
+        if (host.process->terminate())
+            result.terminatedHost = true;
     }
 
     if (host.role == RuntimeRole::Controller)
@@ -352,7 +402,7 @@ RuntimeSession::run()
     {
         const auto tickMessage = command(RuntimeRole::Launcher,
                                          RuntimeRole::Controller,
-                                         "controller.tick",
+                                         options_.controllerTickCommandName,
                                          "tick=" + std::to_string(tick),
                                          sequenceId++,
                                          options_.sessionId);
@@ -392,11 +442,24 @@ RuntimeSession::run()
 
         ++result.tickCount;
         ++result.viewFrameCount;
+
+        if (options_.heartbeatEveryTicks > 0 &&
+            (tick + 1) % options_.heartbeatEveryTicks == 0)
+        {
+            if (!expectHeartbeat(controller, result, sequenceId, options_, log) ||
+                !expectHeartbeat(model, result, sequenceId, options_, log) ||
+                !expectHeartbeat(view, result, sequenceId, options_, log))
+            {
+                break;
+            }
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(std::max(options_.tickMilliseconds, 1)));
     }
 
     appendLogLine(log, "tick count=" + std::to_string(result.tickCount));
     appendLogLine(log, "view.frame count=" + std::to_string(result.viewFrameCount));
+    appendLogLine(log, "heartbeat count=" + std::to_string(result.heartbeatCount));
 
     const auto controllerStopped = shutdownHost(controller, result, sequenceId, options_, log);
     const auto modelStopped = shutdownHost(model, result, sequenceId, options_, log);

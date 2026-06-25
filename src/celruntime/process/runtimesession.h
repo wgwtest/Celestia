@@ -24,6 +24,8 @@ struct RuntimeSessionOptions
     int tickMilliseconds{ 125 };
     int hostReadyTimeoutMilliseconds{ 3000 };
     int shutdownTimeoutMilliseconds{ 3000 };
+    int heartbeatEveryTicks{ 0 };
+    std::string controllerTickCommandName{ "controller.tick" };
 };
 
 struct RuntimeSessionResult
@@ -40,6 +42,8 @@ struct RuntimeSessionResult
     int viewExitCode{ -1 };
     int tickCount{ 0 };
     int viewFrameCount{ 0 };
+    int heartbeatCount{ 0 };
+    bool terminatedHost{ false };
     std::string log;
 };
 

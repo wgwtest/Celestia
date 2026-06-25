@@ -28,6 +28,7 @@ set(UNIT_TEST_SOURCES
   mvc_step6_view_service_test.cpp
   mvc_step7_host_process_test.cpp
   mvc_step7_runtime_session_test.cpp
+  mvc_step7_supervisor_resilience_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
