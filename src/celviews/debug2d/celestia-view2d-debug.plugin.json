@@ -1,0 +1,12 @@
+{
+  "id": "celestia.view2d.debug",
+  "name": "Celestia Debug 2D View",
+  "kind": "view2d",
+  "version": "0.1.0",
+  "protocolVersion": 1,
+  "entry": "celestia-view2d-debug-plugin.dll",
+  "processMode": "host-process",
+  "capabilities": ["view.frame", "view.input", "debug2d"],
+  "supportedTransports": ["stdio-pipe"],
+  "resourceRequirements": []
+}

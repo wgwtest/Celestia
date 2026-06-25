@@ -36,6 +36,11 @@ set(UNIT_TEST_SOURCES
   mvc_step8_runtime_session_3d_test.cpp
   mvc_step8_view3d_host_test.cpp
   mvc_step8_view3d_input_test.cpp
+  mvc_step9_view_manifest_test.cpp
+  mvc_step9_view_plugin_abi_test.cpp
+  mvc_step9_view_plugin_loader_test.cpp
+  mvc_step9_view_registry_test.cpp
+  mvc_step9_view_switch_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
@@ -56,6 +61,20 @@ test_case(unit "${UNIT_TEST_SOURCES}")
 target_sources(unit PRIVATE
   "${PROJECT_SOURCE_DIR}/src/celruntime/process/view3dhostloop.cpp"
 )
+
+add_library(celestia-test-view-plugin SHARED
+  mvc_step9_test_view_plugin.cpp
+)
+target_include_directories(celestia-test-view-plugin PRIVATE
+  "${PROJECT_SOURCE_DIR}/src"
+)
+target_compile_definitions(celestia-test-view-plugin PRIVATE
+  CELESTIA_VIEW_PLUGIN_BUILD
+)
+target_compile_definitions(unit PRIVATE
+  CELESTIA_TEST_VIEW_PLUGIN_PATH="$<TARGET_FILE:celestia-test-view-plugin>"
+)
+add_dependencies(unit celestia-test-view-plugin)
 
 if(TARGET celestia-model-host AND TARGET celestia-controller-host AND TARGET celestia-view-host)
   add_dependencies(unit celestia-model-host celestia-controller-host celestia-view-host)

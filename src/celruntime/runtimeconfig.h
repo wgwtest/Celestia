@@ -53,13 +53,29 @@ public:
     std::string_view hostTransport() const;
     void setHostTransport(std::string);
 
+    bool listViews() const;
+    void setListViews(bool);
+
+    const std::string& pluginDirectory() const;
+    void setPluginDirectory(std::string);
+
+    int switchViewAfterMilliseconds() const;
+    void setSwitchViewAfterMilliseconds(int);
+
+    const std::string& switchViewId() const;
+    void setSwitchViewId(std::string);
+
 private:
     std::string m_selectedViewId;
     std::string m_hostTransport;
+    std::string m_pluginDirectory;
+    std::string m_switchViewId;
     RuntimeMode m_runtimeMode;
     bool m_runOnce;
     bool m_serve;
+    bool m_listViews;
     int m_durationMilliseconds;
+    int m_switchViewAfterMilliseconds;
 };
 
 bool applyRuntimeConfigArgument(RuntimeConfig&, std::string_view);

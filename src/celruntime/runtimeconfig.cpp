@@ -49,7 +49,9 @@ RuntimeConfig::RuntimeConfig() :
     m_runtimeMode(DefaultRuntimeMode),
     m_runOnce(false),
     m_serve(false),
-    m_durationMilliseconds(500)
+    m_listViews(false),
+    m_durationMilliseconds(500),
+    m_switchViewAfterMilliseconds(0)
 {
 }
 
@@ -125,6 +127,54 @@ RuntimeConfig::setHostTransport(std::string hostTransport)
     m_hostTransport = std::move(hostTransport);
 }
 
+bool
+RuntimeConfig::listViews() const
+{
+    return m_listViews;
+}
+
+void
+RuntimeConfig::setListViews(bool listViews)
+{
+    m_listViews = listViews;
+}
+
+const std::string&
+RuntimeConfig::pluginDirectory() const
+{
+    return m_pluginDirectory;
+}
+
+void
+RuntimeConfig::setPluginDirectory(std::string pluginDirectory)
+{
+    m_pluginDirectory = std::move(pluginDirectory);
+}
+
+int
+RuntimeConfig::switchViewAfterMilliseconds() const
+{
+    return m_switchViewAfterMilliseconds;
+}
+
+void
+RuntimeConfig::setSwitchViewAfterMilliseconds(int switchViewAfterMilliseconds)
+{
+    m_switchViewAfterMilliseconds = switchViewAfterMilliseconds;
+}
+
+const std::string&
+RuntimeConfig::switchViewId() const
+{
+    return m_switchViewId;
+}
+
+void
+RuntimeConfig::setSwitchViewId(std::string switchViewId)
+{
+    m_switchViewId = std::move(switchViewId);
+}
+
 namespace
 {
 
@@ -154,6 +204,9 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     constexpr std::string_view modeOption{ "--mvc-mode=" };
     constexpr std::string_view durationOption{ "--duration-ms=" };
     constexpr std::string_view transportOption{ "--host-transport=" };
+    constexpr std::string_view pluginDirOption{ "--plugin-dir=" };
+    constexpr std::string_view switchAfterOption{ "--switch-view-after-ms=" };
+    constexpr std::string_view switchViewOption{ "--switch-view=" };
 
     if (argument.compare(0, viewOption.size(), viewOption) == 0)
     {
@@ -183,6 +236,12 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
         return true;
     }
 
+    if (argument == "--list-views")
+    {
+        config.setListViews(true);
+        return true;
+    }
+
     if (argument.compare(0, durationOption.size(), durationOption) == 0)
     {
         const auto duration = parseInt(argument.substr(durationOption.size()));
@@ -190,6 +249,28 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
             return false;
 
         config.setDurationMilliseconds(*duration);
+        return true;
+    }
+
+    if (argument.compare(0, pluginDirOption.size(), pluginDirOption) == 0)
+    {
+        config.setPluginDirectory(std::string(argument.substr(pluginDirOption.size())));
+        return true;
+    }
+
+    if (argument.compare(0, switchAfterOption.size(), switchAfterOption) == 0)
+    {
+        const auto value = parseInt(argument.substr(switchAfterOption.size()));
+        if (!value.has_value() || *value <= 0)
+            return false;
+
+        config.setSwitchViewAfterMilliseconds(*value);
+        return true;
+    }
+
+    if (argument.compare(0, switchViewOption.size(), switchViewOption) == 0)
+    {
+        config.setSwitchViewId(std::string(argument.substr(switchViewOption.size())));
         return true;
     }
 

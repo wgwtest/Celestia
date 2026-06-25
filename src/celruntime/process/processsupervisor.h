@@ -22,6 +22,8 @@ struct ProcessSupervisorOptions
     int durationMilliseconds{ 500 };
     std::string hostTransport{ "stdio-pipe" };
     std::string sessionId{ "default" };
+    int switchViewAfterMilliseconds{ 0 };
+    std::string switchViewId;
 };
 
 struct ProcessSupervisorResult

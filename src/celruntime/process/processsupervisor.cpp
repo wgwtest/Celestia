@@ -386,6 +386,8 @@ ProcessSupervisor::runRuntime() const
     sessionOptions.viewId = options_.viewId;
     sessionOptions.sessionId = options_.sessionId;
     sessionOptions.durationMilliseconds = options_.durationMilliseconds;
+    sessionOptions.switchViewAfterMilliseconds = options_.switchViewAfterMilliseconds;
+    sessionOptions.switchViewId = options_.switchViewId;
 
     RuntimeSession session(sessionOptions);
     const auto sessionResult = session.run();

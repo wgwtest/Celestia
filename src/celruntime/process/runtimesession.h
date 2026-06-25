@@ -26,6 +26,8 @@ struct RuntimeSessionOptions
     int shutdownTimeoutMilliseconds{ 3000 };
     int heartbeatEveryTicks{ 0 };
     std::string controllerTickCommandName{ "controller.tick" };
+    int switchViewAfterMilliseconds{ 0 };
+    std::string switchViewId;
 };
 
 struct RuntimeSessionResult

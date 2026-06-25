@@ -1,0 +1,12 @@
+{
+  "id": "celestia.view3d.opengl",
+  "name": "Celestia OpenGL 3D View",
+  "kind": "view3d",
+  "version": "0.1.0",
+  "protocolVersion": 1,
+  "entry": "celestia-view3d-plugin.dll",
+  "processMode": "host-process",
+  "capabilities": ["scene.frame", "view.input", "opengl", "sdl-window"],
+  "supportedTransports": ["stdio-pipe"],
+  "resourceRequirements": ["content-root"]
+}

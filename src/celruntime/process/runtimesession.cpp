@@ -154,13 +154,13 @@ viewExecutableName(std::string_view viewId)
 }
 
 std::string
-controllerTickPayload(int tick, const RuntimeSessionOptions& options)
+controllerTickPayload(int tick, std::string_view viewId, int tickMilliseconds)
 {
     auto payload = "tick=" + std::to_string(tick);
-    if (usesSceneFrame(options.viewId))
+    if (usesSceneFrame(viewId))
     {
-        payload += ";view=" + options.viewId;
-        payload += ";dt=" + std::to_string(std::max(options.tickMilliseconds, 1) / 1000.0);
+        payload += ";view=" + std::string(viewId);
+        payload += ";dt=" + std::to_string(std::max(tickMilliseconds, 1) / 1000.0);
     }
 
     return payload;
@@ -169,6 +169,7 @@ controllerTickPayload(int tick, const RuntimeSessionOptions& options)
 bool
 startHost(RuntimeHost& host,
           const RuntimeSessionOptions& options,
+          std::string_view viewId,
           std::ostringstream& log)
 {
     const auto executable = hostExecutable(options.runtimeHostDirectory, host.executableName);
@@ -185,7 +186,7 @@ startHost(RuntimeHost& host,
     processOptions.arguments = {
         "--stdio",
         "--protocol-version=1",
-        "--view=" + options.viewId,
+        "--view=" + std::string(viewId),
         "--serve",
         "--session=" + options.sessionId,
     };
@@ -197,6 +198,43 @@ startHost(RuntimeHost& host,
         return false;
     }
 
+    return true;
+}
+
+bool send(RuntimeHost& host, const RuntimeEnvelope& envelope, std::ostringstream& log);
+bool expectLifecycle(RuntimeHost& host,
+                     std::string_view expectedName,
+                     std::chrono::milliseconds timeout,
+                     std::ostringstream& log);
+bool consumeStartup(RuntimeHost& host,
+                    std::chrono::milliseconds timeout,
+                    std::ostringstream& log);
+
+bool
+startViewHost(RuntimeHost& view,
+              const RuntimeSessionOptions& options,
+              std::string_view viewId,
+              std::uint64_t& sequenceId,
+              std::chrono::milliseconds timeout,
+              std::ostringstream& log)
+{
+    view = makeHost(RuntimeRole::View, "view", viewExecutableName(viewId));
+    if (!startHost(view, options, viewId, log))
+        return false;
+
+    if (!send(view, lifecycle(RuntimeRole::View, protocol::RuntimeHello, sequenceId++, options.sessionId), log) ||
+        !expectLifecycle(view, protocol::RuntimeReady, timeout, log))
+    {
+        return false;
+    }
+
+    if (!send(view, lifecycle(RuntimeRole::View, protocol::RuntimeStart, sequenceId++, options.sessionId), log) ||
+        !consumeStartup(view, timeout, log))
+    {
+        return false;
+    }
+
+    appendLogLine(log, "loaded view " + std::string(viewId));
     return true;
 }
 
@@ -466,11 +504,12 @@ RuntimeSession::run()
     auto controller = makeHost(RuntimeRole::Controller, "controller", "celestia-controller-host");
     auto model = makeHost(RuntimeRole::Model, "model", "celestia-model-host");
     auto view = makeHost(RuntimeRole::View, "view", viewExecutableName(options_.viewId));
-    const auto sceneFrameMode = usesSceneFrame(options_.viewId);
+    auto currentViewId = options_.viewId;
+    bool switchedView = false;
 
-    if (!startHost(controller, options_, log) ||
-        !startHost(model, options_, log) ||
-        !startHost(view, options_, log))
+    if (!startHost(controller, options_, currentViewId, log) ||
+        !startHost(model, options_, currentViewId, log) ||
+        !startHost(view, options_, currentViewId, log))
     {
         result.log = log.str();
         return result;
@@ -516,17 +555,36 @@ RuntimeSession::run()
         result.log = log.str();
         return result;
     }
+    appendLogLine(log, "loaded view " + currentViewId);
 
     const auto tickCount = tickCountForDuration(options_.durationMilliseconds, options_.tickMilliseconds);
     const auto tickTimeout = std::chrono::milliseconds(std::max(options_.tickMilliseconds * 10, 100));
     int renderedFrameCount = 0;
+    int sceneFrameCount = 0;
+    int debugFrameCount = 0;
     bool shutdownRequested = false;
     for (int tick = 0; tick < tickCount; ++tick)
     {
+        const auto elapsedMilliseconds = tick * std::max(options_.tickMilliseconds, 1);
+        if (!switchedView &&
+            options_.switchViewAfterMilliseconds > 0 &&
+            !options_.switchViewId.empty() &&
+            elapsedMilliseconds >= options_.switchViewAfterMilliseconds)
+        {
+            if (!shutdownHost(view, result, sequenceId, options_, log))
+                break;
+            appendLogLine(log, "stopped view " + currentViewId);
+            currentViewId = options_.switchViewId;
+            if (!startViewHost(view, options_, currentViewId, sequenceId, startTimeout, log))
+                break;
+            switchedView = true;
+        }
+
+        const auto sceneFrameMode = usesSceneFrame(currentViewId);
         const auto tickMessage = command(RuntimeRole::Launcher,
                                          RuntimeRole::Controller,
                                          options_.controllerTickCommandName,
-                                         controllerTickPayload(tick, options_),
+                                         controllerTickPayload(tick, currentViewId, options_.tickMilliseconds),
                                          sequenceId++,
                                          options_.sessionId);
         if (!send(controller, tickMessage, log))
@@ -581,6 +639,7 @@ RuntimeSession::run()
             }
 
             ++renderedFrameCount;
+            ++sceneFrameCount;
             if (!routePendingViewInputs(view, controller, model, result, tickTimeout,
                                         log, shutdownRequested))
             {
@@ -588,6 +647,10 @@ RuntimeSession::run()
             }
             if (shutdownRequested)
                 break;
+        }
+        else
+        {
+            ++debugFrameCount;
         }
 
         ++result.tickCount;
@@ -608,15 +671,13 @@ RuntimeSession::run()
     }
 
     appendLogLine(log, "tick count=" + std::to_string(result.tickCount));
-    if (sceneFrameMode)
+    if (debugFrameCount > 0)
+        appendLogLine(log, "view.frame count=" + std::to_string(debugFrameCount));
+    if (sceneFrameCount > 0)
     {
-        appendLogLine(log, "scene.frame count=" + std::to_string(result.viewFrameCount));
+        appendLogLine(log, "scene.frame count=" + std::to_string(sceneFrameCount));
         appendLogLine(log, "view.frameRendered count=" + std::to_string(renderedFrameCount));
         appendLogLine(log, "view.input routed count=" + std::to_string(result.viewInputCount));
-    }
-    else
-    {
-        appendLogLine(log, "view.frame count=" + std::to_string(result.viewFrameCount));
     }
     appendLogLine(log, "heartbeat count=" + std::to_string(result.heartbeatCount));
 
@@ -632,7 +693,7 @@ RuntimeSession::run()
                      result.controllerExitCode == 0 && result.modelExitCode == 0 &&
                      result.viewExitCode == 0 && result.tickCount == tickCount &&
                      result.viewFrameCount == tickCount &&
-                     (!sceneFrameMode || renderedFrameCount == tickCount);
+                     renderedFrameCount == sceneFrameCount;
     result.log = log.str();
     return result;
 }
