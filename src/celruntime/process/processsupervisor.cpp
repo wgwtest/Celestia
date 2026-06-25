@@ -9,6 +9,8 @@
 
 #include "processsupervisor.h"
 
+#include "runtimesession.h"
+
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -259,7 +261,7 @@ ProcessSupervisor::runServeSmoke() const
     ProcessSupervisorResult result;
     std::ostringstream log;
 
-    if (options_.hostTransport != "stdio")
+    if (options_.hostTransport != "stdio" && options_.hostTransport != "stdio-files")
     {
         appendLogLine(log, "unsupported host transport: " + options_.hostTransport);
         result.log = log.str();
@@ -353,11 +355,56 @@ ProcessSupervisor::runServeSmoke() const
         hasMessage(view.messages, RuntimeRole::View,
                    RuntimeMessageKind::Lifecycle, protocol::RuntimeStopped);
     if (allStopped)
+    {
         appendLogLine(log, "all hosts stopped");
+        result.controllerStopped = true;
+        result.modelStopped = true;
+        result.viewStopped = true;
+    }
 
     result.success = result.modelReady && result.controllerReady && result.viewReady &&
                      result.viewFrameCount >= 1 && allStopped;
     result.log = log.str();
+    return result;
+}
+
+ProcessSupervisorResult
+ProcessSupervisor::runRuntime() const
+{
+    ProcessSupervisorResult result;
+    std::ostringstream log;
+
+    if (options_.hostTransport != "stdio-pipe" && options_.hostTransport != "stdio")
+    {
+        appendLogLine(log, "unsupported host transport: " + options_.hostTransport);
+        result.log = log.str();
+        return result;
+    }
+
+    RuntimeSessionOptions sessionOptions;
+    sessionOptions.runtimeHostDirectory = options_.runtimeHostDirectory;
+    sessionOptions.viewId = options_.viewId;
+    sessionOptions.sessionId = options_.sessionId;
+    sessionOptions.durationMilliseconds = options_.durationMilliseconds;
+
+    RuntimeSession session(sessionOptions);
+    const auto sessionResult = session.run();
+
+    result.success = sessionResult.success;
+    result.modelReady = sessionResult.modelReady;
+    result.controllerReady = sessionResult.controllerReady;
+    result.viewReady = sessionResult.viewReady;
+    result.modelStopped = sessionResult.modelStopped;
+    result.controllerStopped = sessionResult.controllerStopped;
+    result.viewStopped = sessionResult.viewStopped;
+    result.modelExitCode = sessionResult.modelExitCode;
+    result.controllerExitCode = sessionResult.controllerExitCode;
+    result.viewExitCode = sessionResult.viewExitCode;
+    result.tickCount = sessionResult.tickCount;
+    result.viewFrameCount = sessionResult.viewFrameCount;
+    result.heartbeatCount = sessionResult.heartbeatCount;
+    result.terminatedHost = sessionResult.terminatedHost;
+    result.log = sessionResult.log;
     return result;
 }
 

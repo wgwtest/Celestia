@@ -51,9 +51,11 @@ public:
     void setDurationMilliseconds(int);
 
     std::string_view hostTransport() const;
+    void setHostTransport(std::string);
 
 private:
     std::string m_selectedViewId;
+    std::string m_hostTransport;
     RuntimeMode m_runtimeMode;
     bool m_runOnce;
     bool m_serve;

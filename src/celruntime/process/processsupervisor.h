@@ -20,7 +20,7 @@ struct ProcessSupervisorOptions
     std::filesystem::path runtimeHostDirectory;
     std::string viewId{ "celestia.view2d.debug" };
     int durationMilliseconds{ 500 };
-    std::string hostTransport{ "stdio" };
+    std::string hostTransport{ "stdio-pipe" };
     std::string sessionId{ "default" };
 };
 
@@ -33,7 +33,13 @@ struct ProcessSupervisorResult
     int modelExitCode{ -1 };
     int controllerExitCode{ -1 };
     int viewExitCode{ -1 };
+    bool modelStopped{ false };
+    bool controllerStopped{ false };
+    bool viewStopped{ false };
+    int tickCount{ 0 };
     int viewFrameCount{ 0 };
+    int heartbeatCount{ 0 };
+    bool terminatedHost{ false };
     std::string log;
 };
 
@@ -43,6 +49,7 @@ public:
     explicit ProcessSupervisor(ProcessSupervisorOptions);
 
     ProcessSupervisorResult runServeSmoke() const;
+    ProcessSupervisorResult runRuntime() const;
 
 private:
     ProcessSupervisorOptions options_;

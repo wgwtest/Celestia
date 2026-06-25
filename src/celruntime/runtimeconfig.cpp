@@ -45,6 +45,7 @@ runtimeModeFromString(std::string_view mode)
 
 RuntimeConfig::RuntimeConfig() :
     m_selectedViewId(DefaultViewId),
+    m_hostTransport("stdio-pipe"),
     m_runtimeMode(DefaultRuntimeMode),
     m_runOnce(false),
     m_serve(false),
@@ -115,7 +116,13 @@ RuntimeConfig::setDurationMilliseconds(int durationMilliseconds)
 std::string_view
 RuntimeConfig::hostTransport() const
 {
-    return "stdio";
+    return m_hostTransport;
+}
+
+void
+RuntimeConfig::setHostTransport(std::string hostTransport)
+{
+    m_hostTransport = std::move(hostTransport);
 }
 
 namespace
@@ -188,7 +195,20 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
 
     if (argument.compare(0, transportOption.size(), transportOption) == 0)
     {
-        return argument.substr(transportOption.size()) == "stdio";
+        const auto transport = argument.substr(transportOption.size());
+        if (transport == "stdio" || transport == "stdio-pipe")
+        {
+            config.setHostTransport("stdio-pipe");
+            return true;
+        }
+
+        if (transport == "stdio-files")
+        {
+            config.setHostTransport("stdio-files");
+            return true;
+        }
+
+        return false;
     }
 
     return false;
