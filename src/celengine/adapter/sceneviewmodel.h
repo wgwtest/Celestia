@@ -9,25 +9,10 @@
 
 #pragma once
 
-#include <vector>
+#include <celruntime/viewframe.h>
 
-#include <Eigen/Core>
-
-#include "selection.h"
-
-struct SceneSelectionSnapshot
-{
-    Selection selection;
-    Eigen::Vector3d positionKm{ Eigen::Vector3d::Zero() };
-    bool visible{ false };
-    bool clickable{ false };
-};
-
-struct SceneViewSnapshot
-{
-    double time{ 0.0 };
-    std::vector<SceneSelectionSnapshot> selections;
-};
+using SceneSelectionSnapshot = celestia::runtime::ViewFrameSelection;
+using SceneViewSnapshot = celestia::runtime::ViewFrame;
 
 class Simulation;
 

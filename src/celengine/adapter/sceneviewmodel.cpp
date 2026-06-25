@@ -9,8 +9,13 @@
 
 #include "sceneviewmodel.h"
 
+#include <array>
+#include <string>
+
 #include "body.h"
 #include "deepskyobj.h"
+#include "location.h"
+#include "selection.h"
 #include "simulation.h"
 #include "star.h"
 #include "univcoord.h"
@@ -34,6 +39,48 @@ isClickable(const Selection& selection)
     }
 }
 
+std::string
+selectionTypeName(SelectionType type)
+{
+    switch (type)
+    {
+    case SelectionType::Star:
+        return "star";
+    case SelectionType::Body:
+        return "body";
+    case SelectionType::DeepSky:
+        return "deepsky";
+    case SelectionType::Location:
+        return "location";
+    default:
+        return "none";
+    }
+}
+
+std::string
+selectionId(const Selection& selection)
+{
+    switch (selection.getType())
+    {
+    case SelectionType::Star:
+        return selection.star() != nullptr ? std::to_string(selection.star()->getIndex()) : std::string();
+    case SelectionType::Body:
+        return selection.body() != nullptr ? selection.body()->getName(false) : std::string();
+    case SelectionType::DeepSky:
+        return selection.deepsky() != nullptr ? std::to_string(selection.deepsky()->getIndex()) : std::string();
+    case SelectionType::Location:
+        return selection.location() != nullptr ? selection.location()->getName(false) : std::string();
+    default:
+        return {};
+    }
+}
+
+std::array<double, 3>
+toPositionKm(const Eigen::Vector3d& positionKm)
+{
+    return { positionKm.x(), positionKm.y(), positionKm.z() };
+}
+
 } // end unnamed namespace
 
 SceneViewSnapshot
@@ -46,8 +93,9 @@ SceneViewModel::buildSelectionSnapshot(const Simulation& simulation)
     if (!selection.empty())
     {
         SceneSelectionSnapshot selectionSnapshot;
-        selectionSnapshot.selection = selection;
-        selectionSnapshot.positionKm = selection.getPosition(snapshot.time).offsetFromKm(UniversalCoord::Zero());
+        selectionSnapshot.type = selectionTypeName(selection.getType());
+        selectionSnapshot.id = selectionId(selection);
+        selectionSnapshot.positionKm = toPositionKm(selection.getPosition(snapshot.time).offsetFromKm(UniversalCoord::Zero()));
         selectionSnapshot.visible = selection.isVisible();
         selectionSnapshot.clickable = isClickable(selection);
         snapshot.selections.push_back(selectionSnapshot);
