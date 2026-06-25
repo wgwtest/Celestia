@@ -8,6 +8,10 @@ set(CELESTIA_RUNTIME_SOURCES
   ipc/message.h
   modelruntime.cpp
   modelruntime.h
+  protocol/envelope.cpp
+  protocol/envelope.h
+  protocol/lifecycle.h
+  protocol/payloadtype.h
   runtimeconfig.cpp
   runtimeconfig.h
   runtimecomposition.cpp

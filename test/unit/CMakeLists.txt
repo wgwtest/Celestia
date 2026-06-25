@@ -19,6 +19,7 @@ set(UNIT_TEST_SOURCES
   mvc_step5_runtime_contract_test.cpp
   mvc_step5_view_frame_test.cpp
   mvc_step5_view_provider_test.cpp
+  mvc_step6_protocol_contract_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
