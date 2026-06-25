@@ -65,6 +65,9 @@
 #include <celengine/urlmanager.h>
 #include <celengine/visibleregion.h>
 #include <celengine/warpmesh.h>
+#include <celruntime/runtimecomposition.h>
+#include <celruntime/runtimeconfig.h>
+#include <celruntime/viewruntime.h>
 #include <celestia/configfile.h>
 #include <celestia/favorites.h>
 #include <celestia/loaddso.h>
@@ -73,6 +76,7 @@
 #include <celestia/progressnotifier.h>
 #include <celestia/textprintposition.h>
 #include <celestia/viewmanager.h>
+#include <celestia/viewproviders/view3dprovider.h>
 #include <celestia/url.h>
 #include <celmath/geomutil.h>
 #include <celscript/legacy/execution.h>
@@ -2331,6 +2335,22 @@ void CelestiaCore::setActiveFrameVisible(bool visible)
 Renderer* CelestiaCore::getRenderer() const
 {
     return renderer;
+}
+
+bool
+CelestiaCore::initRuntimeView(const celestia::runtime::RuntimeConfig& runtimeConfig)
+{
+    runtimeComposition = std::make_unique<celestia::runtime::RuntimeComposition>(runtimeConfig);
+    runtimeComposition->viewProviders().registerProvider(celestia::viewproviders::makeOpenGLViewProvider());
+    activeViewRuntime = runtimeComposition->viewProviders().create(runtimeComposition->selectedViewId());
+
+    return activeViewRuntime != nullptr;
+}
+
+celestia::runtime::ViewRuntime*
+CelestiaCore::getActiveViewRuntime() const
+{
+    return activeViewRuntime.get();
 }
 
 Simulation* CelestiaCore::getSimulation() const

@@ -13,6 +13,7 @@
 #include <cassert>
 #include <fstream>
 #include <locale>
+#include <memory>
 #include <string>
 #include <functional>
 #include <string_view>
@@ -61,6 +62,13 @@ namespace engine
 {
 class GeometryManager;
 class TexturePaths;
+}
+
+namespace runtime
+{
+class RuntimeConfig;
+class RuntimeComposition;
+class ViewRuntime;
 }
 
 class TextPrintPosition;
@@ -232,6 +240,8 @@ public:
 
     Simulation* getSimulation() const;
     Renderer* getRenderer() const;
+    bool initRuntimeView(const celestia::runtime::RuntimeConfig&);
+    celestia::runtime::ViewRuntime* getActiveViewRuntime() const;
     void showText(std::string_view s,
                   int horig = 0, int vorig = 0,
                   int hoff = 0, int voff = 0,
@@ -449,6 +459,8 @@ private:
 
     std::unique_ptr<Simulation> sim;
     Renderer* renderer{ nullptr };
+    std::unique_ptr<celestia::runtime::RuntimeComposition> runtimeComposition;
+    std::unique_ptr<celestia::runtime::ViewRuntime> activeViewRuntime;
 
     std::shared_ptr<celestia::engine::ObserverSettings> observerSettings{ std::make_shared<celestia::engine::ObserverSettings>() };
 

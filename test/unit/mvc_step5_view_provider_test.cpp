@@ -80,4 +80,18 @@ TEST_CASE("view provider target is linked through the application shell only")
     CHECK(contains(appCmake, "$<TARGET_OBJECTS:celestia_viewproviders>"));
 }
 
+TEST_CASE("CelestiaCore exposes runtime view initialization bridge")
+{
+    const auto coreHeader = readSourceFile("src/celestia/celestiacore.h");
+    CHECK(contains(coreHeader, "bool initRuntimeView(const celestia::runtime::RuntimeConfig&"));
+    CHECK(contains(coreHeader, "celestia::runtime::ViewRuntime* getActiveViewRuntime() const"));
+    CHECK(contains(coreHeader, "std::unique_ptr<celestia::runtime::RuntimeComposition> runtimeComposition"));
+    CHECK(contains(coreHeader, "std::unique_ptr<celestia::runtime::ViewRuntime> activeViewRuntime"));
+
+    const auto coreSource = readSourceFile("src/celestia/celestiacore.cpp");
+    CHECK(contains(coreSource, "makeOpenGLViewProvider()"));
+    CHECK(contains(coreSource, "CelestiaCore::initRuntimeView"));
+    CHECK(contains(coreSource, "CelestiaCore::getActiveViewRuntime"));
+}
+
 TEST_SUITE_END();
