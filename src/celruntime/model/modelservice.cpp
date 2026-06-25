@@ -22,6 +22,7 @@
 #include <utility>
 
 #include <celruntime/protocol/lifecycle.h>
+#include <celruntime/viewframecodec.h>
 
 namespace celestia::runtime::model
 {
@@ -249,48 +250,13 @@ makeResponse(const RuntimeEnvelope& request,
 std::string
 serializeViewFrame(const ViewFrame& frame)
 {
-    std::ostringstream output;
-    output << "frameId=" << frame.frameId << ';';
-    output << "time=" << formatDouble(frame.time) << ';';
-    output << "summary=" << escape(frame.summary) << ';';
-    output << "selectionCount=" << frame.selections.size();
-
-    for (std::size_t i = 0; i < frame.selections.size(); ++i)
-    {
-        const auto& selection = frame.selections[i];
-        output << ";selection" << i << ".type=" << escape(selection.type);
-        output << ";selection" << i << ".id=" << escape(selection.id);
-        output << ";selection" << i << ".x=" << formatDouble(selection.positionKm[0]);
-        output << ";selection" << i << ".y=" << formatDouble(selection.positionKm[1]);
-        output << ";selection" << i << ".z=" << formatDouble(selection.positionKm[2]);
-        output << ";selection" << i << ".visible=" << (selection.visible ? "true" : "false");
-        output << ";selection" << i << ".clickable=" << (selection.clickable ? "true" : "false");
-    }
-
-    return output.str();
+    return celestia::runtime::serializeViewFrame(frame);
 }
 
 std::optional<ViewFrame>
 deserializeViewFrame(std::string_view payload)
 {
-    const auto fields = parsePayload(payload);
-    const auto frameId = fields.find("frameId");
-    const auto time = fields.find("time");
-    if (frameId == fields.end() || time == fields.end())
-        return std::nullopt;
-
-    const auto parsedFrameId = parseUint64(frameId->second);
-    const auto parsedTime = parseDouble(time->second);
-    if (!parsedFrameId.has_value() || !parsedTime.has_value())
-        return std::nullopt;
-
-    ViewFrame frame;
-    frame.frameId = *parsedFrameId;
-    frame.time = *parsedTime;
-    if (const auto summary = fields.find("summary"); summary != fields.end())
-        frame.summary = summary->second;
-
-    return frame;
+    return celestia::runtime::deserializeViewFrame(payload);
 }
 
 ModelService::ModelService(std::string sessionId)
@@ -344,7 +310,9 @@ RuntimeEnvelope
 ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
 {
     return makeResponse(request, RuntimeMessageKind::ViewFrame, "view.frame",
-                        backend_ == nullptr ? std::string{} : serializeViewFrame(backend_->snapshot()));
+                        backend_ == nullptr
+                            ? std::string{}
+                            : celestia::runtime::model::serializeViewFrame(backend_->snapshot()));
 }
 
 RuntimeEnvelope

@@ -28,6 +28,10 @@ set(CELESTIA_RUNTIME_SOURCES
   runtimecomposition.h
   viewadapterruntime.cpp
   viewadapterruntime.h
+  view/viewservice.cpp
+  view/viewservice.h
+  viewframecodec.cpp
+  viewframecodec.h
   viewframe.h
   viewprovider.h
   viewproviderregistry.cpp

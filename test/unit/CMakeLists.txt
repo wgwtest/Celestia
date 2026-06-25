@@ -24,6 +24,7 @@ set(UNIT_TEST_SOURCES
   mvc_step6_controller_service_test.cpp
   mvc_step6_model_service_test.cpp
   mvc_step6_transport_contract_test.cpp
+  mvc_step6_view_service_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
