@@ -23,6 +23,7 @@ set(UNIT_TEST_SOURCES
   mvc_step6_host_lifecycle_test.cpp
   mvc_step6_controller_service_test.cpp
   mvc_step6_model_service_test.cpp
+  mvc_step6_multiprocess_runtime_test.cpp
   mvc_step6_transport_contract_test.cpp
   mvc_step6_view_service_test.cpp
   ranges_test.cpp

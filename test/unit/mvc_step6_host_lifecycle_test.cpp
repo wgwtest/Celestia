@@ -54,10 +54,29 @@ readText(const std::filesystem::path& path)
     return buffer.str();
 }
 
+std::string
+readBinary(const std::filesystem::path& path)
+{
+    std::ifstream input(path, std::ios::binary);
+    REQUIRE(input.good());
+
+    std::ostringstream buffer;
+    buffer << input.rdbuf();
+    return buffer.str();
+}
+
 void
 writeText(const std::filesystem::path& path, std::string_view text)
 {
     std::ofstream output(path);
+    REQUIRE(output.good());
+    output << text;
+}
+
+void
+writeBinary(const std::filesystem::path& path, std::string_view text)
+{
+    std::ofstream output(path, std::ios::binary);
     REQUIRE(output.good());
     output << text;
 }
@@ -138,14 +157,14 @@ TEST_CASE("process host serve mode handles lifecycle frames until shutdown")
         celestia::runtime::transport::encodeFrame(lifecycle(celestia::runtime::protocol::RuntimeHeartbeat)) +
         celestia::runtime::transport::encodeFrame(lifecycle(celestia::runtime::protocol::RuntimeShutdown));
 
-    writeText(inputPath, input);
+    writeBinary(inputPath, input);
     std::filesystem::remove(outputPath);
     writeHostServeScript(scriptPath, exe, inputPath, outputPath);
 
     const auto command = "cmd.exe /d /c call " + quotePath(scriptPath);
     CHECK(std::system(command.c_str()) == 0);
 
-    const auto messages = decodeFrames(readText(outputPath));
+    const auto messages = decodeFrames(readBinary(outputPath));
     REQUIRE(messages.size() == 3);
 
     CHECK(messages[0].name == celestia::runtime::protocol::RuntimeReady);

@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -21,6 +22,7 @@
 
 #include <celestia/celestiacore.h>
 #include <celruntime/ipc/message.h>
+#include <celruntime/process/processsupervisor.h>
 #include <celruntime/runtimeconfig.h>
 #include <celutil/gettext.h>
 #include "alerter.h"
@@ -181,17 +183,44 @@ runMultiProcessOnce(char* executablePath, const celestia::runtime::RuntimeConfig
 }
 
 bool
+runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfig& runtimeConfig)
+{
+    if (!runtimeConfig.serve())
+        return false;
+
+    if (runtimeConfig.selectedViewId() != celestia::runtime::RuntimeConfig::Debug2DViewId)
+        return false;
+
+    celestia::runtime::process::ProcessSupervisorOptions options;
+    options.runtimeHostDirectory = runtimeHostDirectory(executablePath);
+    options.viewId = runtimeConfig.selectedViewId();
+    options.durationMilliseconds = runtimeConfig.durationMilliseconds();
+    options.hostTransport = std::string(runtimeConfig.hostTransport());
+    options.sessionId = "sdl-step6-serve";
+
+    celestia::runtime::process::ProcessSupervisor supervisor(options);
+    const auto result = supervisor.runServeSmoke();
+    std::cout << result.log;
+    return result.success;
+}
+
+bool
 parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runtimeConfig)
 {
     constexpr std::string_view viewOption{ "--view=" };
     constexpr std::string_view modeOption{ "--mvc-mode=" };
+    constexpr std::string_view durationOption{ "--duration-ms=" };
+    constexpr std::string_view transportOption{ "--host-transport=" };
 
     for (int i = 1; i < argc; ++i)
     {
         std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
         if ((argument.compare(0, viewOption.size(), viewOption) == 0 ||
              argument.compare(0, modeOption.size(), modeOption) == 0 ||
-             argument == "--once") &&
+             argument.compare(0, durationOption.size(), durationOption) == 0 ||
+             argument.compare(0, transportOption.size(), transportOption) == 0 ||
+             argument == "--once" ||
+             argument == "--serve") &&
             !celestia::runtime::applyRuntimeConfigArgument(runtimeConfig, argument))
         {
             return false;
@@ -229,7 +258,15 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
 
     if (runtimeConfig.runtimeMode() == celestia::runtime::RuntimeMode::MultiProcess)
-        return runMultiProcessOnce(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+    {
+        if (runtimeConfig.runOnce())
+            return runMultiProcessOnce(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+        if (runtimeConfig.serve())
+            return runMultiProcessServe(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+        return EXIT_FAILURE;
+    }
 
     std::error_code ec;
     std::filesystem::current_path(dataDir, ec);

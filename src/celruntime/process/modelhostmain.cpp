@@ -10,9 +10,39 @@
 #include "runtimehostcommon.h"
 
 #include <iostream>
+#include <string_view>
+
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
+namespace
+{
+
+bool
+useBinaryStdio(int argc, char* argv[])
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (std::string_view(argv[i] != nullptr ? argv[i] : "") == "--serve")
+            return true;
+    }
+
+    return false;
+}
+
+} // end unnamed namespace
 
 int
 main(int argc, char* argv[])
 {
+#ifdef _WIN32
+    if (useBinaryStdio(argc, argv))
+    {
+        _setmode(_fileno(stdin), _O_BINARY);
+        _setmode(_fileno(stdout), _O_BINARY);
+    }
+#endif
     return celestia::runtime::process::runRuntimeHost("model", argc, argv, std::cin, std::cout, std::cerr);
 }

@@ -309,10 +309,17 @@ ModelService::errorResponse(const RuntimeEnvelope& request, std::string message)
 RuntimeEnvelope
 ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
 {
-    return makeResponse(request, RuntimeMessageKind::ViewFrame, "view.frame",
-                        backend_ == nullptr
-                            ? std::string{}
-                            : celestia::runtime::model::serializeViewFrame(backend_->snapshot()));
+    RuntimeEnvelope response;
+    response.sessionId = request.sessionId;
+    response.sequenceId = request.sequenceId;
+    response.sourceRole = RuntimeRole::Model;
+    response.targetRole = RuntimeRole::View;
+    response.kind = RuntimeMessageKind::ViewFrame;
+    response.name = "view.frame";
+    response.payload = backend_ == nullptr
+        ? std::string{}
+        : celestia::runtime::model::serializeViewFrame(backend_->snapshot());
+    return response;
 }
 
 RuntimeEnvelope

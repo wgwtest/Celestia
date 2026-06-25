@@ -44,10 +44,20 @@ public:
     bool runOnce() const;
     void setRunOnce(bool);
 
+    bool serve() const;
+    void setServe(bool);
+
+    int durationMilliseconds() const;
+    void setDurationMilliseconds(int);
+
+    std::string_view hostTransport() const;
+
 private:
     std::string m_selectedViewId;
     RuntimeMode m_runtimeMode;
     bool m_runOnce;
+    bool m_serve;
+    int m_durationMilliseconds;
 };
 
 bool applyRuntimeConfigArgument(RuntimeConfig&, std::string_view);

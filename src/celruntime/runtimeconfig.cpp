@@ -9,6 +9,7 @@
 
 #include "runtimeconfig.h"
 
+#include <string>
 #include <utility>
 
 namespace celestia::runtime
@@ -45,7 +46,9 @@ runtimeModeFromString(std::string_view mode)
 RuntimeConfig::RuntimeConfig() :
     m_selectedViewId(DefaultViewId),
     m_runtimeMode(DefaultRuntimeMode),
-    m_runOnce(false)
+    m_runOnce(false),
+    m_serve(false),
+    m_durationMilliseconds(500)
 {
 }
 
@@ -86,10 +89,64 @@ RuntimeConfig::setRunOnce(bool runOnce)
 }
 
 bool
+RuntimeConfig::serve() const
+{
+    return m_serve;
+}
+
+void
+RuntimeConfig::setServe(bool serve)
+{
+    m_serve = serve;
+}
+
+int
+RuntimeConfig::durationMilliseconds() const
+{
+    return m_durationMilliseconds;
+}
+
+void
+RuntimeConfig::setDurationMilliseconds(int durationMilliseconds)
+{
+    m_durationMilliseconds = durationMilliseconds;
+}
+
+std::string_view
+RuntimeConfig::hostTransport() const
+{
+    return "stdio";
+}
+
+namespace
+{
+
+std::optional<int>
+parseInt(std::string_view text)
+{
+    try
+    {
+        std::size_t consumed = 0;
+        const auto value = std::stoi(std::string(text), &consumed);
+        if (consumed != text.size())
+            return std::nullopt;
+        return value;
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+
+} // end unnamed namespace
+
+bool
 applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
 {
     constexpr std::string_view viewOption{ "--view=" };
     constexpr std::string_view modeOption{ "--mvc-mode=" };
+    constexpr std::string_view durationOption{ "--duration-ms=" };
+    constexpr std::string_view transportOption{ "--host-transport=" };
 
     if (argument.compare(0, viewOption.size(), viewOption) == 0)
     {
@@ -111,6 +168,27 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     {
         config.setRunOnce(true);
         return true;
+    }
+
+    if (argument == "--serve")
+    {
+        config.setServe(true);
+        return true;
+    }
+
+    if (argument.compare(0, durationOption.size(), durationOption) == 0)
+    {
+        const auto duration = parseInt(argument.substr(durationOption.size()));
+        if (!duration.has_value() || *duration <= 0)
+            return false;
+
+        config.setDurationMilliseconds(*duration);
+        return true;
+    }
+
+    if (argument.compare(0, transportOption.size(), transportOption) == 0)
+    {
+        return argument.substr(transportOption.size()) == "stdio";
     }
 
     return false;

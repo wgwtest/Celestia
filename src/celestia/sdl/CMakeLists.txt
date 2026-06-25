@@ -73,6 +73,22 @@ target_link_libraries(celestia-sdl PRIVATE imgui celestia)
 set_target_properties(celestia-sdl PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 if(WIN32)
+  add_custom_target(
+    celestia-sdl-runtime-dependencies
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:celestia-sdl>"
+    COMMAND
+      ${CMAKE_COMMAND}
+        -D "DEPS_TARGET_FILE=$<TARGET_FILE:celestia>"
+        -D "DEPS_DEST_DIR=$<TARGET_FILE_DIR:celestia-sdl>"
+        -D "DEPS_COPY_TARGET=ON"
+        -P "${CMAKE_SOURCE_DIR}/cmake/CopyDependentDlls.cmake"
+    DEPENDS celestia
+    COMMENT "Refreshing celestia shared library and dependencies next to celestia-sdl"
+    VERBATIM
+  )
+  add_dependencies(celestia-sdl celestia-sdl-runtime-dependencies)
+
   add_custom_command(
     TARGET celestia-sdl
     POST_BUILD

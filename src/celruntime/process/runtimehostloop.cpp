@@ -11,9 +11,13 @@
 
 #include <ostream>
 #include <utility>
+#include <vector>
 
+#include <celruntime/controller/controllerservice.h>
+#include <celruntime/model/modelservice.h>
 #include <celruntime/protocol/lifecycle.h>
 #include <celruntime/transport/stdiotransport.h>
+#include <celruntime/view/viewservice.h>
 
 namespace celestia::runtime::process
 {
@@ -61,6 +65,18 @@ handleLifecycle(const RuntimeEnvelope& request, RuntimeRole role)
                         "unknown lifecycle message: " + request.name);
 }
 
+bool
+sendAll(transport::FramedTransport& transport, const std::vector<RuntimeEnvelope>& messages)
+{
+    for (const auto& message : messages)
+    {
+        if (!transport.send(message))
+            return false;
+    }
+
+    return true;
+}
+
 } // end unnamed namespace
 
 std::optional<RuntimeRole>
@@ -83,6 +99,9 @@ runRuntimeHostLoop(RuntimeRole role,
                    std::ostream& error)
 {
     transport::StdioTransport transport(input, output);
+    model::ModelService modelService(sessionId);
+    controller::ControllerService controllerService(sessionId);
+    view::ViewService viewService(sessionId);
 
     for (;;)
     {
@@ -101,6 +120,56 @@ runRuntimeHostLoop(RuntimeRole role,
         auto request = *received.message;
         if (request.sessionId.empty())
             request.sessionId = sessionId;
+
+        if (request.name == protocol::RuntimeStart && request.kind == RuntimeMessageKind::Lifecycle)
+        {
+            if (role == RuntimeRole::Model)
+            {
+                if (!transport.send(modelService.handle(request)))
+                    return 2;
+                continue;
+            }
+
+            if (role == RuntimeRole::Controller)
+            {
+                if (!sendAll(transport, controllerService.handle(request)))
+                    return 2;
+                continue;
+            }
+
+            if (role == RuntimeRole::View)
+            {
+                if (!sendAll(transport, viewService.handle(request)))
+                    return 2;
+                continue;
+            }
+        }
+
+        if (request.kind == RuntimeMessageKind::Command ||
+            request.kind == RuntimeMessageKind::Event ||
+            request.kind == RuntimeMessageKind::ViewFrame)
+        {
+            if (role == RuntimeRole::Model)
+            {
+                if (!transport.send(modelService.handle(request)))
+                    return 2;
+                continue;
+            }
+
+            if (role == RuntimeRole::Controller)
+            {
+                if (!sendAll(transport, controllerService.handle(request)))
+                    return 2;
+                continue;
+            }
+
+            if (role == RuntimeRole::View)
+            {
+                if (!sendAll(transport, viewService.handle(request)))
+                    return 2;
+                continue;
+            }
+        }
 
         if (request.kind != RuntimeMessageKind::Lifecycle &&
             request.kind != RuntimeMessageKind::Heartbeat)

@@ -17,6 +17,8 @@ set(CELESTIA_RUNTIME_SOURCES
   protocol/envelope.h
   protocol/lifecycle.h
   protocol/payloadtype.h
+  process/processsupervisor.cpp
+  process/processsupervisor.h
   runtimeconfig.cpp
   runtimeconfig.h
   transport/framedmessage.cpp
