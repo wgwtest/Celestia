@@ -63,6 +63,12 @@ Step 4 is complete in this worktree: `src/celengine` ownership groups are physic
 
 Step 4 is still in-process MVC. It does not make M / C / V run as independent OS processes. Process boundaries, IPC / RPC, and message contracts remain Step5 work.
 
+Step 5 is planned but not implemented. The implementation plan is:
+
+```text
+DOC\CODEX_DOC\04_研制计划\17-WBS-0.17-Celestia标准MVC解耦-Step5运行时解耦与插件化装配方案.md
+```
+
 Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 / Step 3 / Step 4 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
 
 ## First Reading Order
