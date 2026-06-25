@@ -9,11 +9,14 @@
 
 #include "runtimehostcommon.h"
 
+#include "runtimehostloop.h"
+
 #include <istream>
 #include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include <celruntime/ipc/message.h>
 #include <celruntime/runtimeconfig.h>
@@ -27,7 +30,10 @@ struct RuntimeHostOptions
 {
     bool stdio{ false };
     bool once{ false };
+    bool serve{ false };
     int protocolVersion{ ipc::CurrentProtocolVersion };
+    int heartbeatMilliseconds{ 1000 };
+    std::string sessionId;
     std::string viewId{ RuntimeConfig::DefaultViewId };
 };
 
@@ -70,6 +76,10 @@ parseOptions(int argc, char* argv[], std::string& error)
         {
             options.once = true;
         }
+        else if (argument == "--serve")
+        {
+            options.serve = true;
+        }
         else if (startsWith(argument, "--protocol-version="))
         {
             const auto value = parseInt(argument.substr(19));
@@ -83,6 +93,20 @@ parseOptions(int argc, char* argv[], std::string& error)
         else if (startsWith(argument, "--view="))
         {
             options.viewId = std::string(argument.substr(7));
+        }
+        else if (startsWith(argument, "--session="))
+        {
+            options.sessionId = std::string(argument.substr(10));
+        }
+        else if (startsWith(argument, "--heartbeat-ms="))
+        {
+            const auto value = parseInt(argument.substr(15));
+            if (!value.has_value() || *value <= 0)
+            {
+                error = "invalid heartbeat interval";
+                return std::nullopt;
+            }
+            options.heartbeatMilliseconds = *value;
         }
         else
         {
@@ -127,11 +151,23 @@ runRuntimeHost(std::string_view role,
     if (!options->stdio)
         return fail(error, "--stdio is required for the first process-host contract");
 
-    if (!options->once)
-        return fail(error, "--once is required for the first process-host contract");
+    if (options->once == options->serve)
+        return fail(error, "exactly one of --once or --serve is required");
 
     if (options->protocolVersion != ipc::CurrentProtocolVersion)
         return fail(error, "unsupported protocol version");
+
+    if (options->serve)
+    {
+        const auto roleValue = runtimeRoleFromHostRole(role);
+        if (!roleValue.has_value())
+            return fail(error, "unknown runtime host role");
+
+        auto sessionId = options->sessionId;
+        if (sessionId.empty())
+            sessionId = "default";
+        return runRuntimeHostLoop(*roleValue, std::move(sessionId), input, output, error);
+    }
 
     const auto requestText = readAll(input);
     const auto request = ipc::deserializeMessage(requestText);

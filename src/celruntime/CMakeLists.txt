@@ -35,6 +35,8 @@ add_library(celestia_runtime OBJECT ${CELESTIA_RUNTIME_SOURCES})
 set(CELESTIA_RUNTIME_HOST_COMMON_SOURCES
   process/runtimehostcommon.cpp
   process/runtimehostcommon.h
+  process/runtimehostloop.cpp
+  process/runtimehostloop.h
 )
 
 add_executable(celestia-model-host
