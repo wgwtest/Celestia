@@ -40,6 +40,9 @@ frameRenderedPayload(std::uint64_t frameCount,
            << ";labelCount=" << state.labelCount
            << ";selectionType=" << state.selectionType
            << ";selectionId=" << state.selectionId
+           << ";cameraPositionX=" << state.cameraPositionX
+           << ";cameraPositionY=" << state.cameraPositionY
+           << ";cameraPositionZ=" << state.cameraPositionZ
            << ";resourceCount=" << state.resourceCount
            << ";resolvedResourceCount=" << state.resolvedResourceCount
            << ";missingRequiredResourceCount=" << state.missingRequiredResourceCount

@@ -24,6 +24,9 @@ struct View3DSceneState
 {
     std::uint64_t sequence{ 0 };
     double simulationTime{ 0.0 };
+    double cameraPositionX{ 0.0 };
+    double cameraPositionY{ 0.0 };
+    double cameraPositionZ{ 0.0 };
     double cameraFov{ 0.0 };
     std::uint64_t bodyCount{ 0 };
     std::uint64_t starCount{ 0 };

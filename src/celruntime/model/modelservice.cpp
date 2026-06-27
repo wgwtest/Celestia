@@ -352,6 +352,11 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         snapshot.timeScale = timeScale_;
         if (cameraFov_ > 0.0)
             snapshot.camera.fovDeg = cameraFov_;
+        if (cameraCentered_)
+        {
+            snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
+            snapshot.observer.positionKm = snapshot.camera.positionKm;
+        }
         if (selectionCleared_)
         {
             snapshot.selections.clear();
@@ -379,6 +384,11 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     snapshot.timeScale = timeScale_;
     if (cameraFov_ > 0.0)
         snapshot.camera.fovDeg = cameraFov_;
+    if (cameraCentered_)
+    {
+        snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
+        snapshot.observer.positionKm = snapshot.camera.positionKm;
+    }
     if (selectionCleared_)
         snapshot.selections.clear();
     else if (!selectionType_.empty() && !selectionId_.empty())
@@ -399,6 +409,11 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     {
         frame.selection.type = selectionType_;
         frame.selection.id = selectionId_;
+    }
+    if (cameraCentered_)
+    {
+        frame.camera.position = { 0.0, 0.0, 4.0 };
+        frame.observer.position = frame.camera.position;
     }
     if (!lastViewInputAction_.empty())
     {
@@ -528,6 +543,14 @@ ModelService::handle(const RuntimeEnvelope& request)
         selectionCleared_ = false;
         selectionType_ = type->second;
         selectionId_ = id->second;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.centerSelection")
+    {
+        cameraCentered_ = true;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);

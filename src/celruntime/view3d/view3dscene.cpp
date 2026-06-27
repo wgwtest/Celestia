@@ -19,6 +19,9 @@ buildView3DSceneState(const protocol::SceneFrame& frame,
     View3DSceneState state;
     state.sequence = frame.sequence;
     state.simulationTime = frame.simulationTime;
+    state.cameraPositionX = frame.camera.position[0];
+    state.cameraPositionY = frame.camera.position[1];
+    state.cameraPositionZ = frame.camera.position[2];
     state.cameraFov = frame.camera.fov;
     state.bodyCount = static_cast<std::uint64_t>(frame.bodies.size());
     state.starCount = static_cast<std::uint64_t>(frame.stars.size());
