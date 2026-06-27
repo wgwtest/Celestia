@@ -129,6 +129,18 @@ Suggested next phase name:
 Step12 - Real Celestia scene projection and View3D visual parity path
 ```
 
+Formal execution plan:
+
+```text
+DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
+```
+
+Detailed active Step12 plan:
+
+```text
+DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame契约方案.md
+```
+
 Step12 should focus on:
 
 ```text
@@ -152,6 +164,8 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame契约方案.md
+DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 DOC\CODEX_DOC\02_设计说明\02-07-Celestia标准MVC最终架构说明.md
