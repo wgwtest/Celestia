@@ -54,6 +54,7 @@ private:
     bool running_{ false };
     bool paused_{ false };
     double timeScale_{ 1.0 };
+    double cameraFov_{ 0.0 };
     std::string lastViewInputAction_;
     std::unique_ptr<SimulationBackend> backend_;
 };

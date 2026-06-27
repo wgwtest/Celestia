@@ -9,6 +9,7 @@
 
 #include "controllerservice.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -186,6 +187,17 @@ ControllerService::handle(const RuntimeEnvelope& request)
             payload += ";view=celestia.view3d.opengl";
             payload += ";command=time.setScale";
             return { commandToModel(request, "model.setTimeScale", std::move(payload)) };
+        }
+
+        if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)
+        {
+            cameraFov_ = input->wheel[1] > 0.0
+                ? std::max(5.0, cameraFov_ - 5.0)
+                : std::min(120.0, cameraFov_ + 5.0);
+            auto payload = std::string("fov=") + std::to_string(cameraFov_);
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=camera.zoom";
+            return { commandToModel(request, "model.setCameraFov", std::move(payload)) };
         }
 
         return { commandToModel(request, "model.setViewInput", serializeModelInputCommand(*input)) };

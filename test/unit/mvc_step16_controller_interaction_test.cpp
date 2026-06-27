@@ -56,6 +56,19 @@ keyDown(std::string key)
     return input;
 }
 
+celestia::runtime::protocol::ViewInputEvent
+mouseWheel(double wheelY)
+{
+    celestia::runtime::protocol::ViewInputEvent input;
+    input.sessionId = "step16-controller-interaction";
+    input.sequence = 17;
+    input.device = "mouse";
+    input.action = "MouseWheel";
+    input.pointer = { 320.0, 240.0 };
+    input.wheel = { 0.0, wheelY };
+    return input;
+}
+
 RuntimeEnvelope
 runtimeStart(RuntimeRole target)
 {
@@ -143,6 +156,43 @@ TEST_CASE("Step16 view.input L key changes time scale through Controller Model a
     REQUIRE(rendered.size() == 1);
     CHECK(rendered.front().name == "view.frameRendered");
     CHECK(contains(rendered.front().payload, "frameCount=1"));
+}
+
+TEST_CASE("Step16 mouse wheel zoom changes scene camera fov through Controller Model and View3D")
+{
+    celestia::runtime::controller::ControllerService controller("step16-controller-interaction");
+    celestia::runtime::model::ModelService model("step16-controller-interaction");
+    celestia::runtime::view3d::View3DHost view("step16-controller-interaction");
+
+    controller.handle(runtimeStart(RuntimeRole::Controller));
+    model.handle(runtimeStart(RuntimeRole::Model));
+    view.handle(runtimeStart(RuntimeRole::View));
+
+    const auto controllerCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
+        mouseWheel(1.0),
+        RuntimeRole::View,
+        RuntimeRole::Controller));
+
+    REQUIRE(controllerCommands.size() == 1);
+    CHECK(controllerCommands.front().kind == RuntimeMessageKind::Command);
+    CHECK(controllerCommands.front().targetRole == RuntimeRole::Model);
+    CHECK(controllerCommands.front().name == "model.setCameraFov");
+    CHECK(contains(controllerCommands.front().payload, "fov=40"));
+    CHECK(contains(controllerCommands.front().payload, "view=celestia.view3d.opengl"));
+    CHECK(contains(controllerCommands.front().payload, "command=camera.zoom"));
+
+    const auto modelFrame = model.handle(controllerCommands.front());
+    REQUIRE(modelFrame.kind == RuntimeMessageKind::ViewFrame);
+    REQUIRE(modelFrame.name == celestia::runtime::protocol::SceneFrameMessageName);
+
+    const auto scene = celestia::runtime::protocol::deserializeSceneFrame(modelFrame.payload);
+    REQUIRE(scene.has_value());
+    CHECK(scene->camera.fov == doctest::Approx(40.0));
+
+    const auto rendered = view.handle(modelFrame);
+    REQUIRE(rendered.size() == 1);
+    CHECK(rendered.front().name == "view.frameRendered");
+    CHECK(contains(rendered.front().payload, "cameraFov=40"));
 }
 
 TEST_CASE("Step16 RuntimeSession view.input route accepts typed model commands")

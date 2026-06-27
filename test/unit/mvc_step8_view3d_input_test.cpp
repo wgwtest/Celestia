@@ -31,6 +31,18 @@ mouseWheelInput()
     return input;
 }
 
+ViewInputEvent
+mouseMoveInput()
+{
+    ViewInputEvent input;
+    input.sessionId = "step8-view3d-input-test";
+    input.sequence = 6;
+    input.device = "mouse";
+    input.action = "MouseMove";
+    input.pointer = { 320.0, 240.0 };
+    return input;
+}
+
 RuntimeEnvelope
 modelCommand(std::string name, std::string payload = {})
 {
@@ -79,7 +91,7 @@ TEST_CASE("ControllerService converts view.input into a model command")
 {
     celestia::runtime::controller::ControllerService controller("step8-view3d-input-test");
     const auto response = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
-        mouseWheelInput(),
+        mouseMoveInput(),
         RuntimeRole::View,
         RuntimeRole::Controller));
 
@@ -87,8 +99,8 @@ TEST_CASE("ControllerService converts view.input into a model command")
     CHECK(response.front().kind == RuntimeMessageKind::Command);
     CHECK(response.front().targetRole == RuntimeRole::Model);
     CHECK(response.front().name == "model.setViewInput");
-    CHECK(response.front().payload.find("action=MouseWheel") != std::string::npos);
-    CHECK(response.front().payload.find("wheelY=1") != std::string::npos);
+    CHECK(response.front().payload.find("action=MouseMove") != std::string::npos);
+    CHECK(response.front().payload.find("pointerX=320") != std::string::npos);
 }
 
 TEST_CASE("ModelService reflects view.input state in the next scene.frame")

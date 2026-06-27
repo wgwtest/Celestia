@@ -350,6 +350,8 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         auto snapshot = backend_->snapshot();
         snapshot.paused = paused_;
         snapshot.timeScale = timeScale_;
+        if (cameraFov_ > 0.0)
+            snapshot.camera.fovDeg = cameraFov_;
         response.payload = celestia::runtime::model::serializeViewFrame(snapshot);
     }
     return response;
@@ -361,6 +363,8 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     auto snapshot = backend_ == nullptr ? ViewFrame{} : backend_->snapshot();
     snapshot.paused = paused_;
     snapshot.timeScale = timeScale_;
+    if (cameraFov_ > 0.0)
+        snapshot.camera.fovDeg = cameraFov_;
     auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
                                    snapshot);
     if (!lastViewInputAction_.empty())
@@ -447,6 +451,22 @@ ModelService::handle(const RuntimeEnvelope& request)
             return errorResponse(request, "model.setPaused requires paused");
 
         paused_ = parseBool(value->second);
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.setCameraFov")
+    {
+        const auto value = payload.find("fov");
+        if (value == payload.end())
+            return errorResponse(request, "model.setCameraFov requires fov");
+
+        const auto parsed = parseDouble(value->second);
+        if (!parsed.has_value() || *parsed <= 0.0)
+            return errorResponse(request, "invalid model.setCameraFov value");
+
+        cameraFov_ = *parsed;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);
