@@ -283,10 +283,11 @@ The fixed pre-MVC comparison baseline is:
 
 The first harness version covers SDL unified exe / in-process screenshots. It does not claim Qt or Win32 frontend parity.
 
-Last verified after merging into `master`:
+Last verified on Step12 branch:
 
 ```text
-compat Full:            2026-06-27-155813, c6d7e53, pass
+commit:                 0fd93ad feat: define MVC Step12 scene frame contract
+compat Full:            2026-06-27-173305, pass
 scan_mvc_dependencies:  passed during Full
 scan_cmake_targets:     passed during Full
 runtime smoke:          6/6 passed during Full
@@ -296,7 +297,7 @@ visual scenes:          8/8 passed during Full
 Latest machine report:
 
 ```text
-DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-27-155813-Celestia-compat-regression-machine-report.md
+DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-27-173305-Celestia-compat-regression-machine-report.md
 ```
 
 ## Startup Commands

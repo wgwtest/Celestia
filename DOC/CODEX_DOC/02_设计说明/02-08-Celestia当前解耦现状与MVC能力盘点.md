@@ -4,7 +4,7 @@
 
 ## 1. 结论摘要
 
-截至 `c6d7e53 test: add Celestia compatibility regression harness`，当前 `master` 同时保留三条能力线：
+截至 Step12 分支 `0fd93ad feat: define MVC Step12 scene frame contract`，当前代码同时保留三条能力线：
 
 1. **普通统一 exe / in-process 主路径**：仍由 `celestia-sdl.exe` 创建 `CelestiaCore`、初始化 `Simulation`、创建 SDL/OpenGL 窗口并运行历史渲染管线。这是当前最接近原 Celestia 用户能力的主路径。
 2. **源码与构建层 MVC 边界**：`src/celengine` 已物理拆为 `model` / `controller` / `adapter` / `view3d` / `legacy`，并由 `celestia_model`、`celestia_controller`、`celestia_view_adapter`、`celestia_view3d` object target 固化依赖方向。
@@ -23,7 +23,7 @@
 | runtime 入口 | `src/celestia/sdl/sdlmain.cpp` |
 | 边界扫描 | `tools/mvc/scan_mvc_dependencies.ps1`, `tools/mvc/scan_cmake_targets.ps1` |
 | 原能力回归 | `tools/regression/run_celestia_compat_regression.ps1` |
-| 当前 Full 机测 | `DOC/CODEX_DOC/06_测试文档/03_机测记录/2026-06-27-155813-Celestia-compat-regression-machine-report.md` |
+| 当前 Full 机测 | `DOC/CODEX_DOC/06_测试文档/03_机测记录/2026-06-27-173305-Celestia-compat-regression-machine-report.md` |
 
 ## 3. 当前总体架构状态
 

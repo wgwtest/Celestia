@@ -2,7 +2,7 @@
 
 - timestamp: `2026-06-27-172715`
 - branch: `codex/celestia-mvc-step12-scene-frame`
-- status: `checkpoint-pass`
+- status: `pass`
 - scope: `scene.frame vNext contract, validation helper, fixtures, Step8 compatibility`
 
 ## Changed Contract Surface
@@ -42,6 +42,7 @@ An earlier build attempt without the VS developer environment failed before reac
 | baseline full CTest | passed, `166/166` |
 | MVC dependency scan | passed |
 | MVC CMake target scan | passed |
+| Full compatibility regression | passed, `2026-06-27-173305`, current commit `0fd93ad` |
 
 Focused command:
 
@@ -80,11 +81,20 @@ cross-process View3D has historical renderer visual parity.
 all real catalog, mesh, texture, orbit, and label resources use the final data-plane.
 ```
 
-## Remaining Before Step12 Closure
+## Screenshot Regression Evidence
 
 ```text
-Create checkpoint commit.
-Run Full compatibility regression after the checkpoint commit so the screenshot report records the tested commit.
-Inspect baseline/current screenshot comparison output.
-Update this record or add the generated Full report path.
+report:
+DOC/CODEX_DOC/06_测试文档/03_机测记录/2026-06-27-173305-Celestia-compat-regression-machine-report.md
+
+artifacts:
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-173305-0fd93ad-full
+
+contact sheet:
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-173305-0fd93ad-full\contact-sheet.png
+
+result:
+8/8 visual scenes passed.
+6/6 runtime smoke configs passed.
+06-starfield-constellations had dHash Hamming 6 and average color distance 0.001; the contact sheet showed no visible scene-level regression.
 ```
