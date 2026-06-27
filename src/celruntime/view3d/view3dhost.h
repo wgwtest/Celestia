@@ -10,18 +10,26 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <string>
 #include <vector>
 
 #include <celruntime/protocol/envelope.h>
+#include <celruntime/view3d/view3dscene.h>
 
 namespace celestia::runtime::view3d
 {
 
+struct View3DHostOptions
+{
+    std::filesystem::path contentRoot;
+};
+
 class View3DHost
 {
 public:
-    explicit View3DHost(std::string sessionId = "default");
+    explicit View3DHost(std::string sessionId = "default",
+                        View3DHostOptions options = {});
 
     bool isRunning() const;
     std::uint64_t frameCount() const;
@@ -43,10 +51,8 @@ private:
     std::string sessionId_;
     bool running_{ false };
     std::uint64_t frameCount_{ 0 };
-    std::uint64_t lastSequence_{ 0 };
-    double lastSimulationTime_{ 0.0 };
-    std::uint64_t lastBodyCount_{ 0 };
-    std::uint64_t lastStarCount_{ 0 };
+    View3DHostOptions options_;
+    View3DSceneState lastSceneState_;
 };
 
 } // namespace celestia::runtime::view3d

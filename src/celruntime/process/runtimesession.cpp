@@ -195,6 +195,11 @@ startHost(RuntimeHost& host,
         processOptions.arguments.push_back("--data-root=" + options.dataRoot.string());
         appendLogLine(log, host.name + " dataRoot=" + options.dataRoot.string());
     }
+    if (host.role == RuntimeRole::View && usesSceneFrame(viewId) && !options.contentRoot.empty())
+    {
+        processOptions.arguments.push_back("--content-root=" + options.contentRoot.string());
+        appendLogLine(log, host.name + " contentRoot=" + options.contentRoot.string());
+    }
 
     std::string transportError;
     host.transport = transport::createRuntimeTransport(options.hostTransport,
@@ -654,6 +659,7 @@ RuntimeSession::run()
                 break;
             }
 
+            appendLogLine(log, "view.frameRendered payload=" + viewMessage->payload);
             ++renderedFrameCount;
             ++sceneFrameCount;
             if (!routePendingViewInputs(view, controller, model, result, tickTimeout,

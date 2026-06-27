@@ -233,6 +233,7 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     constexpr std::string_view switchViewOption{ "--switch-view=" };
     constexpr std::string_view runtimeConfigOption{ "--runtime-config=" };
     constexpr std::string_view dataRootOption{ "--data-root=" };
+    constexpr std::string_view dirOption{ "--dir=" };
 
     if (argument.compare(0, viewOption.size(), viewOption) == 0)
     {
@@ -327,6 +328,12 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     if (argument.compare(0, dataRootOption.size(), dataRootOption) == 0)
     {
         config.setDataRoot(std::string(argument.substr(dataRootOption.size())));
+        return true;
+    }
+
+    if (argument.compare(0, dirOption.size(), dirOption) == 0)
+    {
+        config.setDataRoot(std::string(argument.substr(dirOption.size())));
         return true;
     }
 

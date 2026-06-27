@@ -18,6 +18,7 @@ namespace celestia::runtime::process
 struct ProcessSupervisorOptions
 {
     std::filesystem::path runtimeHostDirectory;
+    std::filesystem::path contentRoot;
     std::string viewId{ "celestia.view2d.debug" };
     int durationMilliseconds{ 500 };
     std::string hostTransport{ "stdio-pipe" };

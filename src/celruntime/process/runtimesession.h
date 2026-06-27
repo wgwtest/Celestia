@@ -30,6 +30,7 @@ struct RuntimeSessionOptions
     std::string switchViewId;
     std::string hostTransport{ "stdio-pipe" };
     std::filesystem::path dataRoot;
+    std::filesystem::path contentRoot;
 };
 
 struct RuntimeSessionResult

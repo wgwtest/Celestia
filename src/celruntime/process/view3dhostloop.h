@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -33,10 +34,12 @@ void setRuntimeView3DHostCallbacks(View3DHostCallbacks callbacks);
 int runRuntimeView3DHostLoop(std::string sessionId,
                              std::istream& input,
                              std::ostream& output,
-                             std::ostream& error);
+                             std::ostream& error,
+                             std::filesystem::path contentRoot = {});
 
 int runRuntimeView3DHostLoop(std::string sessionId,
                              celestia::runtime::transport::FramedTransport& transport,
-                             std::ostream& error);
+                             std::ostream& error,
+                             std::filesystem::path contentRoot = {});
 
 } // namespace celestia::runtime::process

@@ -40,6 +40,7 @@ struct RuntimeHostOptions
     std::string sessionId;
     std::string viewId{ RuntimeConfig::DefaultViewId };
     std::string dataRoot;
+    std::string contentRoot;
 };
 
 bool
@@ -121,6 +122,10 @@ parseOptions(int argc, char* argv[], std::string& error)
         {
             options.dataRoot = std::string(argument.substr(12));
         }
+        else if (startsWith(argument, "--content-root="))
+        {
+            options.contentRoot = std::string(argument.substr(15));
+        }
         else
         {
             error = "unknown argument: " + std::string(argument);
@@ -190,8 +195,10 @@ runRuntimeHost(std::string_view role,
             if (sessionId.empty())
                 sessionId = "default";
             if (localTransport != nullptr)
-                return runRuntimeView3DHostLoop(std::move(sessionId), *localTransport, error);
-            return runRuntimeView3DHostLoop(std::move(sessionId), input, output, error);
+                return runRuntimeView3DHostLoop(std::move(sessionId), *localTransport,
+                                                error, options->contentRoot);
+            return runRuntimeView3DHostLoop(std::move(sessionId), input, output,
+                                            error, options->contentRoot);
         }
 
         const auto roleValue = runtimeRoleFromHostRole(role);

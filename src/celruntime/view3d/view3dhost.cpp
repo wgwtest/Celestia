@@ -27,24 +27,29 @@ using protocol::RuntimeRole;
 
 std::string
 frameRenderedPayload(std::uint64_t frameCount,
-                     std::uint64_t lastSequence,
-                     double lastSimulationTime,
-                     std::uint64_t bodyCount,
-                     std::uint64_t starCount)
+                     const View3DSceneState& state)
 {
     std::ostringstream output;
     output << "frameCount=" << frameCount
-           << ";lastSequence=" << lastSequence
-           << ";simulationTime=" << lastSimulationTime
-           << ";bodyCount=" << bodyCount
-           << ";starCount=" << starCount;
+           << ";lastSequence=" << state.sequence
+           << ";simulationTime=" << state.simulationTime
+           << ";bodyCount=" << state.bodyCount
+           << ";starCount=" << state.starCount
+           << ";deepSkyObjectCount=" << state.deepSkyObjectCount
+           << ";orbitCount=" << state.orbitCount
+           << ";labelCount=" << state.labelCount
+           << ";resourceCount=" << state.resourceCount
+           << ";resolvedResourceCount=" << state.resolvedResourceCount
+           << ";missingRequiredResourceCount=" << state.missingRequiredResourceCount
+           << ";cameraFov=" << state.cameraFov;
     return output.str();
 }
 
 } // end unnamed namespace
 
-View3DHost::View3DHost(std::string sessionId)
+View3DHost::View3DHost(std::string sessionId, View3DHostOptions options)
     : sessionId_(std::move(sessionId))
+    , options_(std::move(options))
 {
 }
 
@@ -63,13 +68,13 @@ View3DHost::frameCount() const
 std::uint64_t
 View3DHost::lastSequence() const
 {
-    return lastSequence_;
+    return lastSceneState_.sequence;
 }
 
 double
 View3DHost::lastSimulationTime() const
 {
-    return lastSimulationTime_;
+    return lastSceneState_.simulationTime;
 }
 
 RuntimeEnvelope
@@ -101,7 +106,7 @@ View3DHost::ready3D(const RuntimeEnvelope& request) const
     return response(request,
                     RuntimeMessageKind::Event,
                     "view.ready3d",
-                    "renderer=step8-scene-protocol;capabilities=scene.frame,view.input,opengl;frames=0");
+                    "renderer=step15-scene-consumer;capabilities=scene.frame,view.input,opengl,resources;frames=0");
 }
 
 RuntimeEnvelope
@@ -110,11 +115,7 @@ View3DHost::frameRendered(const RuntimeEnvelope& request) const
     return response(request,
                     RuntimeMessageKind::Event,
                     "view.frameRendered",
-                    frameRenderedPayload(frameCount_,
-                                         lastSequence_,
-                                         lastSimulationTime_,
-                                         lastBodyCount_,
-                                         lastStarCount_));
+                    frameRenderedPayload(frameCount_, lastSceneState_));
 }
 
 std::vector<RuntimeEnvelope>
@@ -147,10 +148,7 @@ View3DHost::handle(const RuntimeEnvelope& request)
     if (!frame.has_value())
         return { errorResponse(request, "invalid scene.frame payload") };
 
-    lastSequence_ = frame->sequence;
-    lastSimulationTime_ = frame->simulationTime;
-    lastBodyCount_ = static_cast<std::uint64_t>(frame->bodies.size());
-    lastStarCount_ = static_cast<std::uint64_t>(frame->stars.size());
+    lastSceneState_ = buildView3DSceneState(*frame, options_.contentRoot);
     ++frameCount_;
     return { frameRendered(request) };
 }

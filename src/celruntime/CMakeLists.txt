@@ -61,6 +61,10 @@ set(CELESTIA_RUNTIME_SOURCES
   runtimecomposition.h
   view3d/view3dhost.cpp
   view3d/view3dhost.h
+  view3d/view3dresources.cpp
+  view3d/view3dresources.h
+  view3d/view3dscene.cpp
+  view3d/view3dscene.h
   viewplugin/viewpluginlifecycle.cpp
   viewplugin/viewpluginlifecycle.h
   viewplugin/viewpluginloader.cpp

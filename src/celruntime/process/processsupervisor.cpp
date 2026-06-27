@@ -64,7 +64,7 @@ ProcessSupervisor::runRuntime() const
     auto assemblyConfig = assembly::RuntimeAssemblyConfig::fromRuntimeConfig(
         runtimeConfig,
         options_.runtimeHostDirectory,
-        options_.runtimeHostDirectory,
+        options_.contentRoot.empty() ? options_.runtimeHostDirectory : options_.contentRoot,
         options_.sessionId);
     assembly::RuntimeAssemblyRunner runner(std::move(assemblyConfig));
     const auto sessionResult = runner.run();

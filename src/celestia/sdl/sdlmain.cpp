@@ -62,6 +62,34 @@ getDataDir()
 }
 
 bool
+isCelestiaDataRoot(const std::filesystem::path& path)
+{
+    return std::filesystem::exists(path / "celestia.cfg") &&
+           std::filesystem::is_directory(path / "data");
+}
+
+std::filesystem::path
+resolveDataDir(std::filesystem::path path)
+{
+    if (path.empty())
+        path = getDataDir();
+
+    std::error_code ec;
+    const auto absolutePath = std::filesystem::absolute(path, ec);
+    if (!ec)
+        path = absolutePath;
+
+    if (isCelestiaDataRoot(path))
+        return path;
+
+    const auto runFull = path / "run-full";
+    if (isCelestiaDataRoot(runFull))
+        return runFull;
+
+    return path;
+}
+
+bool
 writeText(const std::filesystem::path& path, std::string_view text)
 {
     std::ofstream output(path);
@@ -185,13 +213,16 @@ runMultiProcessOnce(char* executablePath, const celestia::runtime::RuntimeConfig
 }
 
 bool
-runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfig& runtimeConfig)
+runMultiProcessServe(char* executablePath,
+                     const celestia::runtime::RuntimeConfig& runtimeConfig,
+                     const std::filesystem::path& contentRoot)
 {
     if (!runtimeConfig.serve())
         return false;
 
     celestia::runtime::process::ProcessSupervisorOptions options;
     options.runtimeHostDirectory = runtimeHostDirectory(executablePath);
+    options.contentRoot = contentRoot;
     options.viewId = runtimeConfig.selectedViewId();
     options.durationMilliseconds = runtimeConfig.durationMilliseconds();
     options.hostTransport = std::string(runtimeConfig.hostTransport());
@@ -209,13 +240,15 @@ runMultiProcessServe(char* executablePath, const celestia::runtime::RuntimeConfi
 }
 
 bool
-runRuntimeAssemblyConfig(char* executablePath, const celestia::runtime::RuntimeConfig& runtimeConfig)
+runRuntimeAssemblyConfig(char* executablePath,
+                         const celestia::runtime::RuntimeConfig& runtimeConfig,
+                         const std::filesystem::path& defaultContentRoot)
 {
     std::string error;
     auto config = celestia::runtime::assembly::loadRuntimeAssemblyConfig(
         runtimeConfig.runtimeConfigPath(),
         runtimeHostDirectory(executablePath),
-        getDataDir(),
+        defaultContentRoot,
         &error);
     if (!config.has_value())
     {
@@ -259,10 +292,20 @@ parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runt
     constexpr std::string_view switchAfterOption{ "--switch-view-after-ms=" };
     constexpr std::string_view switchViewOption{ "--switch-view=" };
     constexpr std::string_view runtimeConfigOption{ "--runtime-config=" };
+    constexpr std::string_view dirOption{ "--dir=" };
 
     for (int i = 1; i < argc; ++i)
     {
         std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
+        if (argument == "--dir")
+        {
+            if (i + 1 >= argc || argv[i + 1] == nullptr)
+                return false;
+
+            runtimeConfig.setDataRoot(argv[++i]);
+            continue;
+        }
+
         if (argument == "--runtime-config")
         {
             if (i + 1 >= argc || argv[i + 1] == nullptr)
@@ -280,6 +323,7 @@ parseRuntimeConfig(int argc, char** argv, celestia::runtime::RuntimeConfig& runt
              argument.compare(0, switchAfterOption.size(), switchAfterOption) == 0 ||
              argument.compare(0, switchViewOption.size(), switchViewOption) == 0 ||
              argument.compare(0, runtimeConfigOption.size(), runtimeConfigOption) == 0 ||
+             argument.compare(0, dirOption.size(), dirOption) == 0 ||
              argument == "--once" ||
              argument == "--serve" ||
              argument == "--list-views") &&
@@ -314,16 +358,17 @@ main(int argc, char **argv)
     if (!environment)
         return EXIT_FAILURE;
 
-    std::filesystem::path dataDir = getDataDir();
     celestia::runtime::RuntimeConfig runtimeConfig;
     if (!parseRuntimeConfig(argc, argv, runtimeConfig))
         return EXIT_FAILURE;
+
+    const auto dataDir = resolveDataDir(runtimeConfig.dataRoot());
 
     if (runtimeConfig.listViews())
         return listRuntimeViews(runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
 
     if (!runtimeConfig.runtimeConfigPath().empty())
-        return runRuntimeAssemblyConfig(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+        return runRuntimeAssemblyConfig(argv[0], runtimeConfig, dataDir) ? EXIT_SUCCESS : EXIT_FAILURE;
 
     if (runtimeConfig.runtimeMode() == celestia::runtime::RuntimeMode::MultiProcess)
     {
@@ -331,7 +376,7 @@ main(int argc, char **argv)
             return runMultiProcessOnce(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
 
         if (runtimeConfig.serve())
-            return runMultiProcessServe(argv[0], runtimeConfig) ? EXIT_SUCCESS : EXIT_FAILURE;
+            return runMultiProcessServe(argv[0], runtimeConfig, dataDir) ? EXIT_SUCCESS : EXIT_FAILURE;
 
         return EXIT_FAILURE;
     }

@@ -9,6 +9,7 @@
 
 #include "view3dhostloop.h"
 
+#include <filesystem>
 #include <ostream>
 #include <utility>
 #include <vector>
@@ -92,18 +93,22 @@ int
 runRuntimeView3DHostLoop(std::string sessionId,
                          std::istream& input,
                          std::ostream& output,
-                         std::ostream& error)
+                         std::ostream& error,
+                         std::filesystem::path contentRoot)
 {
     transport::StdioTransport transport(input, output);
-    return runRuntimeView3DHostLoop(std::move(sessionId), transport, error);
+    return runRuntimeView3DHostLoop(std::move(sessionId), transport, error, std::move(contentRoot));
 }
 
 int
 runRuntimeView3DHostLoop(std::string sessionId,
                          transport::FramedTransport& transport,
-                         std::ostream& error)
+                         std::ostream& error,
+                         std::filesystem::path contentRoot)
 {
-    view3d::View3DHost viewHost(sessionId);
+    view3d::View3DHostOptions hostOptions;
+    hostOptions.contentRoot = std::move(contentRoot);
+    view3d::View3DHost viewHost(sessionId, std::move(hostOptions));
 
     for (;;)
     {

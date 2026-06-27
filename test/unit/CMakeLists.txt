@@ -53,6 +53,7 @@ set(UNIT_TEST_SOURCES
   mvc_step12_scene_frame_protocol_test.cpp
   mvc_step13_real_model_backend_test.cpp
   mvc_step14_real_scene_extractor_test.cpp
+  mvc_step15_view3d_real_scene_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp

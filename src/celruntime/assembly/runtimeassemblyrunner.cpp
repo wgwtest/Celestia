@@ -95,6 +95,9 @@ RuntimeAssemblyRunner::run() const
     options.switchViewAfterMilliseconds = config_.view.switchAfterMilliseconds;
     options.switchViewId = config_.view.switchViewId;
     options.dataRoot = resolveModelDataRoot(config_.resources.contentRoot);
+    options.contentRoot = options.dataRoot.empty()
+        ? config_.resources.contentRoot
+        : options.dataRoot;
 
     process::RuntimeSession session(options);
     auto result = session.run();

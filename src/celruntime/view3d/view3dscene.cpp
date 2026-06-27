@@ -1,0 +1,42 @@
+// view3dscene.cpp
+//
+// Copyright (C) 2026, the Celestia Development Team
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+#include "view3dscene.h"
+
+namespace celestia::runtime::view3d
+{
+
+View3DSceneState
+buildView3DSceneState(const protocol::SceneFrame& frame,
+                      const std::filesystem::path& contentRoot)
+{
+    View3DSceneState state;
+    state.sequence = frame.sequence;
+    state.simulationTime = frame.simulationTime;
+    state.cameraFov = frame.camera.fov;
+    state.bodyCount = static_cast<std::uint64_t>(frame.bodies.size());
+    state.starCount = static_cast<std::uint64_t>(frame.stars.size());
+    state.deepSkyObjectCount = static_cast<std::uint64_t>(frame.deepSkyObjects.size());
+    state.orbitCount = static_cast<std::uint64_t>(frame.orbits.size());
+    state.labelCount = static_cast<std::uint64_t>(frame.labels.size());
+    state.resourceCount = static_cast<std::uint64_t>(frame.resources.size());
+    state.resources = resolveSceneResources(frame, contentRoot);
+
+    for (const auto& resource : state.resources)
+    {
+        if (resource.exists)
+            ++state.resolvedResourceCount;
+        else if (resource.resource.required)
+            ++state.missingRequiredResourceCount;
+    }
+
+    return state;
+}
+
+} // namespace celestia::runtime::view3d

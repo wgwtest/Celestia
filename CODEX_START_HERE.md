@@ -105,7 +105,7 @@ celestia.view2d.debug
 celestia.view3d.opengl
 ```
 
-Important boundary: the cross-process `celestia-view3d-host` is currently a minimal protocol-validation renderer. It proves independent View3D process startup, `scene.frame` delivery, `view.input` return flow, and process supervision. It is not yet visually equivalent to the historical in-process Celestia renderer.
+Important boundary: the cross-process `celestia-view3d-host` now consumes real `scene.frame` body/star/orbit/resource fields and reports those counts through `view.frameRendered`. Its OpenGL output is still a simplified protocol visualization, not historical in-process Celestia renderer parity.
 
 ## Current User-Facing Interpretation
 
@@ -116,6 +116,7 @@ Celestia now has a local, multi-process, runtime-configurable MVC baseline.
 M / C / V host processes can be started, supervised, messaged, switched, and shut down.
 The Model host can be configured with a real Celestia data root and load real Universe / Simulation state headlessly.
 The Model host can now project a first real scene.frame with real time, observer/camera, selected body/star, orbit sample, and catalog resources.
+The View3D host can now consume real scene.frame body/star/orbit/resource fields and resolve ResourceRef values through a content root.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
@@ -136,7 +137,7 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step15 - View3D consumes real scene.frame
+Step16 - Controller real interaction loop
 ```
 
 Formal execution plan:
@@ -145,25 +146,28 @@ Formal execution plan:
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 ```
 
-Detailed completed Step13/Step14 plans:
+Detailed completed Step13/Step14/Step15 plans:
 
 ```text
+DOC\CODEX_DOC\04_研制计划\32-WBS-0.32-Celestia标准MVC解耦-Step15真实View3D消费方案.md
 DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
 DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实SceneExtractor方案.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 ```
 
-Step14 completion means:
+Step15 completion means:
 
 ```text
 1. RealModelBackend still loads celestia.cfg, stars, DSO, SSO, Universe, Simulation, and ObserverSettings headlessly.
 2. SceneViewModel now exposes real time, observer/camera, selected body/star, sampled orbit, and catalog resource fields in ViewFrame.
 3. viewframecodec preserves those fields across the independent Model host payload path.
 4. SceneExtractor projects those fields into placeholder-free scene.frame output for the real backend.
-5. Step15 is still required before claiming the cross-process View3D visually consumes the real scene.
+5. View3D host consumes real scene.frame fields and reports body/star/orbit/resource counts through view.frameRendered.
+6. Runtime assembly and SDL --serve pass the real content root to View3D so ResourceRef values can be resolved.
+7. Step16 is still required before claiming a real user input -> Controller -> Model -> View closed loop.
 ```
 
-After Step14 acceptance, Step15 should start View3D consumption of the real scene.frame fields. Do not claim View3D visual parity until Step15+ evidence exists.
+After Step15 acceptance, Step16 should start the real Controller interaction loop. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\
@@ -175,6 +179,7 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\04_研制计划\32-WBS-0.32-Celestia标准MVC解耦-Step15真实View3D消费方案.md
 DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实SceneExtractor方案.md
 DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
@@ -338,6 +343,18 @@ Latest Step14 Quick regression report:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-194352-fb6609c-quick\machine-report.md
+```
+
+Latest Step15 Quick regression report:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-201808-742cf34-quick\machine-report.md
+```
+
+Latest Step15 View3D runtime screenshot evidence:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\step15-view3d-runtime-20260627-200623\view3d-window.png
 ```
 
 ## Startup Commands
