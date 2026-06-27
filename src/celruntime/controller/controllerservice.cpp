@@ -66,6 +66,12 @@ serializeModelInputCommand(const protocol::ViewInputEvent& input)
            ";modifiers=" + input.modifiers;
 }
 
+bool
+hasModifier(std::string_view modifiers, std::string_view expected)
+{
+    return modifiers.find(expected) != std::string_view::npos;
+}
+
 RuntimeEnvelope
 makeEnvelope(const RuntimeEnvelope& request,
              RuntimeRole target,
@@ -187,6 +193,16 @@ ControllerService::handle(const RuntimeEnvelope& request)
             payload += ";view=celestia.view3d.opengl";
             payload += ";command=time.setScale";
             return { commandToModel(request, "model.setTimeScale", std::move(payload)) };
+        }
+
+        if (input->device == "keyboard" &&
+            input->action == "KeyDown" &&
+            input->key == "Backspace" &&
+            hasModifier(input->modifiers, "Ctrl"))
+        {
+            auto payload = std::string("view=celestia.view3d.opengl");
+            payload += ";command=selection.clear";
+            return { commandToModel(request, "model.clearSelection", std::move(payload)) };
         }
 
         if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)

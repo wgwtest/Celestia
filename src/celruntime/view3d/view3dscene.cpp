@@ -25,6 +25,8 @@ buildView3DSceneState(const protocol::SceneFrame& frame,
     state.deepSkyObjectCount = static_cast<std::uint64_t>(frame.deepSkyObjects.size());
     state.orbitCount = static_cast<std::uint64_t>(frame.orbits.size());
     state.labelCount = static_cast<std::uint64_t>(frame.labels.size());
+    state.selectionType = frame.selection.type;
+    state.selectionId = frame.selection.id;
     state.resourceCount = static_cast<std::uint64_t>(frame.resources.size());
     state.resources = resolveSceneResources(frame, contentRoot);
 

@@ -352,6 +352,8 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         snapshot.timeScale = timeScale_;
         if (cameraFov_ > 0.0)
             snapshot.camera.fovDeg = cameraFov_;
+        if (selectionCleared_)
+            snapshot.selections.clear();
         response.payload = celestia::runtime::model::serializeViewFrame(snapshot);
     }
     return response;
@@ -365,8 +367,12 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     snapshot.timeScale = timeScale_;
     if (cameraFov_ > 0.0)
         snapshot.camera.fovDeg = cameraFov_;
+    if (selectionCleared_)
+        snapshot.selections.clear();
     auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
                                    snapshot);
+    if (selectionCleared_)
+        frame.selection = {};
     if (!lastViewInputAction_.empty())
     {
         protocol::LabelRenderState label;
@@ -467,6 +473,14 @@ ModelService::handle(const RuntimeEnvelope& request)
             return errorResponse(request, "invalid model.setCameraFov value");
 
         cameraFov_ = *parsed;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.clearSelection")
+    {
+        selectionCleared_ = true;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);

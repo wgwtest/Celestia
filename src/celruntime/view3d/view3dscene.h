@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include <celruntime/protocol/sceneprotocol.h>
@@ -29,6 +30,8 @@ struct View3DSceneState
     std::uint64_t deepSkyObjectCount{ 0 };
     std::uint64_t orbitCount{ 0 };
     std::uint64_t labelCount{ 0 };
+    std::string selectionType;
+    std::string selectionId;
     std::uint64_t resourceCount{ 0 };
     std::uint64_t resolvedResourceCount{ 0 };
     std::uint64_t missingRequiredResourceCount{ 0 };

@@ -45,7 +45,7 @@ readSourceFile(std::string_view relativePath)
 }
 
 celestia::runtime::protocol::ViewInputEvent
-keyDown(std::string key)
+keyDown(std::string key, std::string modifiers = {})
 {
     celestia::runtime::protocol::ViewInputEvent input;
     input.sessionId = "step16-controller-interaction";
@@ -53,6 +53,7 @@ keyDown(std::string key)
     input.device = "keyboard";
     input.action = "KeyDown";
     input.key = std::move(key);
+    input.modifiers = std::move(modifiers);
     return input;
 }
 
@@ -193,6 +194,44 @@ TEST_CASE("Step16 mouse wheel zoom changes scene camera fov through Controller M
     REQUIRE(rendered.size() == 1);
     CHECK(rendered.front().name == "view.frameRendered");
     CHECK(contains(rendered.front().payload, "cameraFov=40"));
+}
+
+TEST_CASE("Step16 Ctrl Backspace clears scene selection through Controller Model and View3D")
+{
+    celestia::runtime::controller::ControllerService controller("step16-controller-interaction");
+    celestia::runtime::model::ModelService model("step16-controller-interaction");
+    celestia::runtime::view3d::View3DHost view("step16-controller-interaction");
+
+    controller.handle(runtimeStart(RuntimeRole::Controller));
+    model.handle(runtimeStart(RuntimeRole::Model));
+    view.handle(runtimeStart(RuntimeRole::View));
+
+    const auto controllerCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
+        keyDown("Backspace", "Ctrl"),
+        RuntimeRole::View,
+        RuntimeRole::Controller));
+
+    REQUIRE(controllerCommands.size() == 1);
+    CHECK(controllerCommands.front().kind == RuntimeMessageKind::Command);
+    CHECK(controllerCommands.front().targetRole == RuntimeRole::Model);
+    CHECK(controllerCommands.front().name == "model.clearSelection");
+    CHECK(contains(controllerCommands.front().payload, "view=celestia.view3d.opengl"));
+    CHECK(contains(controllerCommands.front().payload, "command=selection.clear"));
+
+    const auto modelFrame = model.handle(controllerCommands.front());
+    REQUIRE(modelFrame.kind == RuntimeMessageKind::ViewFrame);
+    REQUIRE(modelFrame.name == celestia::runtime::protocol::SceneFrameMessageName);
+
+    const auto scene = celestia::runtime::protocol::deserializeSceneFrame(modelFrame.payload);
+    REQUIRE(scene.has_value());
+    CHECK(scene->selection.type.empty());
+    CHECK(scene->selection.id.empty());
+
+    const auto rendered = view.handle(modelFrame);
+    REQUIRE(rendered.size() == 1);
+    CHECK(rendered.front().name == "view.frameRendered");
+    CHECK(contains(rendered.front().payload, "selectionType="));
+    CHECK(contains(rendered.front().payload, "selectionId="));
 }
 
 TEST_CASE("Step16 RuntimeSession view.input route accepts typed model commands")
