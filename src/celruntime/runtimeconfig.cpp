@@ -187,6 +187,18 @@ RuntimeConfig::setRuntimeConfigPath(std::string runtimeConfigPath)
     m_runtimeConfigPath = std::move(runtimeConfigPath);
 }
 
+const std::string&
+RuntimeConfig::dataRoot() const
+{
+    return m_dataRoot;
+}
+
+void
+RuntimeConfig::setDataRoot(std::string dataRoot)
+{
+    m_dataRoot = std::move(dataRoot);
+}
+
 namespace
 {
 
@@ -220,6 +232,7 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     constexpr std::string_view switchAfterOption{ "--switch-view-after-ms=" };
     constexpr std::string_view switchViewOption{ "--switch-view=" };
     constexpr std::string_view runtimeConfigOption{ "--runtime-config=" };
+    constexpr std::string_view dataRootOption{ "--data-root=" };
 
     if (argument.compare(0, viewOption.size(), viewOption) == 0)
     {
@@ -308,6 +321,12 @@ applyRuntimeConfigArgument(RuntimeConfig& config, std::string_view argument)
     if (argument.compare(0, runtimeConfigOption.size(), runtimeConfigOption) == 0)
     {
         config.setRuntimeConfigPath(std::string(argument.substr(runtimeConfigOption.size())));
+        return true;
+    }
+
+    if (argument.compare(0, dataRootOption.size(), dataRootOption) == 0)
+    {
+        config.setDataRoot(std::string(argument.substr(dataRootOption.size())));
         return true;
     }
 

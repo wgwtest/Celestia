@@ -21,17 +21,19 @@ macro(test_case)
   )
   target_include_directories(${tgt} PRIVATE "${_CELESTIA_TESTS_BASE_DIR}/doctest")
   if(WIN32)
-    # Need to copy the dlls before test discovery
-    add_custom_command(
-      TARGET ${tgt} PRE_LINK
+    # Keep the test directory DLLs current even when the test executable itself
+    # does not relink after the shared celestia target changes.
+    add_custom_target(${tgt}_runtime_dependencies
       COMMAND
         ${CMAKE_COMMAND}
           -D "DEPS_TARGET_FILE=$<TARGET_FILE:celestia>"
           -D "DEPS_DEST_DIR=$<TARGET_FILE_DIR:${tgt}>"
           -D "DEPS_COPY_TARGET=ON"
           -P "${CMAKE_SOURCE_DIR}/cmake/CopyDependentDlls.cmake"
+      DEPENDS celestia
       VERBATIM
     )
+    add_dependencies(${tgt} ${tgt}_runtime_dependencies)
   endif()
 
   doctest_discover_tests(${tgt})

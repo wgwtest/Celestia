@@ -39,6 +39,7 @@ struct RuntimeHostOptions
     int heartbeatMilliseconds{ 1000 };
     std::string sessionId;
     std::string viewId{ RuntimeConfig::DefaultViewId };
+    std::string dataRoot;
 };
 
 bool
@@ -116,6 +117,10 @@ parseOptions(int argc, char* argv[], std::string& error)
             }
             options.heartbeatMilliseconds = *value;
         }
+        else if (startsWith(argument, "--data-root="))
+        {
+            options.dataRoot = std::string(argument.substr(12));
+        }
         else
         {
             error = "unknown argument: " + std::string(argument);
@@ -149,7 +154,8 @@ runRuntimeHost(std::string_view role,
                char* argv[],
                std::istream& input,
                std::ostream& output,
-               std::ostream& error)
+               std::ostream& error,
+               std::unique_ptr<model::SimulationBackend> modelBackend)
 {
     std::string optionError;
     auto options = parseOptions(argc, argv, optionError);
@@ -196,7 +202,24 @@ runRuntimeHost(std::string_view role,
         if (sessionId.empty())
             sessionId = "default";
         if (localTransport != nullptr)
+        {
+            if (*roleValue == protocol::RuntimeRole::Model)
+            {
+                model::RuntimeDataPaths dataPaths;
+                dataPaths.dataRoot = options->dataRoot;
+                return runRuntimeModelHostLoop(std::move(sessionId), std::move(modelBackend),
+                                               std::move(dataPaths), *localTransport, error);
+            }
             return runRuntimeHostLoop(*roleValue, std::move(sessionId), *localTransport, error);
+        }
+
+        if (*roleValue == protocol::RuntimeRole::Model)
+        {
+            model::RuntimeDataPaths dataPaths;
+            dataPaths.dataRoot = options->dataRoot;
+            return runRuntimeModelHostLoop(std::move(sessionId), std::move(modelBackend),
+                                           std::move(dataPaths), input, output, error);
+        }
         return runRuntimeHostLoop(*roleValue, std::move(sessionId), input, output, error);
     }
 

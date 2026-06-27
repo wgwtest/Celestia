@@ -9,6 +9,7 @@
 
 #include "runtimehostloop.h"
 
+#include <memory>
 #include <ostream>
 #include <utility>
 #include <vector>
@@ -77,6 +78,13 @@ sendAll(transport::FramedTransport& transport, const std::vector<RuntimeEnvelope
     return true;
 }
 
+int runRuntimeHostLoopWithModelBackend(RuntimeRole role,
+                                       std::string sessionId,
+                                       std::unique_ptr<model::SimulationBackend> backend,
+                                       model::RuntimeDataPaths dataPaths,
+                                       transport::FramedTransport& transport,
+                                       std::ostream& error);
+
 } // end unnamed namespace
 
 std::optional<RuntimeRole>
@@ -108,7 +116,49 @@ runRuntimeHostLoop(RuntimeRole role,
                    transport::FramedTransport& transport,
                    std::ostream& error)
 {
-    model::ModelService modelService(sessionId);
+    return runRuntimeHostLoopWithModelBackend(role, std::move(sessionId), nullptr, {},
+                                              transport, error);
+}
+
+int
+runRuntimeModelHostLoop(std::string sessionId,
+                        std::unique_ptr<model::SimulationBackend> backend,
+                        model::RuntimeDataPaths dataPaths,
+                        std::istream& input,
+                        std::ostream& output,
+                        std::ostream& error)
+{
+    transport::StdioTransport transport(input, output);
+    return runRuntimeModelHostLoop(std::move(sessionId), std::move(backend),
+                                   std::move(dataPaths), transport, error);
+}
+
+int
+runRuntimeModelHostLoop(std::string sessionId,
+                        std::unique_ptr<model::SimulationBackend> backend,
+                        model::RuntimeDataPaths dataPaths,
+                        transport::FramedTransport& transport,
+                        std::ostream& error)
+{
+    return runRuntimeHostLoopWithModelBackend(RuntimeRole::Model, std::move(sessionId),
+                                              std::move(backend), std::move(dataPaths),
+                                              transport, error);
+}
+
+namespace
+{
+
+int
+runRuntimeHostLoopWithModelBackend(RuntimeRole role,
+                                   std::string sessionId,
+                                   std::unique_ptr<model::SimulationBackend> backend,
+                                   model::RuntimeDataPaths dataPaths,
+                                   transport::FramedTransport& transport,
+                                   std::ostream& error)
+{
+    auto modelService = backend == nullptr
+        ? std::make_unique<model::ModelService>(sessionId)
+        : std::make_unique<model::ModelService>(sessionId, std::move(backend), std::move(dataPaths));
     controller::ControllerService controllerService(sessionId);
     view::ViewService viewService(sessionId);
 
@@ -134,7 +184,7 @@ runRuntimeHostLoop(RuntimeRole role,
         {
             if (role == RuntimeRole::Model)
             {
-                if (!transport.send(modelService.handle(request)))
+                if (!transport.send(modelService->handle(request)))
                     return 2;
                 continue;
             }
@@ -160,7 +210,7 @@ runRuntimeHostLoop(RuntimeRole role,
         {
             if (role == RuntimeRole::Model)
             {
-                if (!transport.send(modelService.handle(request)))
+                if (!transport.send(modelService->handle(request)))
                     return 2;
                 continue;
             }
@@ -198,5 +248,7 @@ runRuntimeHostLoop(RuntimeRole role,
             return 0;
     }
 }
+
+} // end unnamed namespace
 
 } // namespace celestia::runtime::process

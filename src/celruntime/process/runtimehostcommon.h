@@ -10,7 +10,10 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
 #include <string_view>
+
+#include <celruntime/model/modelsnapshot.h>
 
 namespace celestia::runtime::process
 {
@@ -20,6 +23,7 @@ int runRuntimeHost(std::string_view role,
                    char* argv[],
                    std::istream& input,
                    std::ostream& output,
-                   std::ostream& error);
+                   std::ostream& error,
+                   std::unique_ptr<model::SimulationBackend> modelBackend = nullptr);
 
 } // namespace celestia::runtime::process

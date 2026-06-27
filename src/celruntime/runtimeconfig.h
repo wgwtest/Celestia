@@ -68,12 +68,16 @@ public:
     const std::string& runtimeConfigPath() const;
     void setRuntimeConfigPath(std::string);
 
+    const std::string& dataRoot() const;
+    void setDataRoot(std::string);
+
 private:
     std::string m_selectedViewId;
     std::string m_hostTransport;
     std::string m_pluginDirectory;
     std::string m_switchViewId;
     std::string m_runtimeConfigPath;
+    std::string m_dataRoot;
     RuntimeMode m_runtimeMode;
     bool m_runOnce;
     bool m_serve;

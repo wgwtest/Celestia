@@ -4,6 +4,7 @@
 
 #include "runtimeassemblyrunner.h"
 
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <utility>
@@ -33,6 +34,26 @@ writeTrace(const RuntimeAssemblyConfig& config,
     output << "controller exitCode=" << result.controllerExitCode << '\n';
     output << "model exitCode=" << result.modelExitCode << '\n';
     output << "view exitCode=" << result.viewExitCode << '\n';
+}
+
+bool
+isCelestiaDataRoot(const std::filesystem::path& path)
+{
+    return std::filesystem::exists(path / "celestia.cfg") &&
+           std::filesystem::is_directory(path / "data");
+}
+
+std::filesystem::path
+resolveModelDataRoot(const std::filesystem::path& contentRoot)
+{
+    if (isCelestiaDataRoot(contentRoot))
+        return contentRoot;
+
+    const auto runFull = contentRoot / "run-full";
+    if (isCelestiaDataRoot(runFull))
+        return runFull;
+
+    return {};
 }
 
 } // end unnamed namespace
@@ -73,6 +94,7 @@ RuntimeAssemblyRunner::run() const
     options.hostTransport = config_.transport.controlKind;
     options.switchViewAfterMilliseconds = config_.view.switchAfterMilliseconds;
     options.switchViewId = config_.view.switchViewId;
+    options.dataRoot = resolveModelDataRoot(config_.resources.contentRoot);
 
     process::RuntimeSession session(options);
     auto result = session.run();

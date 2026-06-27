@@ -287,11 +287,18 @@ ModelService::ModelService(std::string sessionId)
 }
 
 ModelService::ModelService(std::string sessionId, std::unique_ptr<SimulationBackend> backend)
+    : ModelService(std::move(sessionId), std::move(backend), RuntimeDataPaths{})
+{
+}
+
+ModelService::ModelService(std::string sessionId,
+                           std::unique_ptr<SimulationBackend> backend,
+                           RuntimeDataPaths dataPaths)
     : sessionId_(std::move(sessionId))
     , backend_(std::move(backend))
 {
     if (backend_ != nullptr)
-        backend_->load({});
+        backend_->load(dataPaths);
 }
 
 ModelService::~ModelService() = default;

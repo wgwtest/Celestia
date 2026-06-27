@@ -93,7 +93,9 @@ RuntimeAssemblyConfig::fromRuntimeConfig(const RuntimeConfig& runtimeConfig,
     RuntimeAssemblyConfig config;
     config.session.id = std::move(sessionId);
     config.session.durationMilliseconds = runtimeConfig.durationMilliseconds();
-    config.resources.contentRoot = std::move(contentRoot);
+    config.resources.contentRoot = contentRoot.empty()
+        ? std::filesystem::path(runtimeConfig.dataRoot())
+        : std::move(contentRoot);
     config.runtimeHostDirectory = std::move(runtimeHostDirectory);
     config.transport.controlKind = std::string(runtimeConfig.hostTransport());
     config.transport.dataKind = "framed-envelope";

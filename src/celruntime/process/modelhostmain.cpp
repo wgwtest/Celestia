@@ -10,7 +10,11 @@
 #include "runtimehostcommon.h"
 
 #include <iostream>
+#include <memory>
+#include <string>
 #include <string_view>
+
+#include <celruntime/model/realmodelbackend.h>
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -32,6 +36,23 @@ useBinaryStdio(int argc, char* argv[])
     return false;
 }
 
+bool
+hasDataRoot(int argc, char* argv[])
+{
+    constexpr std::string_view dataRootOption{ "--data-root=" };
+    for (int i = 1; i < argc; ++i)
+    {
+        const std::string_view argument{ argv[i] != nullptr ? argv[i] : "" };
+        if (argument.substr(0, dataRootOption.size()) == dataRootOption &&
+            argument.size() > dataRootOption.size())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 } // end unnamed namespace
 
 int
@@ -44,5 +65,9 @@ main(int argc, char* argv[])
         _setmode(_fileno(stdout), _O_BINARY);
     }
 #endif
-    return celestia::runtime::process::runRuntimeHost("model", argc, argv, std::cin, std::cout, std::cerr);
+    auto backend = hasDataRoot(argc, argv)
+        ? celestia::runtime::model::createRealModelBackend()
+        : std::unique_ptr<celestia::runtime::model::SimulationBackend>{};
+    return celestia::runtime::process::runRuntimeHost("model", argc, argv, std::cin, std::cout, std::cerr,
+                                                      std::move(backend));
 }

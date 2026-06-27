@@ -41,6 +41,8 @@ set(CELESTIA_SOURCES
   viewmanager.h
   windowmetrics.cpp
   windowmetrics.h
+  ${PROJECT_SOURCE_DIR}/src/celruntime/model/realmodelbackend.cpp
+  ${PROJECT_SOURCE_DIR}/src/celruntime/model/realmodelbackend.h
 )
 
 if(ENABLE_FFMPEG)
@@ -94,6 +96,40 @@ set(CELESTIA_CORE_LIBS $<TARGET_OBJECTS:cel3ds>
 )
 if(TARGET celcompat)
   set(CELESTIA_CORE_LIBS ${CELESTIA_CORE_LIBS} $<TARGET_OBJECTS:celcompat>)
+endif()
+
+set(CELESTIA_HEADLESS_MODEL_BACKEND_LIBS
+  $<TARGET_OBJECTS:cel3ds>
+  $<TARGET_OBJECTS:celastro>
+  $<TARGET_OBJECTS:celestia_model>
+  $<TARGET_OBJECTS:celestia_controller>
+  $<TARGET_OBJECTS:celestia_view_adapter>
+  $<TARGET_OBJECTS:celestia_view3d>
+  $<TARGET_OBJECTS:celengine>
+  $<TARGET_OBJECTS:celephem>
+  $<TARGET_OBJECTS:celimage>
+  $<TARGET_OBJECTS:celmath>
+  $<TARGET_OBJECTS:celmodel>
+  $<TARGET_OBJECTS:celrender>
+  $<TARGET_OBJECTS:celttf>
+  $<TARGET_OBJECTS:celutil>
+)
+if(TARGET celcompat)
+  set(CELESTIA_HEADLESS_MODEL_BACKEND_LIBS
+      ${CELESTIA_HEADLESS_MODEL_BACKEND_LIBS}
+      $<TARGET_OBJECTS:celcompat>)
+endif()
+
+if(TARGET celestia-model-host)
+  target_sources(celestia-model-host PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/celruntime/model/realmodelbackend.cpp
+    catalogloader.cpp
+    configfile.cpp
+    loaddso.cpp
+    loadsso.cpp
+    loadstars.cpp
+    ${CELESTIA_HEADLESS_MODEL_BACKEND_LIBS}
+  )
 endif()
 
 set(SCRIPT_LIBS $<TARGET_OBJECTS:celcommonscript> $<TARGET_OBJECTS:cellegacyscript>)

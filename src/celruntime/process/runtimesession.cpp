@@ -190,6 +190,11 @@ startHost(RuntimeHost& host,
         "--serve",
         "--session=" + options.sessionId,
     };
+    if (host.role == RuntimeRole::Model && !options.dataRoot.empty())
+    {
+        processOptions.arguments.push_back("--data-root=" + options.dataRoot.string());
+        appendLogLine(log, host.name + " dataRoot=" + options.dataRoot.string());
+    }
 
     std::string transportError;
     host.transport = transport::createRuntimeTransport(options.hostTransport,

@@ -11,14 +11,14 @@ D:\WorkSpace\Codex\CeleNew\Celestia
 The active branch is:
 
 ```text
-codex/celestia-mvc-step12-scene-frame
+codex/celestia-mvc-step13-real-model-backend
 ```
 
 The latest pushed master is:
 
 ```text
-d6b049c docs: plan Celestia MVC real scene projection
-origin/master = d6b049c
+9983a96 docs: strengthen SceneFrame protocol specification
+origin/master = 9983a96
 ```
 
 The only remaining auxiliary worktree is the fixed pre-MVC compatibility baseline:
@@ -68,8 +68,8 @@ Compatibility regression harness for original unified exe capability checks
 Active development branch:
 
 ```text
-Step12 scene.frame vNext protocol, Step12.1 capability mapping, and Model Lock Policy
-branch: codex/celestia-mvc-step12-scene-frame
+Step13 headless real Model Backend
+branch: codex/celestia-mvc-step13-real-model-backend
 ```
 
 Current consolidated status and compatibility conclusion:
@@ -114,6 +114,7 @@ It is correct to say:
 ```text
 Celestia now has a local, multi-process, runtime-configurable MVC baseline.
 M / C / V host processes can be started, supervised, messaged, switched, and shut down.
+The Model host can be configured with a real Celestia data root and load real Universe / Simulation state headlessly.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
@@ -134,7 +135,7 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step12 - Real Celestia scene projection and View3D visual parity path
+Step13 - Headless real Model Backend
 ```
 
 Formal execution plan:
@@ -143,24 +144,24 @@ Formal execution plan:
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 ```
 
-Detailed active Step12 plan:
+Detailed active Step13 plan:
 
 ```text
+DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 ```
 
-Step12 focuses on:
+Step13 focuses on:
 
 ```text
-1. Define scene.frame vNext protocolVersion and DTO fields.
-2. Add TimeState, ResourceRef vNext, structured LabelRenderState, and minimal DSO fields.
-3. Add validateSceneFrame / isValidSceneFrame.
-4. Add valid and invalid .sceneframe fixtures.
-5. Keep Step8 legacy scene.frame deserialization compatible.
-6. Keep historical in-process rendering available as a regression reference.
+1. Pass a real Celestia data root to the Model host only.
+2. Load celestia.cfg, stars, DSO, SSO, Universe, Simulation, and ObserverSettings headlessly.
+3. Keep synthetic backend as fallback when no data root is configured.
+4. Prove the independent Model host can run in the stdio-pipe runtime session.
+5. Keep Step14 out of scope: real scene.frame projection is the next step.
 ```
 
-After Step12 acceptance, Step13 should start the headless real Model Backend work. Do not start Step13 before Step12 verification evidence is recorded under:
+After Step13 acceptance, Step14 should start the real SceneExtractor projection work. Do not claim View3D visual parity until Step15+ evidence exists.
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\
@@ -172,6 +173,7 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 DOC\CODEX_DOC\03_协议规范\03-01-Celestia-SceneFrame-vNext协议规范.md
@@ -275,6 +277,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependenc
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
 ```
 
+Step13 focused verification:
+
+```powershell
+cmd.exe /d /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64 >NUL && "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --build "D:\WorkSpace\Codex\CeleNew\Celestia\build-mvc-sdl-rel" --config Release --target unit -- -k 0'
+& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel -C Release -R "Step13|RealModelBackend|Headless" --output-on-failure
+& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel -C Release -R "Step8|Step10|Step12|SceneFrame|SceneProtocol|RuntimeAssembly" --output-on-failure
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependencies.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+```
+
 The fixed pre-MVC comparison baseline is:
 
 ```text
@@ -299,6 +312,12 @@ Latest machine report:
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-27-173305-Celestia-compat-regression-machine-report.md
+```
+
+Latest Step13 Quick regression report:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-191539-9983a96-quick\machine-report.md
 ```
 
 ## Startup Commands

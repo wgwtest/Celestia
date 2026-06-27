@@ -29,6 +29,7 @@ struct RuntimeSessionOptions
     int switchViewAfterMilliseconds{ 0 };
     std::string switchViewId;
     std::string hostTransport{ "stdio-pipe" };
+    std::filesystem::path dataRoot;
 };
 
 struct RuntimeSessionResult

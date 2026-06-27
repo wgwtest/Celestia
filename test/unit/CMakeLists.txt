@@ -51,6 +51,7 @@ set(UNIT_TEST_SOURCES
   mvc_step11_compatibility_closure_test.cpp
   mvc_step11_runtime_acceptance_test.cpp
   mvc_step12_scene_frame_protocol_test.cpp
+  mvc_step13_real_model_backend_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
@@ -69,6 +70,7 @@ endif()
 test_case(unit "${UNIT_TEST_SOURCES}")
 
 target_sources(unit PRIVATE
+  "${PROJECT_SOURCE_DIR}/src/celruntime/process/runtimehostloop.cpp"
   "${PROJECT_SOURCE_DIR}/src/celruntime/process/view3dhostloop.cpp"
 )
 

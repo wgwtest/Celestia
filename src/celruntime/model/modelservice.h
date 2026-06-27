@@ -24,6 +24,9 @@ class ModelService
 public:
     explicit ModelService(std::string sessionId = "default");
     ModelService(std::string sessionId, std::unique_ptr<SimulationBackend> backend);
+    ModelService(std::string sessionId,
+                 std::unique_ptr<SimulationBackend> backend,
+                 RuntimeDataPaths dataPaths);
     ~ModelService();
 
     ModelService(ModelService&&) noexcept;
