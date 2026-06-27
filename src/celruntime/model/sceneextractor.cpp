@@ -23,6 +23,7 @@ namespace
 constexpr double Pi = 3.14159265358979323846;
 
 using protocol::BodyRenderState;
+using protocol::LabelRenderState;
 using protocol::OrbitRenderState;
 using protocol::ResourceRef;
 using protocol::SceneFrame;
@@ -35,7 +36,16 @@ resource(std::string kind, std::string package, std::string relativePath)
     ref.kind = std::move(kind);
     ref.package = std::move(package);
     ref.relativePath = std::move(relativePath);
+    ref.id = "res:" + ref.kind + ":" + ref.relativePath;
     return ref;
+}
+
+std::string
+bodyObjectId(std::string_view id)
+{
+    if (id.find("celestia:") == 0)
+        return std::string(id);
+    return "celestia:body:" + std::string(id.empty() ? std::string_view{ "SyntheticBody" } : id);
 }
 
 std::array<double, 16>
@@ -54,6 +64,7 @@ bodyFromSelection(const ViewFrameSelection& selection)
 {
     BodyRenderState body;
     body.bodyId = selection.id.empty() ? "SyntheticBody" : selection.id;
+    body.objectId = bodyObjectId(body.bodyId);
     body.name = body.bodyId;
     body.visible = selection.visible;
     body.radius = 6371.0;
@@ -88,6 +99,7 @@ orbitForBody(std::string bodyId)
 {
     OrbitRenderState orbit;
     orbit.bodyId = std::move(bodyId);
+    orbit.objectId = "celestia:orbit:" + orbit.bodyId;
     orbit.visible = true;
     orbit.color = { 0.4, 0.7, 1.0, 1.0 };
 
@@ -107,6 +119,7 @@ solPlaceholder()
 {
     StarRenderState star;
     star.starId = "Sol";
+    star.objectId = "celestia:star:Sol";
     star.position = { 0.0, 0.0, 0.0 };
     star.magnitude = -26.74;
     star.color = { 1.0, 0.95, 0.82 };
@@ -123,6 +136,10 @@ extractSceneFrame(std::string_view sessionId, const ViewFrame& snapshot)
     frame.sessionId = std::string(sessionId);
     frame.sequence = snapshot.frameId;
     frame.simulationTime = snapshot.time;
+    frame.time.julianDayTdb = snapshot.time;
+    frame.time.secondsSinceJ2000 = 0.0;
+    frame.time.timeScale = 1.0;
+    frame.time.paused = false;
 
     frame.camera.position = { 0.0, 0.0, 8.0 };
     frame.camera.orientation = { 0.0, 0.0, 0.0, 1.0 };
@@ -156,7 +173,12 @@ extractSceneFrame(std::string_view sessionId, const ViewFrame& snapshot)
 
     frame.stars.push_back(solPlaceholder());
     frame.orbits.push_back(orbitForBody(frame.bodies.front().bodyId));
-    frame.labels.push_back(frame.bodies.front().name);
+    LabelRenderState label;
+    label.targetObjectId = frame.bodies.front().objectId;
+    label.text = frame.bodies.front().name;
+    label.kind = "body";
+    label.visible = true;
+    frame.labels.push_back(std::move(label));
 
     frame.selection.type = "body";
     frame.selection.id = frame.bodies.front().bodyId;

@@ -50,6 +50,7 @@ set(UNIT_TEST_SOURCES
   mvc_step10_transport_factory_test.cpp
   mvc_step11_compatibility_closure_test.cpp
   mvc_step11_runtime_acceptance_test.cpp
+  mvc_step12_scene_frame_contract_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp

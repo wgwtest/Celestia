@@ -351,7 +351,13 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
                                    snapshot);
     if (!lastViewInputAction_.empty())
-        frame.labels.push_back("input:" + lastViewInputAction_);
+    {
+        protocol::LabelRenderState label;
+        label.text = "input:" + lastViewInputAction_;
+        label.kind = "input";
+        label.visible = true;
+        frame.labels.push_back(std::move(label));
+    }
 
     auto response = protocol::sceneFrameEnvelope(frame, RuntimeRole::Model, RuntimeRole::View);
     response.targetRole = RuntimeRole::View;

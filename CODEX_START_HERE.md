@@ -11,14 +11,14 @@ D:\WorkSpace\Codex\CeleNew\Celestia
 The active branch is:
 
 ```text
-master
+codex/celestia-mvc-step12-scene-frame
 ```
 
 The latest pushed master is:
 
 ```text
-c6d7e53 test: add Celestia compatibility regression harness
-origin/master = c6d7e53
+d6b049c docs: plan Celestia MVC real scene projection
+origin/master = d6b049c
 ```
 
 The only remaining auxiliary worktree is the fixed pre-MVC compatibility baseline:
@@ -65,9 +65,17 @@ Step11 compatibility fallback removal and final architecture closure
 Compatibility regression harness for original unified exe capability checks
 ```
 
+Active development branch:
+
+```text
+Step12 scene.frame vNext contract and Model Lock Policy
+branch: codex/celestia-mvc-step12-scene-frame
+```
+
 Current consolidated status and compatibility conclusion:
 
 ```text
+DOC\CODEX_DOC\02_设计说明\02-09-Celestia真实场景投影与SceneFrame契约.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 ```
@@ -141,21 +149,21 @@ Detailed active Step12 plan:
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame契约方案.md
 ```
 
-Step12 should focus on:
+Step12 focuses on:
 
 ```text
-1. Map real Celestia Universe / Simulation / Observer / Body / Star data into scene.frame.
-2. Replace placeholder SceneExtractor output with real read-only scene projection.
-3. Add ResourceRef/data-plane coverage for real catalogs, textures, meshes, and orbit assets.
-4. Reuse or adapt the historical renderer inside celestia-view3d-host without breaking process boundaries.
-5. Extend view.input into real navigation, selection, camera, and interaction commands.
+1. Define scene.frame vNext protocolVersion and DTO fields.
+2. Add TimeState, ResourceRef vNext, structured LabelRenderState, and minimal DSO fields.
+3. Add validateSceneFrame / isValidSceneFrame.
+4. Add valid and invalid .sceneframe fixtures.
+5. Keep Step8 legacy scene.frame deserialization compatible.
 6. Keep historical in-process rendering available as a regression reference.
 ```
 
-Do not start Step12 implementation without first writing or updating its plan under:
+After Step12 acceptance, Step13 should start the headless real Model Backend work. Do not start Step13 before Step12 verification evidence is recorded under:
 
 ```text
-DOC\CODEX_DOC\04_研制计划\
+DOC\CODEX_DOC\06_测试文档\03_机测记录\
 ```
 
 ## First Reading Order
@@ -166,6 +174,7 @@ For a new session, read in this order:
 CODEX_START_HERE.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame契约方案.md
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
+DOC\CODEX_DOC\02_设计说明\02-09-Celestia真实场景投影与SceneFrame契约.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 DOC\CODEX_DOC\02_设计说明\02-07-Celestia标准MVC最终架构说明.md
@@ -255,6 +264,15 @@ powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_re
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+```
+
+Step12 focused verification:
+
+```powershell
+cmd /s /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul && "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --build build-mvc-sdl-rel --config Release --target unit -- -k 0'
+& 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe' --test-dir build-mvc-sdl-rel -C Release -R "Step8|Step12|SceneFrame|SceneProtocol" --output-on-failure
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependencies.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
 ```
 
 The fixed pre-MVC comparison baseline is:

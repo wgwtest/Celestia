@@ -112,7 +112,7 @@ TEST_CASE("ModelService reflects view.input state in the next scene.frame")
     bool found = false;
     for (const auto& label : scene->labels)
     {
-        if (label.find("input:MouseWheel") != std::string::npos)
+        if (label.text.find("input:MouseWheel") != std::string::npos)
             found = true;
     }
     CHECK(found);

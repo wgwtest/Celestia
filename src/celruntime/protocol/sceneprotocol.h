@@ -22,13 +22,25 @@ namespace celestia::runtime::protocol
 {
 
 inline constexpr const char* SceneFrameMessageName{ "scene.frame" };
+inline constexpr int SceneFrameProtocolVersion{ 2 };
 
 struct ResourceRef
 {
+    std::string id;
     std::string kind;
     std::string package;
     std::string relativePath;
     std::string contentHash;
+    std::string dataPlaneKey;
+    bool required{ false };
+};
+
+struct TimeState
+{
+    double julianDayTdb{ 0.0 };
+    double secondsSinceJ2000{ 0.0 };
+    double timeScale{ 1.0 };
+    bool paused{ false };
 };
 
 struct CameraState
@@ -50,6 +62,7 @@ struct ObserverState
 
 struct BodyRenderState
 {
+    std::string objectId;
     std::string bodyId;
     std::string name;
     std::array<double, 16> transform{
@@ -68,6 +81,7 @@ struct BodyRenderState
 
 struct StarRenderState
 {
+    std::string objectId;
     std::string starId;
     std::array<double, 3> position{ 0.0, 0.0, 0.0 };
     double magnitude{ 0.0 };
@@ -77,6 +91,7 @@ struct StarRenderState
 
 struct OrbitRenderState
 {
+    std::string objectId;
     std::string bodyId;
     std::vector<std::array<double, 3>> points;
     std::array<double, 4> color{ 1.0, 1.0, 1.0, 1.0 };
@@ -98,24 +113,54 @@ struct SelectionState
     std::string id;
 };
 
+struct LabelRenderState
+{
+    std::string targetObjectId;
+    std::string text;
+    std::string kind;
+    bool visible{ true };
+};
+
+struct DeepSkyRenderState
+{
+    std::string objectId;
+    std::string name;
+    std::string dsoType;
+    std::array<double, 3> positionKm{ 0.0, 0.0, 0.0 };
+    double apparentMagnitude{ 0.0 };
+    bool visible{ true };
+    ResourceRef catalogResource;
+};
+
 struct SceneFrame
 {
+    int protocolVersion{ SceneFrameProtocolVersion };
     std::string sessionId;
     std::uint64_t sequence{ 0 };
     double simulationTime{ 0.0 };
+    TimeState time;
     CameraState camera;
     ObserverState observer;
     RenderSettings renderSettings;
     std::vector<ResourceRef> resources;
     std::vector<BodyRenderState> bodies;
     std::vector<StarRenderState> stars;
+    std::vector<DeepSkyRenderState> deepSkyObjects;
     std::vector<OrbitRenderState> orbits;
-    std::vector<std::string> labels;
+    std::vector<LabelRenderState> labels;
     SelectionState selection;
+};
+
+struct SceneFrameValidationIssue
+{
+    std::string field;
+    std::string message;
 };
 
 std::string serializeSceneFrame(const SceneFrame&);
 std::optional<SceneFrame> deserializeSceneFrame(std::string_view);
+std::vector<SceneFrameValidationIssue> validateSceneFrame(const SceneFrame&);
+bool isValidSceneFrame(const SceneFrame&);
 
 RuntimeEnvelope sceneFrameEnvelope(const SceneFrame&, RuntimeRole source, RuntimeRole target);
 

@@ -1,0 +1,1 @@
+protocolVersion=2;sessionId=step12-invalid-missing-camera;sequence=1;simulationTime=2451545;time.julianDayTdb=2451545;time.secondsSinceJ2000=0;time.timeScale=1;time.paused=false;camera.nearPlane=0.01;camera.farPlane=1000000000;observer.referenceBodyId=celestia:body:Sol;observer.frame=celestia:ecliptic;bodyCount=0;starCount=0;orbitCount=0;labelCount=0
