@@ -1,18 +1,18 @@
-# Celestia Step12 SceneFrame Contract Machine Report
+# Celestia Step12 SceneFrame Protocol Machine Report
 
 - timestamp: `2026-06-27-172715`
 - branch: `codex/celestia-mvc-step12-scene-frame`
 - status: `pass`
-- scope: `scene.frame vNext contract, validation helper, fixtures, Step8 compatibility`
+- scope: `scene.frame vNext protocol, validation helper, fixtures, Step8 compatibility`
 
-## Changed Contract Surface
+## Changed Protocol Surface
 
 ```text
 src/celruntime/protocol/sceneprotocol.h
 src/celruntime/protocol/sceneprotocol.cpp
 src/celruntime/model/sceneextractor.cpp
 src/celruntime/model/modelservice.cpp
-test/unit/mvc_step12_scene_frame_contract_test.cpp
+test/unit/mvc_step12_scene_frame_protocol_test.cpp
 test/fixtures/mvc/*.sceneframe
 ```
 
@@ -25,7 +25,7 @@ command:
 cmd /s /c 'call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul && "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --build build-mvc-sdl-rel --config Release --target unit -- -k 0'
 
 expected failure:
-test/unit/mvc_step12_scene_frame_contract_test.cpp failed to compile because SceneFrameProtocolVersion, protocolVersion, TimeState, ResourceRef.id, LabelRenderState, DeepSkyRenderState, validateSceneFrame, and isValidSceneFrame did not exist yet.
+test/unit/mvc_step12_scene_frame_protocol_test.cpp failed to compile because SceneFrameProtocolVersion, protocolVersion, TimeState, ResourceRef.id, LabelRenderState, DeepSkyRenderState, validateSceneFrame, and isValidSceneFrame did not exist yet.
 ```
 
 An earlier build attempt without the VS developer environment failed before reaching Step12 tests because MSVC standard library and Windows SDK paths were absent from the PowerShell environment. The reproducible RED command above used `vcvars64.bat`.
@@ -68,7 +68,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets
 This checkpoint supports:
 
 ```text
-scene.frame vNext has a protocol-level contract with DTO fields, flat serializer compatibility, fixtures, and validation tests.
+scene.frame vNext has a protocol-level specification with DTO fields, flat serializer compatibility, fixtures, and validation tests.
 Step8 legacy scene.frame payloads still deserialize.
 The protocol header remains renderer/OpenGL free.
 ```

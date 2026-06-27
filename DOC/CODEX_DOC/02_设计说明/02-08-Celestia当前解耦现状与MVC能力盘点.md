@@ -4,7 +4,7 @@
 
 ## 1. 结论摘要
 
-截至 Step12 分支 `0fd93ad feat: define MVC Step12 scene frame contract`，当前代码同时保留三条能力线：
+截至 Step12 分支 `0fd93ad`，当前代码同时保留三条能力线：
 
 1. **普通统一 exe / in-process 主路径**：仍由 `celestia-sdl.exe` 创建 `CelestiaCore`、初始化 `Simulation`、创建 SDL/OpenGL 窗口并运行历史渲染管线。这是当前最接近原 Celestia 用户能力的主路径。
 2. **源码与构建层 MVC 边界**：`src/celengine` 已物理拆为 `model` / `controller` / `adapter` / `view3d` / `legacy`，并由 `celestia_model`、`celestia_controller`、`celestia_view_adapter`、`celestia_view3d` object target 固化依赖方向。
@@ -18,7 +18,7 @@
 | --- | --- |
 | 最终架构说明 | `DOC/CODEX_DOC/02_设计说明/02-07-Celestia标准MVC最终架构说明.md` |
 | Runtime 协议 | `DOC/CODEX_DOC/02_设计说明/02-06-Celestia-MVC-Runtime-Protocol-v1.md` |
-| Step12 scene.frame vNext 契约 | `DOC/CODEX_DOC/02_设计说明/02-09-Celestia真实场景投影与SceneFrame契约.md` |
+| Step12 scene.frame vNext 协议 | `DOC/CODEX_DOC/02_设计说明/02-09-Celestia真实场景投影与SceneFrame协议.md` |
 | 构建边界 | `src/celengine/CMakeLists.txt`, `src/celruntime/CMakeLists.txt`, `src/celestia/CMakeLists.txt` |
 | runtime 入口 | `src/celestia/sdl/sdlmain.cpp` |
 | 边界扫描 | `tools/mvc/scan_mvc_dependencies.ps1`, `tools/mvc/scan_cmake_targets.ps1` |
@@ -130,7 +130,7 @@ runtime-switch-3d-to-2d-local-socket.yaml
 | 时间控制 | 支持 `model.setTime`, `model.setTimeScale`, `model.step`, `model.setPaused` |
 | Snapshot 输出 | 支持 `model.requestSnapshot` 输出 `view.frame` |
 | 3D scene 输出 | 支持 `model.requestSceneFrame` 或带 `view=celestia.view3d.opengl` 的 `model.step` 输出 `scene.frame` |
-| scene.frame vNext 契约 | Step12 分支已定义 `protocolVersion`、`TimeState`、`ResourceRef` vNext、结构化 label、DSO 预留和 validation helper |
+| scene.frame vNext 协议 | Step12 分支已定义 `protocolVersion`、`TimeState`、`ResourceRef` vNext、结构化 label、DSO 预留和 validation helper |
 | View input 回写 | 支持 `model.setViewInput`，把输入摘要体现在后续 `scene.frame` structured label 中 |
 | Backend 抽象 | `SimulationBackend` 提供 `load` / `setTime` / `step` / `snapshot` 接口 |
 
@@ -140,7 +140,7 @@ runtime-switch-3d-to-2d-local-socket.yaml
 | --- | --- |
 | 真实 Celestia Universe 进程化 | 默认 backend 是 `SyntheticSimulationBackend`，不是完整 `Universe` / `Simulation` / catalog 运行体 |
 | 真实 catalog 进程内加载到独立 Model host | `RuntimeDataPaths` 已有 `dataRoot`，但 ModelService 默认实现没有加载完整 Celestia 数据目录 |
-| 完整天体、星表、轨道、姿态输出 | `scene.frame` vNext 已具备契约字段，但当前仍只输出简化 body / star / orbit / label 状态和 placeholder resource |
+| 完整天体、星表、轨道、姿态输出 | `scene.frame` vNext 已具备协议字段，但当前仍只输出简化 body / star / orbit / label 状态和 placeholder resource |
 | 高吞吐资源数据面默认化 | shared memory channel 已有最小测试通道，但并非所有 scene/resource payload 默认走共享内存 |
 
 ## 5. Controller 端能力
@@ -298,7 +298,7 @@ Qt / Win32 前端能力已经由当前 SDL 回归脚本覆盖。
 
 ## 9. 下一步建议
 
-当前 Step12 的目标是 `scene.frame vNext` 契约和 Model Lock Policy。Step12 不等于真实 Model host 已完成，也不等于 View3D 已具备视觉等价。
+当前 Step12 的目标是 `scene.frame vNext` 协议和 Model Lock Policy。Step12 不等于真实 Model host 已完成，也不等于 View3D 已具备视觉等价。
 
 下一阶段应命名为类似：
 

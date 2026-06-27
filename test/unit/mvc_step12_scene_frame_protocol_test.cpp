@@ -33,7 +33,7 @@ validMinimalFrame()
 {
     celestia::runtime::protocol::SceneFrame frame;
     frame.protocolVersion = celestia::runtime::protocol::SceneFrameProtocolVersion;
-    frame.sessionId = "step12-contract";
+    frame.sessionId = "step12-protocol";
     frame.sequence = 1;
     frame.simulationTime = 2451545.0;
     frame.time.julianDayTdb = 2451545.0;
@@ -63,7 +63,7 @@ hasIssueForField(const std::vector<celestia::runtime::protocol::SceneFrameValida
 
 } // end unnamed namespace
 
-TEST_SUITE_BEGIN("MVC Step12 scene frame contract");
+TEST_SUITE_BEGIN("MVC Step12 scene frame protocol");
 
 TEST_CASE("Step12 SceneFrame vNext exposes protocol version and structured time")
 {
