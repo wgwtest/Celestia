@@ -205,6 +205,15 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { commandToModel(request, "model.clearSelection", std::move(payload)) };
         }
 
+        if (input->device == "keyboard" && input->action == "KeyDown" && input->key == "H")
+        {
+            auto payload = std::string("type=star");
+            payload += ";id=celestia:star:Sol";
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=selection.selectObject";
+            return { commandToModel(request, "model.setSelection", std::move(payload)) };
+        }
+
         if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)
         {
             cameraFov_ = input->wheel[1] > 0.0

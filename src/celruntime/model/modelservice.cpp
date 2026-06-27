@@ -353,7 +353,19 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         if (cameraFov_ > 0.0)
             snapshot.camera.fovDeg = cameraFov_;
         if (selectionCleared_)
+        {
             snapshot.selections.clear();
+        }
+        else if (!selectionType_.empty() && !selectionId_.empty())
+        {
+            snapshot.selections.clear();
+            ViewFrameSelection selection;
+            selection.type = selectionType_;
+            selection.id = selectionId_;
+            selection.visible = true;
+            selection.clickable = true;
+            snapshot.selections.push_back(std::move(selection));
+        }
         response.payload = celestia::runtime::model::serializeViewFrame(snapshot);
     }
     return response;
@@ -369,10 +381,25 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
         snapshot.camera.fovDeg = cameraFov_;
     if (selectionCleared_)
         snapshot.selections.clear();
+    else if (!selectionType_.empty() && !selectionId_.empty())
+    {
+        snapshot.selections.clear();
+        ViewFrameSelection selection;
+        selection.type = selectionType_;
+        selection.id = selectionId_;
+        selection.visible = true;
+        selection.clickable = true;
+        snapshot.selections.push_back(std::move(selection));
+    }
     auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
                                    snapshot);
     if (selectionCleared_)
         frame.selection = {};
+    else if (!selectionType_.empty() && !selectionId_.empty())
+    {
+        frame.selection.type = selectionType_;
+        frame.selection.id = selectionId_;
+    }
     if (!lastViewInputAction_.empty())
     {
         protocol::LabelRenderState label;
@@ -481,6 +508,26 @@ ModelService::handle(const RuntimeEnvelope& request)
     if (request.name == "model.clearSelection")
     {
         selectionCleared_ = true;
+        selectionType_.clear();
+        selectionId_.clear();
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.setSelection")
+    {
+        const auto type = payload.find("type");
+        const auto id = payload.find("id");
+        if (type == payload.end() || type->second.empty() ||
+            id == payload.end() || id->second.empty())
+        {
+            return errorResponse(request, "model.setSelection requires type and id");
+        }
+
+        selectionCleared_ = false;
+        selectionType_ = type->second;
+        selectionId_ = id->second;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);

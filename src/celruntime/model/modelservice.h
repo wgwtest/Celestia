@@ -56,6 +56,8 @@ private:
     double timeScale_{ 1.0 };
     double cameraFov_{ 0.0 };
     bool selectionCleared_{ false };
+    std::string selectionType_;
+    std::string selectionId_;
     std::string lastViewInputAction_;
     std::unique_ptr<SimulationBackend> backend_;
 };
