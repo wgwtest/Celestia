@@ -18,6 +18,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 
 namespace celestia::runtime
 {
@@ -173,6 +174,111 @@ formatDouble(double value)
     return output.str();
 }
 
+void
+appendField(std::ostringstream& output, std::string_view key, std::string_view value)
+{
+    output << ';' << key << '=' << escape(value);
+}
+
+void
+appendField(std::ostringstream& output, std::string_view key, double value)
+{
+    appendField(output, key, formatDouble(value));
+}
+
+void
+appendField(std::ostringstream& output, std::string_view key, bool value)
+{
+    appendField(output, key, value ? std::string_view{ "true" } : std::string_view{ "false" });
+}
+
+void
+appendField(std::ostringstream& output, std::string_view key, std::uint64_t value)
+{
+    appendField(output, key, std::to_string(value));
+}
+
+template<std::size_t N>
+void
+appendArray(std::ostringstream& output, std::string_view prefix, const std::array<double, N>& values)
+{
+    for (std::size_t i = 0; i < N; ++i)
+        appendField(output, std::string(prefix) + std::to_string(i), values[i]);
+}
+
+std::string
+getField(const std::unordered_map<std::string, std::string>& fields, std::string_view key)
+{
+    const auto iter = fields.find(std::string(key));
+    return iter == fields.end() ? std::string{} : iter->second;
+}
+
+std::optional<double>
+getDouble(const std::unordered_map<std::string, std::string>& fields, std::string_view key)
+{
+    const auto iter = fields.find(std::string(key));
+    return iter == fields.end() ? std::nullopt : parseDouble(iter->second);
+}
+
+std::uint64_t
+getUint64(const std::unordered_map<std::string, std::string>& fields, std::string_view key)
+{
+    const auto iter = fields.find(std::string(key));
+    if (iter == fields.end())
+        return 0;
+
+    return parseUint64(iter->second).value_or(0);
+}
+
+bool
+getBool(const std::unordered_map<std::string, std::string>& fields, std::string_view key, bool fallback = false)
+{
+    const auto iter = fields.find(std::string(key));
+    return iter == fields.end() ? fallback : parseBool(iter->second);
+}
+
+template<std::size_t N>
+std::array<double, N>
+getArray(const std::unordered_map<std::string, std::string>& fields,
+         std::string_view prefix,
+         const std::array<double, N>& fallback)
+{
+    auto result = fallback;
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        if (const auto value = getDouble(fields, std::string(prefix) + std::to_string(i)); value.has_value())
+            result[i] = *value;
+    }
+
+    return result;
+}
+
+void
+appendResource(std::ostringstream& output, std::string_view prefix, const ViewFrameResource& resource)
+{
+    appendField(output, std::string(prefix) + ".id", resource.id);
+    appendField(output, std::string(prefix) + ".kind", resource.kind);
+    appendField(output, std::string(prefix) + ".package", resource.package);
+    appendField(output, std::string(prefix) + ".relativePath", resource.relativePath);
+    appendField(output, std::string(prefix) + ".contentHash", resource.contentHash);
+    appendField(output, std::string(prefix) + ".dataPlaneKey", resource.dataPlaneKey);
+    appendField(output, std::string(prefix) + ".required", resource.required);
+}
+
+ViewFrameResource
+getResource(const std::unordered_map<std::string, std::string>& fields, std::string_view prefix)
+{
+    ViewFrameResource resource;
+    resource.id = getField(fields, std::string(prefix) + ".id");
+    resource.kind = getField(fields, std::string(prefix) + ".kind");
+    resource.package = getField(fields, std::string(prefix) + ".package");
+    resource.relativePath = getField(fields, std::string(prefix) + ".relativePath");
+    resource.contentHash = getField(fields, std::string(prefix) + ".contentHash");
+    resource.dataPlaneKey = getField(fields, std::string(prefix) + ".dataPlaneKey");
+    resource.required = getBool(fields, std::string(prefix) + ".required");
+    return resource;
+}
+
 } // end unnamed namespace
 
 std::string
@@ -183,6 +289,68 @@ serializeViewFrame(const ViewFrame& frame)
     output << "time=" << formatDouble(frame.time) << ';';
     output << "summary=" << escape(frame.summary) << ';';
     output << "selectionCount=" << frame.selections.size();
+    appendField(output, "timeScale", frame.timeScale);
+    appendField(output, "paused", frame.paused);
+
+    appendArray(output, "camera.position", frame.camera.positionKm);
+    appendArray(output, "camera.orientation", frame.camera.orientation);
+    appendField(output, "camera.fovDeg", frame.camera.fovDeg);
+    appendField(output, "camera.nearPlaneKm", frame.camera.nearPlaneKm);
+    appendField(output, "camera.farPlaneKm", frame.camera.farPlaneKm);
+
+    appendField(output, "observer.referenceBodyId", frame.observer.referenceBodyId);
+    appendField(output, "observer.frame", frame.observer.frame);
+    appendArray(output, "observer.position", frame.observer.positionKm);
+    appendArray(output, "observer.velocity", frame.observer.velocityKmPerSec);
+
+    appendField(output, "resourceCount", static_cast<std::uint64_t>(frame.resources.size()));
+    for (std::size_t i = 0; i < frame.resources.size(); ++i)
+        appendResource(output, "resource" + std::to_string(i), frame.resources[i]);
+
+    appendField(output, "bodyCount", static_cast<std::uint64_t>(frame.bodies.size()));
+    for (std::size_t i = 0; i < frame.bodies.size(); ++i)
+    {
+        const auto prefix = "body" + std::to_string(i);
+        const auto& body = frame.bodies[i];
+        appendField(output, prefix + ".objectId", body.objectId);
+        appendField(output, prefix + ".bodyId", body.bodyId);
+        appendField(output, prefix + ".name", body.name);
+        appendArray(output, prefix + ".position", body.positionKm);
+        appendField(output, prefix + ".radiusKm", body.radiusKm);
+        appendField(output, prefix + ".visible", body.visible);
+        appendField(output, prefix + ".meshResourceId", body.meshResourceId);
+        appendField(output, prefix + ".diffuseTextureResourceId", body.diffuseTextureResourceId);
+        appendField(output, prefix + ".normalTextureResourceId", body.normalTextureResourceId);
+        appendField(output, prefix + ".material", body.material);
+    }
+
+    appendField(output, "starCount", static_cast<std::uint64_t>(frame.stars.size()));
+    for (std::size_t i = 0; i < frame.stars.size(); ++i)
+    {
+        const auto prefix = "star" + std::to_string(i);
+        const auto& star = frame.stars[i];
+        appendField(output, prefix + ".objectId", star.objectId);
+        appendField(output, prefix + ".starId", star.starId);
+        appendField(output, prefix + ".name", star.name);
+        appendArray(output, prefix + ".position", star.positionKm);
+        appendField(output, prefix + ".magnitude", star.magnitude);
+        appendArray(output, prefix + ".color", star.color);
+        appendField(output, prefix + ".catalogResourceId", star.catalogResourceId);
+    }
+
+    appendField(output, "orbitCount", static_cast<std::uint64_t>(frame.orbits.size()));
+    for (std::size_t i = 0; i < frame.orbits.size(); ++i)
+    {
+        const auto prefix = "orbit" + std::to_string(i);
+        const auto& orbit = frame.orbits[i];
+        appendField(output, prefix + ".objectId", orbit.objectId);
+        appendField(output, prefix + ".bodyId", orbit.bodyId);
+        appendField(output, prefix + ".visible", orbit.visible);
+        appendArray(output, prefix + ".color", orbit.color);
+        appendField(output, prefix + ".pointCount", static_cast<std::uint64_t>(orbit.pointsKm.size()));
+        for (std::size_t point = 0; point < orbit.pointsKm.size(); ++point)
+            appendArray(output, prefix + ".point" + std::to_string(point), orbit.pointsKm[point]);
+    }
 
     for (std::size_t i = 0; i < frame.selections.size(); ++i)
     {
@@ -216,8 +384,73 @@ deserializeViewFrame(std::string_view payload)
     ViewFrame frame;
     frame.frameId = *parsedFrameId;
     frame.time = *parsedTime;
+    frame.timeScale = getDouble(fields, "timeScale").value_or(1.0);
+    frame.paused = getBool(fields, "paused");
+    frame.camera.positionKm = getArray(fields, "camera.position", frame.camera.positionKm);
+    frame.camera.orientation = getArray(fields, "camera.orientation", frame.camera.orientation);
+    frame.camera.fovDeg = getDouble(fields, "camera.fovDeg").value_or(0.0);
+    frame.camera.nearPlaneKm = getDouble(fields, "camera.nearPlaneKm").value_or(0.0);
+    frame.camera.farPlaneKm = getDouble(fields, "camera.farPlaneKm").value_or(0.0);
+    frame.observer.referenceBodyId = getField(fields, "observer.referenceBodyId");
+    frame.observer.frame = getField(fields, "observer.frame");
+    frame.observer.positionKm = getArray(fields, "observer.position", frame.observer.positionKm);
+    frame.observer.velocityKmPerSec = getArray(fields, "observer.velocity", frame.observer.velocityKmPerSec);
     if (const auto summary = fields.find("summary"); summary != fields.end())
         frame.summary = summary->second;
+
+    const auto resourceCount = getUint64(fields, "resourceCount");
+    for (std::uint64_t i = 0; i < resourceCount; ++i)
+        frame.resources.push_back(getResource(fields, "resource" + std::to_string(i)));
+
+    const auto bodyCount = getUint64(fields, "bodyCount");
+    for (std::uint64_t i = 0; i < bodyCount; ++i)
+    {
+        const auto prefix = "body" + std::to_string(i);
+        ViewFrameBody body;
+        body.objectId = getField(fields, prefix + ".objectId");
+        body.bodyId = getField(fields, prefix + ".bodyId");
+        body.name = getField(fields, prefix + ".name");
+        body.positionKm = getArray(fields, prefix + ".position", body.positionKm);
+        body.radiusKm = getDouble(fields, prefix + ".radiusKm").value_or(0.0);
+        body.visible = getBool(fields, prefix + ".visible");
+        body.meshResourceId = getField(fields, prefix + ".meshResourceId");
+        body.diffuseTextureResourceId = getField(fields, prefix + ".diffuseTextureResourceId");
+        body.normalTextureResourceId = getField(fields, prefix + ".normalTextureResourceId");
+        body.material = getField(fields, prefix + ".material");
+        frame.bodies.push_back(std::move(body));
+    }
+
+    const auto starCount = getUint64(fields, "starCount");
+    for (std::uint64_t i = 0; i < starCount; ++i)
+    {
+        const auto prefix = "star" + std::to_string(i);
+        ViewFrameStar star;
+        star.objectId = getField(fields, prefix + ".objectId");
+        star.starId = getField(fields, prefix + ".starId");
+        star.name = getField(fields, prefix + ".name");
+        star.positionKm = getArray(fields, prefix + ".position", star.positionKm);
+        star.magnitude = getDouble(fields, prefix + ".magnitude").value_or(0.0);
+        star.color = getArray(fields, prefix + ".color", star.color);
+        star.catalogResourceId = getField(fields, prefix + ".catalogResourceId");
+        frame.stars.push_back(std::move(star));
+    }
+
+    const auto orbitCount = getUint64(fields, "orbitCount");
+    for (std::uint64_t i = 0; i < orbitCount; ++i)
+    {
+        const auto prefix = "orbit" + std::to_string(i);
+        ViewFrameOrbit orbit;
+        orbit.objectId = getField(fields, prefix + ".objectId");
+        orbit.bodyId = getField(fields, prefix + ".bodyId");
+        orbit.visible = getBool(fields, prefix + ".visible");
+        orbit.color = getArray(fields, prefix + ".color", orbit.color);
+
+        const auto pointCount = getUint64(fields, prefix + ".pointCount");
+        for (std::uint64_t point = 0; point < pointCount; ++point)
+            orbit.pointsKm.push_back(getArray(fields, prefix + ".point" + std::to_string(point), std::array<double, 3>{ 0.0, 0.0, 0.0 }));
+
+        frame.orbits.push_back(std::move(orbit));
+    }
 
     if (const auto selectionCount = fields.find("selectionCount"); selectionCount != fields.end())
     {

@@ -98,6 +98,67 @@ frameSummary(const std::filesystem::path& dataRoot, std::uint64_t frameId)
     return output.str();
 }
 
+std::string
+resourcePath(const std::filesystem::path& path)
+{
+    return path.generic_string();
+}
+
+void
+appendCatalogResource(ViewFrame& frame,
+                      std::string id,
+                      const std::filesystem::path& relativePath,
+                      bool required)
+{
+    if (relativePath.empty())
+        return;
+
+    for (const auto& resource : frame.resources)
+    {
+        if (resource.id == id)
+            return;
+    }
+
+    ViewFrameResource resource;
+    resource.id = std::move(id);
+    resource.kind = "catalog";
+    resource.package = "celestia-core";
+    resource.relativePath = resourcePath(relativePath);
+    resource.required = required;
+    frame.resources.push_back(std::move(resource));
+}
+
+void
+appendConfiguredResources(ViewFrame& frame, const CelestiaConfig& config)
+{
+    appendCatalogResource(frame, "res:catalog:stars", config.paths.starDatabaseFile, true);
+    appendCatalogResource(frame, "res:catalog:starnames", config.paths.starNamesFile, false);
+
+    for (std::size_t i = 0; i < config.paths.solarSystemFiles.size(); ++i)
+    {
+        appendCatalogResource(frame,
+                              i == 0 ? "res:catalog:solarsys" : "res:catalog:solarsys:" + std::to_string(i),
+                              config.paths.solarSystemFiles[i],
+                              i == 0);
+    }
+
+    for (std::size_t i = 0; i < config.paths.starCatalogFiles.size(); ++i)
+    {
+        appendCatalogResource(frame,
+                              "res:catalog:star-extension:" + std::to_string(i),
+                              config.paths.starCatalogFiles[i],
+                              false);
+    }
+
+    for (std::size_t i = 0; i < config.paths.dsoCatalogFiles.size(); ++i)
+    {
+        appendCatalogResource(frame,
+                              "res:catalog:dso:" + std::to_string(i),
+                              config.paths.dsoCatalogFiles[i],
+                              false);
+    }
+}
+
 void
 ensureCelestiaLogger()
 {
@@ -182,6 +243,8 @@ public:
         auto frame = SceneViewModel::buildSelectionSnapshot(*simulation_);
         frame.frameId = frameId_;
         frame.summary = frameSummary(dataRoot_, frameId_);
+        if (config_ != nullptr)
+            appendConfiguredResources(frame, *config_);
         return frame;
     }
 

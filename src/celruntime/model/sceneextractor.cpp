@@ -40,6 +40,42 @@ resource(std::string kind, std::string package, std::string relativePath)
     return ref;
 }
 
+ResourceRef
+resourceFromViewFrame(const ViewFrameResource& source)
+{
+    ResourceRef ref;
+    ref.id = source.id;
+    ref.kind = source.kind;
+    ref.package = source.package;
+    ref.relativePath = source.relativePath;
+    ref.contentHash = source.contentHash;
+    ref.dataPlaneKey = source.dataPlaneKey;
+    ref.required = source.required;
+    return ref;
+}
+
+const ViewFrameResource*
+findResource(const ViewFrame& snapshot, std::string_view id)
+{
+    if (id.empty())
+        return nullptr;
+
+    for (const auto& resource : snapshot.resources)
+    {
+        if (resource.id == id)
+            return &resource;
+    }
+
+    return nullptr;
+}
+
+ResourceRef
+resolveResource(const ViewFrame& snapshot, std::string_view id)
+{
+    const auto* source = findResource(snapshot, id);
+    return source == nullptr ? ResourceRef{} : resourceFromViewFrame(*source);
+}
+
 std::string
 bodyObjectId(std::string_view id)
 {
@@ -81,6 +117,27 @@ bodyFromSelection(const ViewFrameSelection& selection)
 }
 
 BodyRenderState
+bodyFromProjection(const ViewFrame& snapshot, const ViewFrameBody& source)
+{
+    BodyRenderState body;
+    body.bodyId = source.bodyId.empty() ? source.name : source.bodyId;
+    body.objectId = source.objectId.empty() ? bodyObjectId(body.bodyId) : source.objectId;
+    body.name = source.name.empty() ? body.bodyId : source.name;
+    body.visible = source.visible;
+    body.radius = source.radiusKm;
+    body.meshResource = resolveResource(snapshot, source.meshResourceId);
+    body.diffuseTexture = resolveResource(snapshot, source.diffuseTextureResourceId);
+    body.normalTexture = resolveResource(snapshot, source.normalTextureResourceId);
+    body.material = source.material.empty() ? "celestia:body" : source.material;
+
+    body.transform = identityTransform();
+    body.transform[12] = source.positionKm[0];
+    body.transform[13] = source.positionKm[1];
+    body.transform[14] = source.positionKm[2];
+    return body;
+}
+
+BodyRenderState
 fallbackBody(double time)
 {
     ViewFrameSelection selection;
@@ -114,6 +171,18 @@ orbitForBody(std::string bodyId)
     return orbit;
 }
 
+OrbitRenderState
+orbitFromProjection(const ViewFrameOrbit& source)
+{
+    OrbitRenderState orbit;
+    orbit.objectId = source.objectId;
+    orbit.bodyId = source.bodyId;
+    orbit.visible = source.visible;
+    orbit.color = source.color;
+    orbit.points = source.pointsKm;
+    return orbit;
+}
+
 StarRenderState
 solPlaceholder()
 {
@@ -127,6 +196,30 @@ solPlaceholder()
     return star;
 }
 
+StarRenderState
+starFromProjection(const ViewFrame& snapshot, const ViewFrameStar& source)
+{
+    StarRenderState star;
+    star.starId = source.starId.empty() ? source.name : source.starId;
+    star.objectId = source.objectId.empty() ? "celestia:star:" + star.starId : source.objectId;
+    star.position = source.positionKm;
+    star.magnitude = source.magnitude;
+    star.color = source.color;
+    star.catalogResource = resolveResource(snapshot, source.catalogResourceId);
+    return star;
+}
+
+bool
+hasProjectedScene(const ViewFrame& snapshot)
+{
+    return !snapshot.resources.empty() ||
+           !snapshot.bodies.empty() ||
+           !snapshot.stars.empty() ||
+           !snapshot.orbits.empty() ||
+           !snapshot.observer.frame.empty() ||
+           snapshot.camera.fovDeg > 0.0;
+}
+
 } // end unnamed namespace
 
 protocol::SceneFrame
@@ -137,9 +230,73 @@ extractSceneFrame(std::string_view sessionId, const ViewFrame& snapshot)
     frame.sequence = snapshot.frameId;
     frame.simulationTime = snapshot.time;
     frame.time.julianDayTdb = snapshot.time;
-    frame.time.secondsSinceJ2000 = 0.0;
-    frame.time.timeScale = 1.0;
-    frame.time.paused = false;
+    frame.time.secondsSinceJ2000 = (snapshot.time - 2451545.0) * 86400.0;
+    frame.time.timeScale = snapshot.timeScale;
+    frame.time.paused = snapshot.paused;
+
+    frame.renderSettings.showStars = true;
+    frame.renderSettings.showOrbits = true;
+    frame.renderSettings.showLabels = true;
+    frame.renderSettings.ambientLight = 0.35;
+    frame.renderSettings.exposure = 1.0;
+
+    if (hasProjectedScene(snapshot))
+    {
+        frame.camera.position = snapshot.camera.positionKm;
+        frame.camera.orientation = snapshot.camera.orientation;
+        frame.camera.fov = snapshot.camera.fovDeg > 0.0 ? snapshot.camera.fovDeg : 45.0;
+        frame.camera.nearPlane = snapshot.camera.nearPlaneKm > 0.0 ? snapshot.camera.nearPlaneKm : 0.01;
+        frame.camera.farPlane = snapshot.camera.farPlaneKm > frame.camera.nearPlane
+            ? snapshot.camera.farPlaneKm
+            : 1.0e9;
+
+        frame.observer.referenceBodyId = snapshot.observer.referenceBodyId;
+        frame.observer.frame = snapshot.observer.frame.empty()
+            ? "celestia:observer:universal"
+            : snapshot.observer.frame;
+        frame.observer.position = snapshot.observer.positionKm;
+        frame.observer.velocity = snapshot.observer.velocityKmPerSec;
+
+        for (const auto& source : snapshot.resources)
+            frame.resources.push_back(resourceFromViewFrame(source));
+
+        for (const auto& source : snapshot.bodies)
+            frame.bodies.push_back(bodyFromProjection(snapshot, source));
+
+        for (const auto& source : snapshot.stars)
+            frame.stars.push_back(starFromProjection(snapshot, source));
+
+        for (const auto& source : snapshot.orbits)
+            frame.orbits.push_back(orbitFromProjection(source));
+
+        for (const auto& body : frame.bodies)
+        {
+            LabelRenderState label;
+            label.targetObjectId = body.objectId;
+            label.text = body.name;
+            label.kind = "body";
+            label.visible = body.visible;
+            frame.labels.push_back(std::move(label));
+        }
+
+        if (!snapshot.selections.empty())
+        {
+            frame.selection.type = snapshot.selections.front().type;
+            frame.selection.id = snapshot.selections.front().id;
+        }
+        else if (!frame.bodies.empty())
+        {
+            frame.selection.type = "body";
+            frame.selection.id = frame.bodies.front().bodyId;
+        }
+        else if (!frame.stars.empty())
+        {
+            frame.selection.type = "star";
+            frame.selection.id = frame.stars.front().starId;
+        }
+
+        return frame;
+    }
 
     frame.camera.position = { 0.0, 0.0, 8.0 };
     frame.camera.orientation = { 0.0, 0.0, 0.0, 1.0 };
@@ -151,12 +308,6 @@ extractSceneFrame(std::string_view sessionId, const ViewFrame& snapshot)
     frame.observer.frame = "step8-synthetic-ecliptic";
     frame.observer.position = { 0.0, 0.0, 8.0 };
     frame.observer.velocity = { 0.0, 0.0, 0.0 };
-
-    frame.renderSettings.showStars = true;
-    frame.renderSettings.showOrbits = true;
-    frame.renderSettings.showLabels = true;
-    frame.renderSettings.ambientLight = 0.35;
-    frame.renderSettings.exposure = 1.0;
 
     frame.resources.push_back(resource("catalog", "celestia-core", "stars/sol-placeholder.stc"));
     frame.resources.push_back(resource("mesh", "celestia-core", "models/placeholders/sphere.mesh"));

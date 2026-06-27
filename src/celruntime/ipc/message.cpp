@@ -9,6 +9,8 @@
 
 #include "message.h"
 
+#include <celruntime/viewframecodec.h>
+
 #include <array>
 #include <cctype>
 #include <iomanip>
@@ -297,6 +299,7 @@ serializeMessage(const RuntimeMessage& message)
 
     if (message.kind == MessageKind::ViewFrame)
     {
+        output << "frame.serialized=" << escape(celestia::runtime::serializeViewFrame(message.frame)) << '\n';
         output << "frame.time=" << formatDouble(message.frame.time) << '\n'
                << "frame.selectionCount=" << message.frame.selections.size() << '\n';
 
@@ -351,6 +354,16 @@ deserializeMessage(std::string_view serialized)
 
     if (message.kind == MessageKind::ViewFrame)
     {
+        if (auto serializedFrame = decodeField(fields, "frame.serialized"); serializedFrame.has_value())
+        {
+            auto frame = celestia::runtime::deserializeViewFrame(*serializedFrame);
+            if (!frame.has_value())
+                return std::nullopt;
+
+            message.frame = std::move(*frame);
+            return message;
+        }
+
         const auto* timeField = findField(fields, "frame.time");
         const auto* countField = findField(fields, "frame.selectionCount");
         if (timeField == nullptr || countField == nullptr)
