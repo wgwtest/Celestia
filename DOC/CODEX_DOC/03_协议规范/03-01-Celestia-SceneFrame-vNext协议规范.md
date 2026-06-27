@@ -1,4 +1,4 @@
-# Celestia 真实场景投影与 SceneFrame 协议
+# Celestia SceneFrame vNext 协议规范
 
 日期：2026-06-27
 

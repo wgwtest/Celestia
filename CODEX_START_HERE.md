@@ -75,7 +75,7 @@ branch: codex/celestia-mvc-step12-scene-frame
 Current consolidated status and compatibility conclusion:
 
 ```text
-DOC\CODEX_DOC\02_设计说明\02-09-Celestia真实场景投影与SceneFrame协议.md
+DOC\CODEX_DOC\03_协议规范\03-01-Celestia-SceneFrame-vNext协议规范.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 ```
@@ -174,7 +174,7 @@ For a new session, read in this order:
 CODEX_START_HERE.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
-DOC\CODEX_DOC\02_设计说明\02-09-Celestia真实场景投影与SceneFrame协议.md
+DOC\CODEX_DOC\03_协议规范\03-01-Celestia-SceneFrame-vNext协议规范.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 DOC\CODEX_DOC\02_设计说明\02-07-Celestia标准MVC最终架构说明.md

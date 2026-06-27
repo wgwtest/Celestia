@@ -18,7 +18,7 @@
 | --- | --- |
 | 最终架构说明 | `DOC/CODEX_DOC/02_设计说明/02-07-Celestia标准MVC最终架构说明.md` |
 | Runtime 协议 | `DOC/CODEX_DOC/02_设计说明/02-06-Celestia-MVC-Runtime-Protocol-v1.md` |
-| Step12 scene.frame vNext 协议 | `DOC/CODEX_DOC/02_设计说明/02-09-Celestia真实场景投影与SceneFrame协议.md` |
+| Step12 scene.frame vNext 协议规范 | `DOC/CODEX_DOC/03_协议规范/03-01-Celestia-SceneFrame-vNext协议规范.md` |
 | 构建边界 | `src/celengine/CMakeLists.txt`, `src/celruntime/CMakeLists.txt`, `src/celestia/CMakeLists.txt` |
 | runtime 入口 | `src/celestia/sdl/sdlmain.cpp` |
 | 边界扫描 | `tools/mvc/scan_mvc_dependencies.ps1`, `tools/mvc/scan_cmake_targets.ps1` |
