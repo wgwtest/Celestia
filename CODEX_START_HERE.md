@@ -8,10 +8,22 @@ Use this directory as the canonical working directory for new Codex sessions:
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-The active branch is:
+The active branch in the canonical checkout is:
 
 ```text
 master
+```
+
+The compatibility-regression implementation worktree is:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-regression
+```
+
+Its active branch is:
+
+```text
+codex/celestia-compat-regression
 ```
 
 The latest MVC result has already been merged into `master` and pushed to the user's fork:
@@ -220,6 +232,23 @@ MVC boundary scans:
 powershell -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependencies.ps1
 powershell -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
 ```
+
+Original capability compatibility regression harness:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+```
+
+The fixed pre-MVC comparison baseline is:
+
+```text
+44ec265659d2aa666cbf7546e36e4dde471d54ba
+```
+
+The first harness version covers SDL unified exe / in-process screenshots. It does not claim Qt or Win32 frontend parity.
 
 Last verified after merging into `master`:
 

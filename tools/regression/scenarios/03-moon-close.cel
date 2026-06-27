@@ -1,0 +1,13 @@
+{
+    timerate { rate 0 }
+    time { jd 2451545.0 }
+    labels { clear "planets|minorplanets|stars|constellations" }
+    renderflags { set "stars|planets" clear "constellations|orbits|cloudmaps|galaxies" }
+
+    select { object "Moon" }
+    goto { time 0.0 distance 4 upframe "equatorial" }
+    wait { duration 1.5 }
+
+    capture { filename "$CAPTURE_FILE$" type "png" }
+    exit {}
+}

@@ -1,0 +1,17 @@
+{
+    timerate { rate 0 }
+    time { jd 2451545.0 }
+    labels { set "planets" clear "minorplanets|stars|constellations" }
+    renderflags { set "stars|planets|cloudmaps" clear "constellations|orbits|galaxies" }
+
+    select { object "Sol/Earth" }
+    synchronous {}
+    gotoloc { time 0.0 position [ 0 0 23000 ] }
+    center { time 0.2 }
+    print { text "Celestia compatibility regression: overlay and HUD scene" origin "bottomleft" row -4 column 2 duration 5 }
+    verbosity { level 2 }
+    wait { duration 1.5 }
+
+    capture { filename "$CAPTURE_FILE$" type "png" }
+    exit {}
+}

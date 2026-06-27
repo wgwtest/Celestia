@@ -1,0 +1,15 @@
+{
+    timerate { rate 0 }
+    time { jd 2451545.0 }
+    labels { set "planets" clear "minorplanets|stars|constellations" }
+    renderflags { set "stars|planets|cloudmaps|orbits" clear "constellations|galaxies" }
+
+    select { object "Sol/Earth" }
+    synchronous {}
+    gotoloc { time 0.0 position [ 0 0 28000 ] }
+    center { time 0.2 }
+    wait { duration 1.5 }
+
+    capture { filename "$CAPTURE_FILE$" type "png" }
+    exit {}
+}

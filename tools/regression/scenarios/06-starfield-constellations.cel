@@ -1,0 +1,13 @@
+{
+    timerate { rate 0 }
+    time { jd 2451545.0 }
+    labels { set "stars|constellations" clear "planets|minorplanets" }
+    renderflags { set "stars|constellations" clear "planets|orbits|cloudmaps|galaxies" }
+
+    select { object "Polaris" }
+    center { time 0.2 }
+    wait { duration 1.5 }
+
+    capture { filename "$CAPTURE_FILE$" type "png" }
+    exit {}
+}
