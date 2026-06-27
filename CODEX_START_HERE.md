@@ -68,7 +68,7 @@ Compatibility regression harness for original unified exe capability checks
 Active development branch:
 
 ```text
-Step12 scene.frame vNext protocol and Model Lock Policy
+Step12 scene.frame vNext protocol, Step12.1 capability mapping, and Model Lock Policy
 branch: codex/celestia-mvc-step12-scene-frame
 ```
 
@@ -287,6 +287,7 @@ Last verified on Step12 branch:
 
 ```text
 commit:                 0fd93ad Step12 scene.frame protocol implementation
+protocol spec:          Step12.1 enhanced with constraint levels, existing capability mapping, and enhancement gates
 compat Full:            2026-06-27-173305, pass
 scan_mvc_dependencies:  passed during Full
 scan_cmake_targets:     passed during Full
