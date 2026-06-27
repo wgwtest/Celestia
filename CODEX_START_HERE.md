@@ -117,6 +117,7 @@ M / C / V host processes can be started, supervised, messaged, switched, and shu
 The Model host can be configured with a real Celestia data root and load real Universe / Simulation state headlessly.
 The Model host can now project a first real scene.frame with real time, observer/camera, selected body/star, orbit sample, and catalog resources.
 The View3D host can now consume real scene.frame body/star/orbit/resource fields and resolve ResourceRef values through a content root.
+The first Step16 Controller loop is implemented: View3D Space key input can pause the Model and the next scene.frame reports time.paused=true.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
@@ -137,7 +138,7 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step16 - Controller real interaction loop
+Step16 extension - time.setScale and camera/selection commands
 ```
 
 Formal execution plan:
@@ -146,16 +147,17 @@ Formal execution plan:
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 ```
 
-Detailed completed Step13/Step14/Step15 plans:
+Detailed completed Step13/Step14/Step15/Step16-first-loop plans:
 
 ```text
+DOC\CODEX_DOC\04_研制计划\33-WBS-0.33-Celestia标准MVC解耦-Step16真实交互闭环方案.md
 DOC\CODEX_DOC\04_研制计划\32-WBS-0.32-Celestia标准MVC解耦-Step15真实View3D消费方案.md
 DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
 DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实SceneExtractor方案.md
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 ```
 
-Step15 completion means:
+Step16 first-loop completion means:
 
 ```text
 1. RealModelBackend still loads celestia.cfg, stars, DSO, SSO, Universe, Simulation, and ObserverSettings headlessly.
@@ -164,10 +166,11 @@ Step15 completion means:
 4. SceneExtractor projects those fields into placeholder-free scene.frame output for the real backend.
 5. View3D host consumes real scene.frame fields and reports body/star/orbit/resource counts through view.frameRendered.
 6. Runtime assembly and SDL --serve pass the real content root to View3D so ResourceRef values can be resolved.
-7. Step16 is still required before claiming a real user input -> Controller -> Model -> View closed loop.
+7. View3D Space key view.input now reaches ControllerService, becomes model.setPaused, mutates Model paused state, returns scene.frame time.paused=true, and is acknowledged by View3D.
+8. Other Step16 commands such as time.setScale, camera, selection, navigation, and observer follow are still not complete.
 ```
 
-After Step15 acceptance, Step16 should start the real Controller interaction loop. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
+After Step16 first-loop acceptance, continue Step16 by adding one typed command at a time. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\
@@ -179,6 +182,7 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\04_研制计划\33-WBS-0.33-Celestia标准MVC解耦-Step16真实交互闭环方案.md
 DOC\CODEX_DOC\04_研制计划\32-WBS-0.32-Celestia标准MVC解耦-Step15真实View3D消费方案.md
 DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实SceneExtractor方案.md
 DOC\CODEX_DOC\04_研制计划\30-WBS-0.30-Celestia标准MVC解耦-Step13真实ModelBackend方案.md
@@ -355,6 +359,12 @@ Latest Step15 View3D runtime screenshot evidence:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\step15-view3d-runtime-20260627-200623\view3d-window.png
+```
+
+Latest Step16 first-loop Quick regression report:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-221733-a07b4e8-quick\machine-report.md
 ```
 
 ## Startup Commands

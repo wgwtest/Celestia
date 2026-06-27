@@ -50,7 +50,7 @@ TEST_CASE("RuntimeSession drains View3D input back through Controller and Model"
     const auto source = readSourceFile("src/celruntime/process/runtimesession.cpp");
 
     CHECK(contains(source, "protocol::ViewInputMessageName"));
-    CHECK(contains(source, "model.setViewInput"));
+    CHECK_FALSE(contains(source, "controllerMessage->name != \"model.setViewInput\""));
     CHECK(contains(source, "view.input routed count="));
 }
 

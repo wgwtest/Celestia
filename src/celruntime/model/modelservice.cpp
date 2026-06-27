@@ -345,16 +345,22 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
     response.targetRole = RuntimeRole::View;
     response.kind = RuntimeMessageKind::ViewFrame;
     response.name = "view.frame";
-    response.payload = backend_ == nullptr
-        ? std::string{}
-        : celestia::runtime::model::serializeViewFrame(backend_->snapshot());
+    if (backend_ != nullptr)
+    {
+        auto snapshot = backend_->snapshot();
+        snapshot.paused = paused_;
+        snapshot.timeScale = timeScale_;
+        response.payload = celestia::runtime::model::serializeViewFrame(snapshot);
+    }
     return response;
 }
 
 RuntimeEnvelope
 ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
 {
-    const auto snapshot = backend_ == nullptr ? ViewFrame{} : backend_->snapshot();
+    auto snapshot = backend_ == nullptr ? ViewFrame{} : backend_->snapshot();
+    snapshot.paused = paused_;
+    snapshot.timeScale = timeScale_;
     auto frame = extractSceneFrame(request.sessionId.empty() ? sessionId_ : request.sessionId,
                                    snapshot);
     if (!lastViewInputAction_.empty())
@@ -413,6 +419,8 @@ ModelService::handle(const RuntimeEnvelope& request)
 
         if (backend_ != nullptr)
             backend_->setTime(*parsed);
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
         return viewFrameResponse(request);
     }
 
@@ -427,6 +435,8 @@ ModelService::handle(const RuntimeEnvelope& request)
             return errorResponse(request, "invalid model.setTimeScale value");
 
         timeScale_ = *parsed;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
         return viewFrameResponse(request);
     }
 
@@ -437,6 +447,8 @@ ModelService::handle(const RuntimeEnvelope& request)
             return errorResponse(request, "model.setPaused requires paused");
 
         paused_ = parseBool(value->second);
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
         return viewFrameResponse(request);
     }
 

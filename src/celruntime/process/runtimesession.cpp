@@ -354,8 +354,7 @@ routePendingViewInputs(RuntimeHost& view,
         }
 
         if (controllerMessage->targetRole != RuntimeRole::Model ||
-            controllerMessage->kind != RuntimeMessageKind::Command ||
-            controllerMessage->name != "model.setViewInput")
+            controllerMessage->kind != RuntimeMessageKind::Command)
         {
             appendLogLine(log, "controller routed unexpected " + controllerMessage->name +
                 " to " + std::string(shortRoleName(controllerMessage->targetRole)));

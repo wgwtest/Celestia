@@ -170,6 +170,15 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { shutdown };
         }
 
+        if (input->device == "keyboard" && input->action == "KeyDown" && input->key == "Space")
+        {
+            paused_ = !paused_;
+            auto payload = std::string("paused=") + (paused_ ? "true" : "false");
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=time.pause";
+            return { commandToModel(request, "model.setPaused", std::move(payload)) };
+        }
+
         return { commandToModel(request, "model.setViewInput", serializeModelInputCommand(*input)) };
     }
 

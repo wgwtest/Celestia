@@ -3,6 +3,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -111,6 +112,31 @@ sceneFrameEnvelope()
     return celestia::runtime::protocol::sceneFrameEnvelope(minimalSceneFrame(),
                                                           RuntimeRole::Model,
                                                           RuntimeRole::View);
+}
+
+std::optional<RuntimeEnvelope>
+receiveSkippingViewInput(celestia::runtime::process::HostProcess& host,
+                         std::chrono::milliseconds timeout)
+{
+    for (int attempt = 0; attempt < 8; ++attempt)
+    {
+        auto message = host.receive(timeout);
+        if (!message.has_value())
+            return std::nullopt;
+
+        if (message->name == celestia::runtime::protocol::ViewInputMessageName)
+        {
+            CHECK(message->sourceRole == RuntimeRole::View);
+            CHECK(message->targetRole == RuntimeRole::Controller);
+            const auto parsed = celestia::runtime::protocol::deserializeViewInputEvent(message->payload);
+            CHECK(parsed.has_value());
+            continue;
+        }
+
+        return message;
+    }
+
+    return std::nullopt;
 }
 
 std::vector<RuntimeEnvelope>
@@ -277,7 +303,7 @@ TEST_CASE("celestia-view3d-host exchanges lifecycle and scene frames over live s
     CHECK(rendered->payload.find("lastSequence=11") != std::string::npos);
 
     REQUIRE(host.send(lifecycle(celestia::runtime::protocol::RuntimeShutdown)));
-    const auto stopped = host.receive(std::chrono::milliseconds(1000));
+    const auto stopped = receiveSkippingViewInput(host, std::chrono::milliseconds(1000));
     REQUIRE(stopped.has_value());
     CHECK(stopped->name == celestia::runtime::protocol::RuntimeStopped);
 
