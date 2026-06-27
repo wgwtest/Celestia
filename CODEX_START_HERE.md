@@ -1,26 +1,34 @@
-# Codex Start Here - Celestia MVC Step 4
+# Codex Start Here - Celestia MVC Current Baseline
 
 ## Current Workspace
 
-This directory is the active MVC Step 4 worktree:
-
-```text
-D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
-```
-
-The directory name was created during Step 1, but the active branch is now:
-
-```text
-codex/celestia-mvc-step3
-```
-
-The main Celestia checkout is separate:
+Use this directory as the canonical working directory for new Codex sessions:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-That main checkout is for `master` / upstream-source synchronization. Do not expect the MVC Step 4 code changes to appear there unless this branch is merged or checked out there.
+The active branch is:
+
+```text
+master
+```
+
+The latest MVC result has already been merged into `master` and pushed to the user's fork:
+
+```text
+57cb296 refactor: close MVC Step11 compatibility layer
+origin/master = 57cb296
+```
+
+The old worktrees are no longer the primary working locations:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step8-11
+```
+
+They are clean and their branch histories are already contained in `master`. Keep them only for historical inspection unless the user explicitly asks to remove them.
 
 ## Remote Model
 
@@ -29,62 +37,117 @@ origin   = https://github.com/wgwtest/Celestia.git
 upstream = https://github.com/CelestiaProject/Celestia.git
 ```
 
-Use `origin` for this project's writable fork. Treat `upstream` as the official Celestia source reference.
+Use `origin` as the writable fork. Treat `upstream` as the official Celestia reference only. Do not push to `upstream`.
 
-Step 1 was pushed to the fork as:
+## Current Architecture State
 
-```text
-14062ca refactor: decouple Celestia MVC boundaries
-```
+The repository now has a verified local multi-process MVC runtime baseline.
 
-Step 3 / Step 4 work is on:
+Implemented and merged:
 
 ```text
-codex/celestia-mvc-step3
+Step1  source-level MVC boundary reduction
+Step2  deeper Model/ViewAdapter decoupling
+Step3  CMake target boundary split
+Step4  physical MVC directory reorganization
+Step5  runtime decoupling and view-provider baseline
+Step6  runtime protocol and host process smoke
+Step7  long-running IPC and process supervision
+Step8  cross-process OpenGL3D View host and scene.frame protocol
+Step9  View plugin ABI, manifests, registry, and ordered switching
+Step10 runtime assembly config, transport abstraction, local-socket, data-plane
+Step11 compatibility fallback removal and final architecture closure
 ```
 
-PR entry after pushing:
+The current runtime can launch separate local host processes:
 
 ```text
-https://github.com/wgwtest/Celestia/pull/new/codex/celestia-mvc-step3
+celestia-model-host
+celestia-controller-host
+celestia-view-host
+celestia-view3d-host
 ```
 
-## Current Phase Boundary
-
-Step 1 is complete: Celestia source-level MVC boundaries were reduced so Model / Controller public headers no longer expose the main View resources.
-
-Step 2 is complete in this worktree: Celestia Model implementation files no longer call concrete render-asset sidecars for Body, StarDetails, and Nebula; DSO semantic loading is split from Nebula mesh asset loading; SelectionPicker consumes a replaceable geometry provider; and `SceneViewModel` provides a headless View Adapter proof.
-
-Step 3 is complete in this worktree: CMake now exposes auditable `celestia_model`, `celestia_controller`, `celestia_view_adapter`, and `celestia_view3d` object targets; `celestia` explicitly aggregates them through the application shell; Step3 contract tests scan CMake ownership buckets, target dependency direction, and Model / Controller implementation files.
-
-Step 3 is an in-process physical modularization step. It is not an OS-process split for M / V / C, and it is not the Planet_SIM clean-room migration.
-
-Step 4 is complete in this worktree: `src/celengine` ownership groups are physically moved into `model` / `controller` / `adapter` / `view3d` / `legacy`, and `src/celrender` renderer helpers are physically moved under `view3d` and `view3d/gl`. Root forwarding headers remain under `src/celengine`, `src/celrender`, and `src/celrender/gl` so existing public include paths continue to work.
-
-Step 4 is still in-process MVC. It does not make M / C / V run as independent OS processes. Process boundaries, IPC / RPC, and message contracts remain Step5 work.
-
-Step 5 is planned but not implemented. The implementation plan is:
+Supported runtime transport paths:
 
 ```text
-DOC\CODEX_DOC\04_研制计划\17-WBS-0.17-Celestia标准MVC解耦-Step5运行时解耦与插件化装配方案.md
+stdio-pipe
+local-socket
 ```
 
-Planet_SIM clean-room migration is a later independent migration phase. It may consume the Step 1 / Step 2 / Step 3 / Step 4 boundary evidence, but should not be started from this worktree unless the user explicitly opens that migration task.
+Supported View paths in the current runtime baseline:
+
+```text
+celestia.view2d.debug
+celestia.view3d.opengl
+```
+
+Important boundary: the cross-process `celestia-view3d-host` is currently a minimal protocol-validation renderer. It proves independent View3D process startup, `scene.frame` delivery, `view.input` return flow, and process supervision. It is not yet visually equivalent to the historical in-process Celestia renderer.
+
+## Current User-Facing Interpretation
+
+It is correct to say:
+
+```text
+Celestia now has a local, multi-process, runtime-configurable MVC baseline.
+M / C / V host processes can be started, supervised, messaged, switched, and shut down.
+Debug2D and OpenGL3D are available through the same runtime assembly path.
+```
+
+It is not correct to say yet:
+
+```text
+The cross-process View3D has full historical Celestia visual parity.
+The Model exports the complete Celestia Universe/StarDatabase/Body/Orbit state across process boundaries.
+All texture, mesh, star catalog, and UI resources use the final data-plane contract.
+Arbitrary third-party View plugins are a frozen public ecosystem.
+This is a cross-machine distributed three-service architecture.
+```
+
+## Likely Next Work
+
+If the user asks why the new View3D looks simpler than before, the answer is:
+
+```text
+The current cross-process View3D uses a synthetic SceneFrame and placeholder rendering.
+The historical in-process renderer still has the full visual pipeline.
+The next hard stage is real Celestia scene projection and renderer/resource integration.
+```
+
+Suggested next phase name:
+
+```text
+Step12 - Real Celestia scene projection and View3D visual parity path
+```
+
+Step12 should focus on:
+
+```text
+1. Map real Celestia Universe / Simulation / Observer / Body / Star data into scene.frame.
+2. Replace placeholder SceneExtractor output with real read-only scene projection.
+3. Add ResourceRef/data-plane coverage for real catalogs, textures, meshes, and orbit assets.
+4. Reuse or adapt the historical renderer inside celestia-view3d-host without breaking process boundaries.
+5. Extend view.input into real navigation, selection, camera, and interaction commands.
+6. Keep historical in-process rendering available as a regression reference.
+```
+
+Do not start Step12 implementation without first writing or updating its plan under `DOC\CODEX_DOC\04_研制计划\`.
 
 ## First Reading Order
 
-Read these first in a new Codex session:
+For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
-DOC\CODEX_DOC\04_研制计划\13-WBS-0.13-Celestia标准MVC解耦-Step1代码落实记录.md
-DOC\CODEX_DOC\04_研制计划\14-WBS-0.14-Celestia标准MVC解耦-Step2落地方案.md
-DOC\CODEX_DOC\04_研制计划\15-WBS-0.15-Celestia标准MVC解耦-Step3物理模块化与构建边界固化方案.md
-DOC\CODEX_DOC\04_研制计划\16-WBS-0.16-Celestia标准MVC解耦-Step4源码目录物理重组方案.md
-DOC\CODEX_DOC\02_设计说明\02-05-Celestia标准MVC解耦与迁移映射说明.md
+DOC\CODEX_DOC\02_设计说明\02-07-Celestia标准MVC最终架构说明.md
+DOC\CODEX_DOC\02_设计说明\02-06-Celestia-MVC-Runtime-Protocol-v1.md
+DOC\CODEX_DOC\04_研制计划\27-WBS-0.27-Celestia标准MVC解耦-Step11实现证据.md
+DOC\CODEX_DOC\04_研制计划\26-WBS-0.26-Celestia标准MVC解耦-Step10实现证据.md
+DOC\CODEX_DOC\04_研制计划\25-WBS-0.25-Celestia标准MVC解耦-Step9实现证据.md
+DOC\CODEX_DOC\04_研制计划\24-WBS-0.24-Celestia标准MVC解耦-Step8实现证据.md
 ```
 
-Then inspect the worktree state:
+Then inspect current state:
 
 ```powershell
 git status --short --branch
@@ -93,192 +156,153 @@ git remote -v
 git worktree list --porcelain
 ```
 
-## Main Code Changes
+## Main Runtime Areas
 
-Step 1 model/controller boundary reductions:
+Runtime protocol, host process, transport, assembly, and data-plane:
 
 ```text
-src/celengine/simulation.h/.cpp
-src/celengine/universe.h/.cpp
-src/celengine/body.h/.cpp
-src/celengine/star.h/.cpp
-src/celengine/deepskyobj.h/.cpp
+src/celruntime/protocol/
+src/celruntime/process/
+src/celruntime/transport/
+src/celruntime/assembly/
+src/celruntime/dataplane/
+src/celruntime/model/
+src/celruntime/controller/
+src/celruntime/view/
+src/celruntime/view3d/
+src/celruntime/viewplugin/
 ```
 
-Step 1 View Adapter / boundary helper files:
+Existing in-process Celestia renderer and 3D implementation areas:
 
 ```text
-src/celengine/selectionpicker.h/.cpp
-src/celengine/bodyrenderassets.h/.cpp
-src/celengine/starrenderassets.h/.cpp
-src/celengine/nebularenderassets.h/.cpp
-src/celengine/bodylocationgeometryprojector.h/.cpp
-src/celengine/deepskyobjectrenderpolicy.h/.cpp
-src/celengine/deepskyobjectpicker.h/.cpp
-```
-
-Step 2 lifecycle, provider, asset-loader, and headless View Adapter files:
-
-```text
-src/celengine/bodylifecycle.h/.cpp
-src/celengine/stardetailslifecycle.h/.cpp
-src/celengine/nebulalifecycle.h/.cpp
-src/celengine/nebularenderassetloader.h/.cpp
-src/celengine/selectiongeometryprovider.h
-src/celengine/sceneviewmodel.h/.cpp
-```
-
-Step 3 physical CMake boundary files:
-
-```text
-src/celengine/CMakeLists.txt
-src/celestia/CMakeLists.txt
-test/unit/mvc_step3_contract_test.cpp
-```
-
-Step 4 physical source directory reorganization:
-
-```text
-src/celengine/model/
-src/celengine/controller/
-src/celengine/adapter/
 src/celengine/view3d/
-src/celengine/legacy/
 src/celrender/view3d/
 src/celrender/view3d/gl/
-test/unit/mvc_step4_directory_contract_test.cpp
 ```
 
-The moved root headers under `src/celengine`, `src/celrender`, and `src/celrender/gl` are compatibility forwarding headers. The real implementations now live in the ownership folders above.
-
-Application shell and frontend call-site changes:
+Runtime config examples:
 
 ```text
-src/celestia/celestiacore.cpp
-src/celestia/qt/qtselectionpopup.cpp
-src/celestia/win32/wincontextmenu.cpp
-src/celestia/win32/winmainwindow.cpp
-```
-
-Boundary regression tests:
-
-```text
-test/unit/mvc_boundary_test.cpp
-test/unit/mvc_step2_contract_test.cpp
-test/unit/mvc_step3_contract_test.cpp
-test/unit/mvc_step4_directory_contract_test.cpp
-test/unit/CMakeLists.txt
+DOC\CODEX_DOC\examples\runtime-2d-stdio.yaml
+DOC\CODEX_DOC\examples\runtime-2d-local-socket.yaml
+DOC\CODEX_DOC\examples\runtime-3d-stdio.yaml
+DOC\CODEX_DOC\examples\runtime-3d-local-socket.yaml
+DOC\CODEX_DOC\examples\runtime-switch-2d-to-3d-local-socket.yaml
+DOC\CODEX_DOC\examples\runtime-switch-3d-to-2d-local-socket.yaml
 ```
 
 ## Verification Commands
 
-This machine does not expose `cmake` / `ctest` in the normal PowerShell PATH, and a plain PowerShell build does not populate the MSVC include/lib environment. Wrap CMake and CTest with Visual Studio's `VsDevCmd.bat`:
+This machine normally needs Visual Studio's CMake and CTest paths:
 
 ```powershell
 $vsdev = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat'
 $cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
 $ctest = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe'
-
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >nul && `"$cmake`" --build build-mvc-baseline-rel --config Release && `"$ctest`" --test-dir build-mvc-baseline-rel --output-on-failure"
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >nul && `"$cmake`" --build build-mvc-sdl-rel --config Release && `"$ctest`" --test-dir build-mvc-sdl-rel --output-on-failure"
 ```
 
-Last verified Step 4 result after physical reorganization:
-
-```text
-build-mvc-baseline-rel: build passed
-build-mvc-baseline-rel: 58/58 tests passed
-build-mvc-sdl-rel: build passed
-build-mvc-sdl-rel: 58/58 tests passed
-MVC Step1-Step4 focused tests: 21/21 passed
-SDL install: build-mvc-sdl-rel\run-full refreshed through CMake install component core
-SDL visual smoke: build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe launched with run-full and rendered the Celestia main window
-Screenshot: build-mvc-sdl-rel\celestia-step4-smoke.png
-Visual check: no missing-DLL dialog, no red HUD/menu text blocks, Earth texture rendered
-```
-
-## Runtime Notes
-
-The runnable SDL executable is:
-
-```text
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe
-```
-
-Runtime demo/catalog directories under build output are local verification assets and should not be committed.
-
-Known local runtime directories used during verification included:
-
-```text
-build-mvc-sdl-rel\run-minimal
-build-mvc-sdl-rel\run-full
-build-mvc-sdl-rel\run-full-nofont
-build-mvc-sdl-rel\run-mass-orbits
-```
-
-Before a full SDL visual smoke run, refresh `run-full` through the CMake install
-rules so it includes the complete core data set:
+Baseline build and full test:
 
 ```powershell
-$cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
-& $cmake --install build-mvc-sdl-rel --prefix (Resolve-Path 'build-mvc-sdl-rel\run-full').Path --component core
+cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-baseline-rel --config Release --target unit && `"$ctest`" --test-dir build-mvc-baseline-rel -C Release --output-on-failure"
 ```
 
-`build-mvc-sdl-rel\run-full\shaders\text_vert.glsl` and
-`build-mvc-sdl-rel\run-full\shaders\text_frag.glsl` must exist before launch.
-If the SDL app starts with readable menu text but core HUD/label text appears
-as solid red blocks, the `shaders` directory is missing from the active data
-directory and the text shader is falling back to Celestia's red error shader.
+SDL build and full test:
 
-If a font-loading warning appears in the console, it does not by itself invalidate the MVC boundary work. It affects text visibility in that local runtime setup.
+```powershell
+cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-sdl-rel --config Release --target unit celestia-sdl && `"$ctest`" --test-dir build-mvc-sdl-rel -C Release --output-on-failure"
+```
 
-The Step4 visual smoke screenshot is:
+MVC boundary scans:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependencies.ps1
+powershell -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
+```
+
+Last verified after merging into `master`:
 
 ```text
-build-mvc-sdl-rel\celestia-step4-smoke.png
+build-mvc-baseline-rel: 157/157 tests passed
+build-mvc-sdl-rel:      157/157 tests passed
+scan_mvc_dependencies:  passed
+scan_cmake_targets:     passed
 ```
 
-Computer Use window capture failed on this SDL/OpenGL window with `SetIsBorderRequired failed: 不支持此接口 (0x80004002)`, so the accepted screenshot path was captured with a Win32 screen-copy fallback after bringing the Celestia window to the foreground.
+## Startup Commands
+
+Run current cross-process OpenGL3D demo:
+
+```powershell
+build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe `
+  --dir build-mvc-sdl-rel `
+  --mvc-mode=multi-process `
+  --view=celestia.view3d.opengl `
+  --serve `
+  --duration-ms=600000 `
+  --host-transport=local-socket
+```
+
+Run Debug2D demo:
+
+```powershell
+build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe `
+  --runtime-config DOC\CODEX_DOC\examples\runtime-2d-local-socket.yaml
+```
+
+Run View switch demo:
+
+```powershell
+build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe `
+  --runtime-config DOC\CODEX_DOC\examples\runtime-switch-2d-to-3d-local-socket.yaml
+```
+
+Before launching demos, confirm there are no stale runtime processes:
+
+```powershell
+Get-Process -ErrorAction SilentlyContinue |
+  Where-Object { $_.ProcessName -in @('celestia-sdl','celestia-model-host','celestia-controller-host','celestia-view-host','celestia-view3d-host') }
+```
 
 ## Git Hygiene
 
-Do not commit generated build/runtime assets:
+Generated build/runtime artifacts should not be committed:
 
 ```text
 build-*
 run-*
-CelestiaContent copies inside build output
+local screenshots
+temporary trace/log files
 downloaded runtime catalogs
-local screenshots or temporary demo data
-verify-*.log
 shaders.log
 ```
 
-Before committing, run:
+Before committing:
 
 ```powershell
 git status --short --branch
 git diff --check
 ```
 
-Push Step 3 work only to the fork:
+Push normal completed work to the fork:
 
 ```powershell
-git push origin codex/celestia-mvc-step3
+git push origin master
 ```
 
 Do not push to `upstream`.
 
-## Upstream Sync Warning
+## Worktree Cleanup Policy
 
-This Step 3 branch descends from the Step 1 / Step 2 work, which was created from Celestia commit:
+Existing historical worktrees are currently clean and fully contained in `master`, but do not remove them without explicit user confirmation.
 
-```text
-44ec265 Move InfoURL into a separate manager class
+If the user confirms cleanup, remove from the main repo root, not from inside the worktree:
+
+```powershell
+git worktree remove D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step8-11
+git worktree remove D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
+git worktree prune
 ```
 
-The fork and upstream `master` later advanced beyond that point. Some upstream changes touch files that overlap the MVC refactor, including `render.cpp`, `renderglsl.cpp`, `solarsys.cpp`, `stardbbuilder.cpp`, `universe.cpp/.h`, and `celestiacore.cpp`.
-
-If rebasing or merging this branch onto a newer `upstream/master`, treat that as a separate integration task and rerun the full build/test/runtime checks.
-
-Also note: recursive fetch may hit an upstream submodule missing-ref issue in `src/tools/celestia-gaia-stardb`. Fetching branch refs with `--no-recurse-submodules` worked during this handoff.
+Only delete local branches after confirming the user no longer wants them for history navigation.
