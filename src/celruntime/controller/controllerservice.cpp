@@ -179,6 +179,15 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { commandToModel(request, "model.setPaused", std::move(payload)) };
         }
 
+        if (input->device == "keyboard" && input->action == "KeyDown" && input->key == "L")
+        {
+            timeScale_ *= 2.0;
+            auto payload = std::string("timeScale=") + std::to_string(timeScale_);
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=time.setScale";
+            return { commandToModel(request, "model.setTimeScale", std::move(payload)) };
+        }
+
         return { commandToModel(request, "model.setViewInput", serializeModelInputCommand(*input)) };
     }
 

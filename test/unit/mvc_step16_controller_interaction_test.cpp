@@ -45,14 +45,14 @@ readSourceFile(std::string_view relativePath)
 }
 
 celestia::runtime::protocol::ViewInputEvent
-spaceKeyDown()
+keyDown(std::string key)
 {
     celestia::runtime::protocol::ViewInputEvent input;
     input.sessionId = "step16-controller-interaction";
     input.sequence = 16;
     input.device = "keyboard";
     input.action = "KeyDown";
-    input.key = "Space";
+    input.key = std::move(key);
     return input;
 }
 
@@ -82,7 +82,7 @@ TEST_CASE("Step16 view.input Space key toggles time pause through Controller Mod
     view.handle(runtimeStart(RuntimeRole::View));
 
     const auto controllerCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
-        spaceKeyDown(),
+        keyDown("Space"),
         RuntimeRole::View,
         RuntimeRole::Controller));
 
@@ -101,6 +101,43 @@ TEST_CASE("Step16 view.input Space key toggles time pause through Controller Mod
     const auto scene = celestia::runtime::protocol::deserializeSceneFrame(modelFrame.payload);
     REQUIRE(scene.has_value());
     CHECK(scene->time.paused);
+
+    const auto rendered = view.handle(modelFrame);
+    REQUIRE(rendered.size() == 1);
+    CHECK(rendered.front().name == "view.frameRendered");
+    CHECK(contains(rendered.front().payload, "frameCount=1"));
+}
+
+TEST_CASE("Step16 view.input L key changes time scale through Controller Model and View3D")
+{
+    celestia::runtime::controller::ControllerService controller("step16-controller-interaction");
+    celestia::runtime::model::ModelService model("step16-controller-interaction");
+    celestia::runtime::view3d::View3DHost view("step16-controller-interaction");
+
+    controller.handle(runtimeStart(RuntimeRole::Controller));
+    model.handle(runtimeStart(RuntimeRole::Model));
+    view.handle(runtimeStart(RuntimeRole::View));
+
+    const auto controllerCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
+        keyDown("L"),
+        RuntimeRole::View,
+        RuntimeRole::Controller));
+
+    REQUIRE(controllerCommands.size() == 1);
+    CHECK(controllerCommands.front().kind == RuntimeMessageKind::Command);
+    CHECK(controllerCommands.front().targetRole == RuntimeRole::Model);
+    CHECK(controllerCommands.front().name == "model.setTimeScale");
+    CHECK(contains(controllerCommands.front().payload, "timeScale=2"));
+    CHECK(contains(controllerCommands.front().payload, "view=celestia.view3d.opengl"));
+    CHECK(contains(controllerCommands.front().payload, "command=time.setScale"));
+
+    const auto modelFrame = model.handle(controllerCommands.front());
+    REQUIRE(modelFrame.kind == RuntimeMessageKind::ViewFrame);
+    REQUIRE(modelFrame.name == celestia::runtime::protocol::SceneFrameMessageName);
+
+    const auto scene = celestia::runtime::protocol::deserializeSceneFrame(modelFrame.payload);
+    REQUIRE(scene.has_value());
+    CHECK(scene->time.timeScale == doctest::Approx(2.0));
 
     const auto rendered = view.handle(modelFrame);
     REQUIRE(rendered.size() == 1);

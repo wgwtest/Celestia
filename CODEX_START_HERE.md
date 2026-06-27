@@ -117,7 +117,7 @@ M / C / V host processes can be started, supervised, messaged, switched, and shu
 The Model host can be configured with a real Celestia data root and load real Universe / Simulation state headlessly.
 The Model host can now project a first real scene.frame with real time, observer/camera, selected body/star, orbit sample, and catalog resources.
 The View3D host can now consume real scene.frame body/star/orbit/resource fields and resolve ResourceRef values through a content root.
-The first Step16 Controller loop is implemented: View3D Space key input can pause the Model and the next scene.frame reports time.paused=true.
+The first Step16 Controller loops are implemented: View3D Space pauses the Model and View3D L changes time scale; the next scene.frame reports time.paused/time.timeScale changes.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
@@ -138,7 +138,7 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step16 extension - time.setScale and camera/selection commands
+Step16 extension - camera/selection/navigation commands
 ```
 
 Formal execution plan:
@@ -147,7 +147,7 @@ Formal execution plan:
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 ```
 
-Detailed completed Step13/Step14/Step15/Step16-first-loop plans:
+Detailed completed Step13/Step14/Step15/Step16-time-control plans:
 
 ```text
 DOC\CODEX_DOC\04_研制计划\33-WBS-0.33-Celestia标准MVC解耦-Step16真实交互闭环方案.md
@@ -157,7 +157,7 @@ DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实Sc
 DOC\CODEX_DOC\04_研制计划\29-WBS-0.29-Celestia标准MVC解耦-Step12真实SceneFrame协议方案.md
 ```
 
-Step16 first-loop completion means:
+Step16 time-control completion means:
 
 ```text
 1. RealModelBackend still loads celestia.cfg, stars, DSO, SSO, Universe, Simulation, and ObserverSettings headlessly.
@@ -167,10 +167,11 @@ Step16 first-loop completion means:
 5. View3D host consumes real scene.frame fields and reports body/star/orbit/resource counts through view.frameRendered.
 6. Runtime assembly and SDL --serve pass the real content root to View3D so ResourceRef values can be resolved.
 7. View3D Space key view.input now reaches ControllerService, becomes model.setPaused, mutates Model paused state, returns scene.frame time.paused=true, and is acknowledged by View3D.
-8. Other Step16 commands such as time.setScale, camera, selection, navigation, and observer follow are still not complete.
+8. View3D L key view.input now reaches ControllerService, becomes model.setTimeScale, mutates Model timeScale state, returns scene.frame time.timeScale=2, and is acknowledged by View3D.
+9. Other Step16 commands such as camera, selection, navigation, and observer follow are still not complete.
 ```
 
-After Step16 first-loop acceptance, continue Step16 by adding one typed command at a time. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
+After Step16 time-control acceptance, continue Step16 by adding camera/selection/navigation typed commands one at a time. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\
@@ -361,10 +362,10 @@ Latest Step15 View3D runtime screenshot evidence:
 D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\step15-view3d-runtime-20260627-200623\view3d-window.png
 ```
 
-Latest Step16 first-loop Quick regression report:
+Latest Step16 time-control Quick regression report:
 
 ```text
-D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-221733-a07b4e8-quick\machine-report.md
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-27-222918-8d24c46-quick\machine-report.md
 ```
 
 ## Startup Commands

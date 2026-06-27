@@ -38,6 +38,7 @@ private:
     std::string sessionId_;
     bool running_{ false };
     bool paused_{ false };
+    double timeScale_{ 1.0 };
 };
 
 } // namespace celestia::runtime::controller
