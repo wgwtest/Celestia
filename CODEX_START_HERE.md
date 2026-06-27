@@ -8,39 +8,26 @@ Use this directory as the canonical working directory for new Codex sessions:
 D:\WorkSpace\Codex\CeleNew\Celestia
 ```
 
-The active branch in the canonical checkout is:
+The active branch is:
 
 ```text
 master
 ```
 
-The compatibility-regression implementation worktree is:
+The latest pushed master is:
 
 ```text
-D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-regression
+c6d7e53 test: add Celestia compatibility regression harness
+origin/master = c6d7e53
 ```
 
-Its active branch is:
+The only remaining auxiliary worktree is the fixed pre-MVC compatibility baseline:
 
 ```text
-codex/celestia-compat-regression
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-baseline-44ec265
 ```
 
-The latest MVC result has already been merged into `master` and pushed to the user's fork:
-
-```text
-57cb296 refactor: close MVC Step11 compatibility layer
-origin/master = 57cb296
-```
-
-The old worktrees are no longer the primary working locations:
-
-```text
-D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
-D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step8-11
-```
-
-They are clean and their branch histories are already contained in `master`. Keep them only for historical inspection unless the user explicitly asks to remove them.
+Do not remove it unless the compatibility regression baseline is intentionally regenerated or relocated.
 
 ## Remote Model
 
@@ -53,7 +40,13 @@ Use `origin` as the writable fork. Treat `upstream` as the official Celestia ref
 
 ## Current Architecture State
 
-The repository now has a verified local multi-process MVC runtime baseline.
+The repository now has three active lines:
+
+```text
+1. Ordinary SDL unified exe / in-process historical Celestia path.
+2. Source and CMake level MVC boundaries under src/celengine.
+3. Local multi-process MVC runtime under src/celruntime.
+```
 
 Implemented and merged:
 
@@ -69,7 +62,17 @@ Step8  cross-process OpenGL3D View host and scene.frame protocol
 Step9  View plugin ABI, manifests, registry, and ordered switching
 Step10 runtime assembly config, transport abstraction, local-socket, data-plane
 Step11 compatibility fallback removal and final architecture closure
+Compatibility regression harness for original unified exe capability checks
 ```
+
+Current consolidated status and compatibility conclusion:
+
+```text
+DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
+DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
+```
+
+## Runtime Capabilities
 
 The current runtime can launch separate local host processes:
 
@@ -104,6 +107,7 @@ It is correct to say:
 Celestia now has a local, multi-process, runtime-configurable MVC baseline.
 M / C / V host processes can be started, supervised, messaged, switched, and shut down.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
+The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
 
 It is not correct to say yet:
@@ -114,17 +118,10 @@ The Model exports the complete Celestia Universe/StarDatabase/Body/Orbit state a
 All texture, mesh, star catalog, and UI resources use the final data-plane contract.
 Arbitrary third-party View plugins are a frozen public ecosystem.
 This is a cross-machine distributed three-service architecture.
+Qt and Win32 frontend capability parity has been validated by the SDL regression harness.
 ```
 
 ## Likely Next Work
-
-If the user asks why the new View3D looks simpler than before, the answer is:
-
-```text
-The current cross-process View3D uses a synthetic SceneFrame and placeholder rendering.
-The historical in-process renderer still has the full visual pipeline.
-The next hard stage is real Celestia scene projection and renderer/resource integration.
-```
 
 Suggested next phase name:
 
@@ -143,7 +140,11 @@ Step12 should focus on:
 6. Keep historical in-process rendering available as a regression reference.
 ```
 
-Do not start Step12 implementation without first writing or updating its plan under `DOC\CODEX_DOC\04_研制计划\`.
+Do not start Step12 implementation without first writing or updating its plan under:
+
+```text
+DOC\CODEX_DOC\04_研制计划\
+```
 
 ## First Reading Order
 
@@ -151,6 +152,8 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
+DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
 DOC\CODEX_DOC\02_设计说明\02-07-Celestia标准MVC最终架构说明.md
 DOC\CODEX_DOC\02_设计说明\02-06-Celestia-MVC-Runtime-Protocol-v1.md
 DOC\CODEX_DOC\04_研制计划\27-WBS-0.27-Celestia标准MVC解耦-Step11实现证据.md
@@ -185,6 +188,16 @@ src/celruntime/view3d/
 src/celruntime/viewplugin/
 ```
 
+Current source-level MVC buckets:
+
+```text
+src/celengine/model/
+src/celengine/controller/
+src/celengine/adapter/
+src/celengine/view3d/
+src/celengine/legacy/
+```
+
 Existing in-process Celestia renderer and 3D implementation areas:
 
 ```text
@@ -214,18 +227,6 @@ $cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\I
 $ctest = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe'
 ```
 
-Baseline build and full test:
-
-```powershell
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-baseline-rel --config Release --target unit && `"$ctest`" --test-dir build-mvc-baseline-rel -C Release --output-on-failure"
-```
-
-SDL build and full test:
-
-```powershell
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-sdl-rel --config Release --target unit celestia-sdl && `"$ctest`" --test-dir build-mvc-sdl-rel -C Release --output-on-failure"
-```
-
 MVC boundary scans:
 
 ```powershell
@@ -253,10 +254,17 @@ The first harness version covers SDL unified exe / in-process screenshots. It do
 Last verified after merging into `master`:
 
 ```text
-build-mvc-baseline-rel: 157/157 tests passed
-build-mvc-sdl-rel:      157/157 tests passed
-scan_mvc_dependencies:  passed
-scan_cmake_targets:     passed
+compat Full:            2026-06-27-155813, c6d7e53, pass
+scan_mvc_dependencies:  passed during Full
+scan_cmake_targets:     passed during Full
+runtime smoke:          6/6 passed during Full
+visual scenes:          8/8 passed during Full
+```
+
+Latest machine report:
+
+```text
+DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-27-155813-Celestia-compat-regression-machine-report.md
 ```
 
 ## Startup Commands
@@ -305,6 +313,7 @@ local screenshots
 temporary trace/log files
 downloaded runtime catalogs
 shaders.log
+.regression-artifacts
 ```
 
 Before committing:
@@ -324,14 +333,10 @@ Do not push to `upstream`.
 
 ## Worktree Cleanup Policy
 
-Existing historical worktrees are currently clean and fully contained in `master`, but do not remove them without explicit user confirmation.
+Only the fixed baseline worktree remains:
 
-If the user confirms cleanup, remove from the main repo root, not from inside the worktree:
-
-```powershell
-git worktree remove D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step8-11
-git worktree remove D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-mvc-step1
-git worktree prune
+```text
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-baseline-44ec265
 ```
 
-Only delete local branches after confirming the user no longer wants them for history navigation.
+It is retained for the original-capability compatibility regression baseline. Historical MVC worktrees and the compatibility-regression implementation worktree have already been removed after their branches were merged into `master`.
