@@ -44,6 +44,8 @@ struct View3DSceneState
     std::uint64_t resourceCount{ 0 };
     std::uint64_t resolvedResourceCount{ 0 };
     std::uint64_t missingRequiredResourceCount{ 0 };
+    std::uint64_t invalidResourceCount{ 0 };
+    std::uint64_t dataPlaneEligibleResourceCount{ 0 };
     std::vector<View3DResolvedResource> resources;
 };
 

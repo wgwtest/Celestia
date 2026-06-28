@@ -52,8 +52,46 @@ frameRenderedPayload(std::uint64_t frameCount,
            << ";resourceCount=" << state.resourceCount
            << ";resolvedResourceCount=" << state.resolvedResourceCount
            << ";missingRequiredResourceCount=" << state.missingRequiredResourceCount
+           << ";invalidResourceCount=" << state.invalidResourceCount
+           << ";dataPlaneEligibleResourceCount=" << state.dataPlaneEligibleResourceCount
            << ";cameraFov=" << state.cameraFov;
     return output.str();
+}
+
+std::string
+resourceStatusName(View3DResourceStatus status)
+{
+    switch (status)
+    {
+    case View3DResourceStatus::Resolved:
+        return "resolved";
+    case View3DResourceStatus::MissingOptional:
+        return "missingOptional";
+    case View3DResourceStatus::MissingRequired:
+        return "missingRequired";
+    case View3DResourceStatus::Invalid:
+        return "invalid";
+    }
+
+    return "unknown";
+}
+
+std::string
+resourceMissingPayload(const View3DResolvedResource& resource)
+{
+    std::ostringstream output;
+    output << "id=" << resource.resource.id
+           << ";kind=" << resource.resource.kind
+           << ";status=" << resourceStatusName(resource.status)
+           << ";cacheKey=" << resource.cacheKey;
+    return output.str();
+}
+
+bool
+reportsMissingResourceEvent(View3DResourceStatus status)
+{
+    return status == View3DResourceStatus::MissingRequired ||
+           status == View3DResourceStatus::Invalid;
 }
 
 } // end unnamed namespace
@@ -161,7 +199,21 @@ View3DHost::handle(const RuntimeEnvelope& request)
 
     lastSceneState_ = buildView3DSceneState(*frame, options_.contentRoot);
     ++frameCount_;
-    return { frameRendered(request) };
+
+    std::vector<RuntimeEnvelope> responses;
+    responses.push_back(frameRendered(request));
+    for (const auto& resource : lastSceneState_.resources)
+    {
+        if (reportsMissingResourceEvent(resource.status))
+        {
+            responses.push_back(response(request,
+                                         RuntimeMessageKind::Event,
+                                         "view.resourceMissing",
+                                         resourceMissingPayload(resource)));
+        }
+    }
+
+    return responses;
 }
 
 } // namespace celestia::runtime::view3d

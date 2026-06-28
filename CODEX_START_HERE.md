@@ -161,18 +161,24 @@ Task 1 complete locally:
 - ResourceRef resolver generates stable cache keys by dataPlaneKey, contentHash, then package|kind|relativePath.
 - ResourceRef resolver rejects absolute paths and traversal paths.
 
+Task 2 complete locally:
+- View3DSceneState reports invalidResourceCount.
+- View3DHost frameRendered payload reports invalidResourceCount and dataPlaneEligibleResourceCount.
+- View3DHost emits view.resourceMissing events for required missing and invalid resources.
+
 Latest focused verification:
 - Step17 ResourceRef resolver: 1/1 passed.
-- Step15 View3D plus Step17 spot check: 4/4 passed.
-- Step12-17 protocol/runtime broad check: 45/45 passed.
+- Step17 View3DHost missing/invalid resources: 1/1 passed.
+- Step15 View3D plus Step17 spot check: 5/5 passed.
+- Step12-17 protocol/runtime broad check: 46/46 passed.
 - MVC dependency scan passed.
 - MVC CMake target scan passed.
 - Forbidden terminology scan passed.
 - git diff --check reported CRLF warnings only.
 
-Continue with Step17 Task 2:
-- View3DSceneState invalidResourceCount and dataPlaneEligibleResourceCount.
-- View3DHost view.resourceMissing events for required missing and invalid resources.
+Continue with Step17 Task 3:
+- ResourceRef.dataPlaneKey carries serialized DataPlaneRef.
+- View3D resource resolver marks DataPlane-eligible resources and parses DataPlaneRef values.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:

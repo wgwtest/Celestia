@@ -41,10 +41,12 @@ buildView3DSceneState(const protocol::SceneFrame& frame,
 
     for (const auto& resource : state.resources)
     {
-        if (resource.exists)
+        if (resource.status == View3DResourceStatus::Resolved)
             ++state.resolvedResourceCount;
-        else if (resource.resource.required)
+        else if (resource.status == View3DResourceStatus::MissingRequired)
             ++state.missingRequiredResourceCount;
+        else if (resource.status == View3DResourceStatus::Invalid)
+            ++state.invalidResourceCount;
     }
 
     return state;
