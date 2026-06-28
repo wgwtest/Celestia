@@ -38,6 +38,8 @@ frameRenderedPayload(std::uint64_t frameCount,
            << ";deepSkyObjectCount=" << state.deepSkyObjectCount
            << ";orbitCount=" << state.orbitCount
            << ";labelCount=" << state.labelCount
+           << ";observerReferenceBodyId=" << state.observerReferenceBodyId
+           << ";observerFrame=" << state.observerFrame
            << ";selectionType=" << state.selectionType
            << ";selectionId=" << state.selectionId
            << ";cameraPositionX=" << state.cameraPositionX

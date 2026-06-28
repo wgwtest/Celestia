@@ -243,6 +243,15 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { commandToModel(request, "model.gotoObject", std::move(payload)) };
         }
 
+        if (input->device == "keyboard" && input->action == "KeyDown" && input->key == "F")
+        {
+            auto payload = std::string("target=currentSelection");
+            payload += ";follow=true";
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=observer.followObject";
+            return { commandToModel(request, "model.followObject", std::move(payload)) };
+        }
+
         if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)
         {
             cameraFov_ = input->wheel[1] > 0.0

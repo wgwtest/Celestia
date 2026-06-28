@@ -369,6 +369,11 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         }
         if (cameraOrbitApplied_)
             snapshot.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
+        if (observerFollowApplied_)
+        {
+            snapshot.observer.referenceBodyId = observerReferenceBodyId_;
+            snapshot.observer.frame = "celestia:observer:follow";
+        }
         if (selectionCleared_)
         {
             snapshot.selections.clear();
@@ -403,6 +408,11 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     }
     if (cameraOrbitApplied_)
         snapshot.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
+    if (observerFollowApplied_)
+    {
+        snapshot.observer.referenceBodyId = observerReferenceBodyId_;
+        snapshot.observer.frame = "celestia:observer:follow";
+    }
     if (selectionCleared_)
         snapshot.selections.clear();
     else if (!selectionType_.empty() && !selectionId_.empty())
@@ -431,6 +441,11 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     }
     if (cameraOrbitApplied_)
         frame.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
+    if (observerFollowApplied_)
+    {
+        frame.observer.referenceBodyId = observerReferenceBodyId_;
+        frame.observer.frame = "celestia:observer:follow";
+    }
     if (!lastViewInputAction_.empty())
     {
         protocol::LabelRenderState label;
@@ -602,6 +617,32 @@ ModelService::handle(const RuntimeEnvelope& request)
 
         cameraOrbitApplied_ = true;
         cameraYawDegrees_ += *parsed;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.followObject")
+    {
+        const auto target = payload.find("target");
+        if (target == payload.end() || target->second.empty())
+            return errorResponse(request, "model.followObject requires target");
+
+        if (const auto follow = payload.find("follow"); follow != payload.end() && !parseBool(follow->second))
+            return errorResponse(request, "model.followObject requires follow=true");
+
+        if (target->second == "currentSelection")
+        {
+            if (selectionId_.empty())
+                return errorResponse(request, "model.followObject requires current selection");
+            observerReferenceBodyId_ = selectionId_;
+        }
+        else
+        {
+            observerReferenceBodyId_ = target->second;
+        }
+
+        observerFollowApplied_ = true;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);

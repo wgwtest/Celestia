@@ -59,6 +59,8 @@ private:
     double cameraPositionZ_{ 8.0 };
     bool cameraOrbitApplied_{ false };
     double cameraYawDegrees_{ 0.0 };
+    bool observerFollowApplied_{ false };
+    std::string observerReferenceBodyId_;
     bool selectionCleared_{ false };
     std::string selectionType_;
     std::string selectionId_;

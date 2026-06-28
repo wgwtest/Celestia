@@ -37,6 +37,8 @@ struct View3DSceneState
     std::uint64_t deepSkyObjectCount{ 0 };
     std::uint64_t orbitCount{ 0 };
     std::uint64_t labelCount{ 0 };
+    std::string observerReferenceBodyId;
+    std::string observerFrame;
     std::string selectionType;
     std::string selectionId;
     std::uint64_t resourceCount{ 0 };
