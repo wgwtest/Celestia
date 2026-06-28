@@ -228,18 +228,24 @@ Task 2 complete locally:
 - Full mode retains the ordinary unified SDL compatibility claim boundary.
 - Step18 conclusion skeleton exists under DOC/CODEX_DOC/06_测试文档/04_结论报告/.
 
+Task 3 complete locally:
+- SDL screenshot matrix now contains at least 10 scenarios.
+- Added 09-selection-follow-goto.cel.
+- Added 10-resource-fallback-missing.cel.
+- SelfTest and runner scenario-count gates now require at least 10 scenarios.
+
 Latest Step18 verification:
 - SelfTest passed.
 - UTF-8 BOM runtime config unit: 1/1 test case, 7/7 assertions passed.
 - Step18 full mode passed after build and ctest.
-- Current SDL screenshots: 8/8 pass.
+- Current SDL screenshots: 10/10 pass.
 - Runtime smoke configs: 6/6 pass.
-- Latest Step18 artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-100207-a4aadbd-step18\machine-report.md
-- Latest Step18 doc report: DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-28-100207-Celestia-Step18-machine-report.md
+- Latest Step18 artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101051-a03ce27-step18\machine-report.md
+- Latest Step18 doc report: DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-28-101051-Celestia-Step18-machine-report.md
 
-Continue with Step18 Task 3:
-- Expand visual scenario coverage only where it adds meaningful confidence.
-- Keep new scenarios tied to concrete user-visible capability claims.
+Continue with Step18 Task 4:
+- Run final focused Step18 verification summary.
+- Update the Step18 conclusion with final status.
 - Keep the boundary explicit: no claim of complete historical View3D renderer parity.
 ```
 
