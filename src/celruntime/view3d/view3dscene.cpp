@@ -22,6 +22,10 @@ buildView3DSceneState(const protocol::SceneFrame& frame,
     state.cameraPositionX = frame.camera.position[0];
     state.cameraPositionY = frame.camera.position[1];
     state.cameraPositionZ = frame.camera.position[2];
+    state.cameraOrientationX = frame.camera.orientation[0];
+    state.cameraOrientationY = frame.camera.orientation[1];
+    state.cameraOrientationZ = frame.camera.orientation[2];
+    state.cameraOrientationW = frame.camera.orientation[3];
     state.cameraFov = frame.camera.fov;
     state.bodyCount = static_cast<std::uint64_t>(frame.bodies.size());
     state.starCount = static_cast<std::uint64_t>(frame.stars.size());

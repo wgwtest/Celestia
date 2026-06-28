@@ -27,6 +27,10 @@ struct View3DSceneState
     double cameraPositionX{ 0.0 };
     double cameraPositionY{ 0.0 };
     double cameraPositionZ{ 0.0 };
+    double cameraOrientationX{ 0.0 };
+    double cameraOrientationY{ 0.0 };
+    double cameraOrientationZ{ 0.0 };
+    double cameraOrientationW{ 1.0 };
     double cameraFov{ 0.0 };
     std::uint64_t bodyCount{ 0 };
     std::uint64_t starCount{ 0 };

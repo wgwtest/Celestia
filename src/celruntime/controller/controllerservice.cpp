@@ -222,6 +222,18 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { commandToModel(request, "model.centerSelection", std::move(payload)) };
         }
 
+        if (input->device == "keyboard" &&
+            input->action == "KeyDown" &&
+            (input->key == "Left" || input->key == "Right"))
+        {
+            const auto yawDegrees = input->key == "Left" ? -15.0 : 15.0;
+            auto payload = std::string("target=currentSelection");
+            payload += ";yawDegrees=" + std::to_string(yawDegrees);
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=camera.orbit";
+            return { commandToModel(request, "model.orbitCamera", std::move(payload)) };
+        }
+
         if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)
         {
             cameraFov_ = input->wheel[1] > 0.0

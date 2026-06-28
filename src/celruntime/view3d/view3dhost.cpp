@@ -43,6 +43,10 @@ frameRenderedPayload(std::uint64_t frameCount,
            << ";cameraPositionX=" << state.cameraPositionX
            << ";cameraPositionY=" << state.cameraPositionY
            << ";cameraPositionZ=" << state.cameraPositionZ
+           << ";cameraOrientationX=" << state.cameraOrientationX
+           << ";cameraOrientationY=" << state.cameraOrientationY
+           << ";cameraOrientationZ=" << state.cameraOrientationZ
+           << ";cameraOrientationW=" << state.cameraOrientationW
            << ";resourceCount=" << state.resourceCount
            << ";resolvedResourceCount=" << state.resolvedResourceCount
            << ";missingRequiredResourceCount=" << state.missingRequiredResourceCount

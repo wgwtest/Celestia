@@ -13,6 +13,7 @@
 
 #include <array>
 #include <cctype>
+#include <cmath>
 #include <cstdint>
 #include <iomanip>
 #include <memory>
@@ -35,6 +36,8 @@ namespace
 using protocol::RuntimeEnvelope;
 using protocol::RuntimeMessageKind;
 using protocol::RuntimeRole;
+
+constexpr double Pi = 3.141592653589793238462643383279502884;
 
 constexpr std::array<char, 16> HexDigits{
     '0', '1', '2', '3', '4', '5', '6', '7',
@@ -204,6 +207,13 @@ formatDouble(double value)
     return output.str();
 }
 
+std::array<double, 4>
+cameraOrientationFromYaw(double yawDegrees)
+{
+    const auto halfRadians = yawDegrees * Pi / 360.0;
+    return { 0.0, std::sin(halfRadians), 0.0, std::cos(halfRadians) };
+}
+
 class SyntheticSimulationBackend final : public SimulationBackend
 {
 public:
@@ -357,6 +367,8 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
             snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
             snapshot.observer.positionKm = snapshot.camera.positionKm;
         }
+        if (cameraOrbitApplied_)
+            snapshot.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
         if (selectionCleared_)
         {
             snapshot.selections.clear();
@@ -389,6 +401,8 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
         snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
         snapshot.observer.positionKm = snapshot.camera.positionKm;
     }
+    if (cameraOrbitApplied_)
+        snapshot.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
     if (selectionCleared_)
         snapshot.selections.clear();
     else if (!selectionType_.empty() && !selectionId_.empty())
@@ -415,6 +429,8 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
         frame.camera.position = { 0.0, 0.0, 4.0 };
         frame.observer.position = frame.camera.position;
     }
+    if (cameraOrbitApplied_)
+        frame.camera.orientation = cameraOrientationFromYaw(cameraYawDegrees_);
     if (!lastViewInputAction_.empty())
     {
         protocol::LabelRenderState label;
@@ -551,6 +567,23 @@ ModelService::handle(const RuntimeEnvelope& request)
     if (request.name == "model.centerSelection")
     {
         cameraCentered_ = true;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.orbitCamera")
+    {
+        const auto value = payload.find("yawDegrees");
+        if (value == payload.end())
+            return errorResponse(request, "model.orbitCamera requires yawDegrees");
+
+        const auto parsed = parseDouble(value->second);
+        if (!parsed.has_value())
+            return errorResponse(request, "invalid model.orbitCamera yawDegrees");
+
+        cameraOrbitApplied_ = true;
+        cameraYawDegrees_ += *parsed;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);
