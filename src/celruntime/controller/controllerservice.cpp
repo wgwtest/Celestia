@@ -234,6 +234,15 @@ ControllerService::handle(const RuntimeEnvelope& request)
             return { commandToModel(request, "model.orbitCamera", std::move(payload)) };
         }
 
+        if (input->device == "keyboard" && input->action == "KeyDown" && input->key == "G")
+        {
+            auto payload = std::string("target=currentSelection");
+            payload += ";distance=2.000000";
+            payload += ";view=celestia.view3d.opengl";
+            payload += ";command=navigation.gotoObject";
+            return { commandToModel(request, "model.gotoObject", std::move(payload)) };
+        }
+
         if (input->device == "mouse" && input->action == "MouseWheel" && input->wheel[1] != 0.0)
         {
             cameraFov_ = input->wheel[1] > 0.0

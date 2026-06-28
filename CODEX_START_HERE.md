@@ -117,7 +117,7 @@ M / C / V host processes can be started, supervised, messaged, switched, and shu
 The Model host can be configured with a real Celestia data root and load real Universe / Simulation state headlessly.
 The Model host can now project a first real scene.frame with real time, observer/camera, selected body/star, orbit sample, and catalog resources.
 The View3D host can now consume real scene.frame body/star/orbit/resource fields and resolve ResourceRef values through a content root.
-The first Step16 Controller loops are implemented: View3D Space pauses the Model, View3D L changes time scale, View3D MouseWheel changes scene camera FOV, View3D Ctrl+Backspace clears scene selection, View3D H selects Sol, View3D C centers the camera output on the current selection, and View3D Left orbits the camera yaw output; the next scene.frame reports those output changes.
+The first Step16 Controller loops are implemented: View3D Space pauses the Model, View3D L changes time scale, View3D MouseWheel changes scene camera FOV, View3D Ctrl+Backspace clears scene selection, View3D H selects Sol, View3D C centers the camera output on the current selection, View3D Left orbits the camera yaw output, and View3D G navigates the camera output to the current selection; the next scene.frame reports those output changes.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
 ```
@@ -173,10 +173,11 @@ Step16 interaction-loop completion means:
 11. View3D H key view.input now reaches ControllerService, becomes model.setSelection, mutates Model selection output state, returns scene.frame selection.type=star selection.id=celestia:star:Sol, and is acknowledged by View3D.
 12. View3D C key view.input now reaches ControllerService, becomes model.centerSelection, mutates Model camera output state, returns scene.frame camera/observer position z=4, and is acknowledged by View3D.
 13. View3D Left key view.input now reaches ControllerService, becomes model.orbitCamera, mutates Model camera orientation output state, returns changed scene.frame camera.orientation, and is acknowledged by View3D.
-14. Other Step16 commands such as navigation and observer follow are still not complete.
+14. View3D G key view.input now reaches ControllerService, becomes model.gotoObject, mutates Model navigation output state, returns scene.frame camera/observer position z=2, and is acknowledged by View3D.
+15. The remaining Step16 command is observer.followObject.
 ```
 
-After the current Step16 interaction-loop acceptance, continue Step16 by adding navigation and observer-follow typed commands one at a time. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
+After the current Step16 interaction-loop acceptance, continue Step16 by adding observer-follow typed command coverage. Do not claim View3D historical renderer parity until later visual-fidelity work has direct screenshot evidence.
 
 ```text
 DOC\CODEX_DOC\06_测试文档\03_机测记录\
@@ -370,7 +371,7 @@ D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\step15-view3d-run
 Latest Step16 interaction-loop Quick regression report:
 
 ```text
-D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-083721-a26346c-quick\machine-report.md
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-084600-214e8d3-quick\machine-report.md
 ```
 
 ## Startup Commands

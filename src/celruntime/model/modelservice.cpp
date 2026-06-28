@@ -362,9 +362,9 @@ ModelService::viewFrameResponse(const RuntimeEnvelope& request) const
         snapshot.timeScale = timeScale_;
         if (cameraFov_ > 0.0)
             snapshot.camera.fovDeg = cameraFov_;
-        if (cameraCentered_)
+        if (cameraPositionOverridden_)
         {
-            snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
+            snapshot.camera.positionKm = { 0.0, 0.0, cameraPositionZ_ };
             snapshot.observer.positionKm = snapshot.camera.positionKm;
         }
         if (cameraOrbitApplied_)
@@ -396,9 +396,9 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
     snapshot.timeScale = timeScale_;
     if (cameraFov_ > 0.0)
         snapshot.camera.fovDeg = cameraFov_;
-    if (cameraCentered_)
+    if (cameraPositionOverridden_)
     {
-        snapshot.camera.positionKm = { 0.0, 0.0, 4.0 };
+        snapshot.camera.positionKm = { 0.0, 0.0, cameraPositionZ_ };
         snapshot.observer.positionKm = snapshot.camera.positionKm;
     }
     if (cameraOrbitApplied_)
@@ -424,9 +424,9 @@ ModelService::sceneFrameResponse(const RuntimeEnvelope& request) const
         frame.selection.type = selectionType_;
         frame.selection.id = selectionId_;
     }
-    if (cameraCentered_)
+    if (cameraPositionOverridden_)
     {
-        frame.camera.position = { 0.0, 0.0, 4.0 };
+        frame.camera.position = { 0.0, 0.0, cameraPositionZ_ };
         frame.observer.position = frame.camera.position;
     }
     if (cameraOrbitApplied_)
@@ -566,7 +566,25 @@ ModelService::handle(const RuntimeEnvelope& request)
 
     if (request.name == "model.centerSelection")
     {
-        cameraCentered_ = true;
+        cameraPositionOverridden_ = true;
+        cameraPositionZ_ = 4.0;
+        if (wantsSceneFrame(payload))
+            return sceneFrameResponse(request);
+        return viewFrameResponse(request);
+    }
+
+    if (request.name == "model.gotoObject")
+    {
+        const auto value = payload.find("distance");
+        if (value == payload.end())
+            return errorResponse(request, "model.gotoObject requires distance");
+
+        const auto parsed = parseDouble(value->second);
+        if (!parsed.has_value() || *parsed <= 0.0)
+            return errorResponse(request, "invalid model.gotoObject distance");
+
+        cameraPositionOverridden_ = true;
+        cameraPositionZ_ = *parsed;
         if (wantsSceneFrame(payload))
             return sceneFrameResponse(request);
         return viewFrameResponse(request);

@@ -55,7 +55,8 @@ private:
     bool paused_{ false };
     double timeScale_{ 1.0 };
     double cameraFov_{ 0.0 };
-    bool cameraCentered_{ false };
+    bool cameraPositionOverridden_{ false };
+    double cameraPositionZ_{ 8.0 };
     bool cameraOrbitApplied_{ false };
     double cameraYawDegrees_{ 0.0 };
     bool selectionCleared_{ false };

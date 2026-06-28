@@ -372,6 +372,54 @@ TEST_CASE("Step16 Left key orbits camera around current selection through Contro
     CHECK(contains(rendered.front().payload, "selectionId=celestia:star:Sol"));
 }
 
+TEST_CASE("Step16 G key navigates camera to current selection through Controller Model and View3D")
+{
+    celestia::runtime::controller::ControllerService controller("step16-controller-interaction");
+    celestia::runtime::model::ModelService model("step16-controller-interaction");
+    celestia::runtime::view3d::View3DHost view("step16-controller-interaction");
+
+    controller.handle(runtimeStart(RuntimeRole::Controller));
+    model.handle(runtimeStart(RuntimeRole::Model));
+    view.handle(runtimeStart(RuntimeRole::View));
+
+    const auto selectCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
+        keyDown("H"),
+        RuntimeRole::View,
+        RuntimeRole::Controller));
+    REQUIRE(selectCommands.size() == 1);
+    model.handle(selectCommands.front());
+
+    const auto gotoCommands = controller.handle(celestia::runtime::protocol::viewInputEnvelope(
+        keyDown("G"),
+        RuntimeRole::View,
+        RuntimeRole::Controller));
+
+    REQUIRE(gotoCommands.size() == 1);
+    CHECK(gotoCommands.front().kind == RuntimeMessageKind::Command);
+    CHECK(gotoCommands.front().targetRole == RuntimeRole::Model);
+    CHECK(gotoCommands.front().name == "model.gotoObject");
+    CHECK(contains(gotoCommands.front().payload, "target=currentSelection"));
+    CHECK(contains(gotoCommands.front().payload, "distance=2"));
+    CHECK(contains(gotoCommands.front().payload, "view=celestia.view3d.opengl"));
+    CHECK(contains(gotoCommands.front().payload, "command=navigation.gotoObject"));
+
+    const auto modelFrame = model.handle(gotoCommands.front());
+    REQUIRE(modelFrame.kind == RuntimeMessageKind::ViewFrame);
+    REQUIRE(modelFrame.name == celestia::runtime::protocol::SceneFrameMessageName);
+
+    const auto scene = celestia::runtime::protocol::deserializeSceneFrame(modelFrame.payload);
+    REQUIRE(scene.has_value());
+    CHECK(scene->selection.id == "celestia:star:Sol");
+    CHECK(scene->camera.position[2] == doctest::Approx(2.0));
+    CHECK(scene->observer.position[2] == doctest::Approx(2.0));
+
+    const auto rendered = view.handle(modelFrame);
+    REQUIRE(rendered.size() == 1);
+    CHECK(rendered.front().name == "view.frameRendered");
+    CHECK(contains(rendered.front().payload, "cameraPositionZ=2"));
+    CHECK(contains(rendered.front().payload, "selectionId=celestia:star:Sol"));
+}
+
 TEST_CASE("Step16 RuntimeSession view.input route accepts typed model commands")
 {
     const auto source = readSourceFile("src/celruntime/process/runtimesession.cpp");
