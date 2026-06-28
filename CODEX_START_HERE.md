@@ -172,19 +172,27 @@ Task 3 complete locally:
 - DataPlane-eligible resources are counted when kind is eligible and dataPlaneKey is parseable.
 - Legacy arbitrary dataPlaneKey values remain cache keys without being counted as DataPlane-eligible.
 
+Task 4 complete locally:
+- Real Model resource ids and resolver cache keys are stable across sampled frames.
+- No production-code stabilization was required for RealModelBackend or SceneExtractor.
+
 Latest focused verification:
 - Step17 ResourceRef resolver: 1/1 passed.
 - Step17 View3DHost missing/invalid resources: 1/1 passed.
 - Step17 DataPlane bridge: 3/3 passed.
+- Step17 real Model resource stability guard: 1/1 passed.
 - Step15 View3D plus Step17 spot check: 8/8 passed.
-- Step12-17 protocol/runtime broad check: 49/49 passed.
+- Step12-17 protocol/runtime broad check: 50/50 passed.
 - MVC dependency scan passed.
 - MVC CMake target scan passed.
 - Forbidden terminology scan passed.
 - git diff --check reported CRLF warnings only.
 
-Continue with Step17 Task 4:
-- Real Model resources keep stable ids and cache keys across frames.
+Continue with Step17 Task 5:
+- Run final Step17 focused verification.
+- Run broad Step12-17 verification.
+- Build celestia-sdl.
+- Run Quick screenshot/runtime regression.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:

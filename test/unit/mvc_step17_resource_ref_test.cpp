@@ -2,10 +2,14 @@
 
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <string>
 #include <string_view>
 #include <utility>
 
+#include <celruntime/model/modelsnapshot.h>
+#include <celruntime/model/realmodelbackend.h>
+#include <celruntime/model/sceneextractor.h>
 #include <celruntime/protocol/envelope.h>
 #include <celruntime/protocol/sceneprotocol.h>
 #include <celruntime/view3d/view3dhost.h>
@@ -21,6 +25,12 @@ makeContentRoot()
     std::filesystem::create_directories(root / "textures");
     std::ofstream(root / "textures" / "earth.png").put('x');
     return root;
+}
+
+std::filesystem::path
+realContentRoot()
+{
+    return std::filesystem::current_path().parent_path().parent_path() / "run-full";
 }
 
 celestia::runtime::protocol::ResourceRef
@@ -48,6 +58,21 @@ bool
 contains(std::string_view text, std::string_view token)
 {
     return text.find(token) != std::string_view::npos;
+}
+
+std::map<std::string, std::string>
+resourceCacheKeys(const celestia::runtime::protocol::SceneFrame& frame)
+{
+    std::map<std::string, std::string> keys;
+    const auto resolved = celestia::runtime::view3d::resolveSceneResources(frame, realContentRoot());
+    for (const auto& resource : resolved)
+    {
+        CHECK_FALSE(resource.resource.id.empty());
+        CHECK_FALSE(resource.resource.kind.empty());
+        CHECK_FALSE(resource.cacheKey.empty());
+        keys.emplace(resource.resource.id, resource.cacheKey);
+    }
+    return keys;
 }
 
 } // end unnamed namespace
@@ -111,6 +136,35 @@ TEST_CASE("Step17 View3DHost reports missing and invalid resources")
     CHECK(contains(responses[1].payload, "id=res:texture:missing"));
     CHECK(responses[2].name == "view.resourceMissing");
     CHECK(contains(responses[2].payload, "id=res:texture:absolute"));
+}
+
+TEST_CASE("Step17 real Model resources keep stable ids and cache keys across frames")
+{
+    REQUIRE(std::filesystem::exists(realContentRoot() / "celestia.cfg"));
+    REQUIRE(std::filesystem::exists(realContentRoot() / "data" / "stars.dat"));
+
+    auto backend = celestia::runtime::model::createRealModelBackend();
+    REQUIRE(backend != nullptr);
+
+    celestia::runtime::model::RuntimeDataPaths paths;
+    paths.dataRoot = realContentRoot().string();
+    REQUIRE(backend->load(paths));
+
+    backend->setTime(2451545.0);
+    const auto first = celestia::runtime::model::extractSceneFrame(
+        "step17-real-resource",
+        backend->snapshot());
+
+    backend->step(60.0);
+    const auto second = celestia::runtime::model::extractSceneFrame(
+        "step17-real-resource",
+        backend->snapshot());
+
+    const auto firstKeys = resourceCacheKeys(first);
+    const auto secondKeys = resourceCacheKeys(second);
+
+    REQUIRE_FALSE(firstKeys.empty());
+    CHECK(firstKeys == secondKeys);
 }
 
 TEST_SUITE_END();
