@@ -138,13 +138,19 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step16 extension - selection/navigation/advanced camera commands
+Step17 - ResourceRef and DataPlane stabilization
 ```
 
 Formal execution plan:
 
 ```text
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
+```
+
+Detailed next Step17 plan:
+
+```text
+DOC\CODEX_DOC\04_研制计划\34-WBS-0.34-Celestia标准MVC解耦-Step17资源引用与DataPlane方案.md
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:
