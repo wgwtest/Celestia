@@ -205,6 +205,12 @@ Step17 completion boundary:
 Continue with Step18:
 - View3D visual fidelity work.
 - Do not claim historical View3D renderer parity until Step18 has direct screenshot evidence.
+
+Detailed Step18 plan:
+
+```text
+DOC\CODEX_DOC\04_研制计划\35-WBS-0.35-Celestia标准MVC解耦-Step18保真验证与发布硬化方案.md
+```
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:
