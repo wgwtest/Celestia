@@ -28,6 +28,14 @@ Full baseline/current comparison:
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
 ```
 
+Step18 cross-process View3D evidence gate:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
+```
+
+`Step18` runs the current SDL screenshot matrix and strengthens multi-process View3D runtime-smoke log assertions. It writes a machine report under the artifact root and copies the report into `DOC/CODEX_DOC/06_测试文档/03_机测记录/`. The runtime-smoke path also covers UTF-8 BOM config loading and async stdout/stderr draining, because View3D frame payload logs are large enough to expose pipe deadlocks.
+
 ## Useful Options
 
 ```powershell

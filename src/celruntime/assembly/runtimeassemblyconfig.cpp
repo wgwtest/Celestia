@@ -35,6 +35,10 @@ viewHostName(std::string_view viewId)
 std::string_view
 trim(std::string_view text)
 {
+    constexpr std::string_view utf8Bom{ "\xef\xbb\xbf", 3 };
+    if (text.size() >= utf8Bom.size() && text.substr(0, utf8Bom.size()) == utf8Bom)
+        text.remove_prefix(utf8Bom.size());
+
     while (!text.empty() && (text.front() == ' ' || text.front() == '\t' || text.front() == '\r'))
         text.remove_prefix(1);
     while (!text.empty() && (text.back() == ' ' || text.back() == '\t' || text.back() == '\r'))

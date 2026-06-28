@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("SelfTest", "InitBaseline", "Quick", "Full")]
+    [ValidateSet("SelfTest", "InitBaseline", "Quick", "Full", "Step18")]
     [string] $Mode = "Quick",
 
     [string] $BaselineCommit = "44ec265659d2aa666cbf7546e36e4dde471d54ba",
@@ -398,18 +398,27 @@ function Invoke-ProcessWithTimeout {
 
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $startInfo
+
     $started = $process.Start()
     if (-not $started) {
         throw "Failed to start process: $FilePath"
     }
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
 
     if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-        $process.Kill()
+        if (-not $process.HasExited) {
+            $process.Kill()
+        }
+        $process.WaitForExit()
+        $stdoutTask.Result | Out-File -FilePath $StdoutPath -Encoding utf8
+        $stderrTask.Result | Out-File -FilePath $StderrPath -Encoding utf8
         throw "Process timed out after $TimeoutSeconds seconds: $FilePath"
     }
+    $process.WaitForExit()
 
-    $stdout = $process.StandardOutput.ReadToEnd()
-    $stderr = $process.StandardError.ReadToEnd()
+    $stdout = $stdoutTask.Result
+    $stderr = $stderrTask.Result
     $stdout | Out-File -FilePath $StdoutPath -Encoding utf8
     $stderr | Out-File -FilePath $StderrPath -Encoding utf8
 
@@ -588,7 +597,8 @@ function Invoke-ScreenshotSet {
 function Invoke-RuntimeSmoke {
     param(
         [string] $BuildDir,
-        [string] $RunRoot
+        [string] $RunRoot,
+        [switch] $RequireRuntimeDetails
     )
 
     if ($SkipRuntimeSmoke) {
@@ -623,15 +633,38 @@ function Invoke-RuntimeSmoke {
         $configText | Out-File -FilePath $runtimeConfig -Encoding utf8
 
         Write-Step "runtime smoke $configName"
+        $stdoutPath = Join-Path $logDir ($configName + ".stdout.log")
+        $stderrPath = Join-Path $logDir ($configName + ".stderr.log")
         Invoke-ProcessWithTimeout `
             -FilePath $exe `
             -ArgumentList @("--runtime-config", $runtimeConfig) `
             -WorkingDirectory $logDir `
-            -StdoutPath (Join-Path $logDir ($configName + ".stdout.log")) `
-            -StderrPath (Join-Path $logDir ($configName + ".stderr.log")) `
+            -StdoutPath $stdoutPath `
+            -StderrPath $stderrPath `
             -TimeoutSeconds 30
 
-        $results.Add([pscustomobject]@{ Name = $configName; Status = "pass"; Detail = $runtimeConfig })
+        $status = "pass"
+        $detail = $runtimeConfig
+        if ($RequireRuntimeDetails) {
+            $stdout = Get-Content -LiteralPath $stdoutPath -Raw
+            foreach ($token in @("all hosts stopped")) {
+                if ($stdout -notmatch [regex]::Escape($token)) {
+                    $status = "fail"
+                    $detail = "missing token: $token; log=$stdoutPath"
+                }
+            }
+
+            if ($configName -match "3d") {
+                foreach ($token in @("view.frameRendered count=", "view.frameRendered payload=", "bodyCount=", "resourceCount=")) {
+                    if ($stdout -notmatch [regex]::Escape($token)) {
+                        $status = "fail"
+                        $detail = "missing token: $token; log=$stdoutPath"
+                    }
+                }
+            }
+        }
+
+        $results.Add([pscustomobject]@{ Name = $configName; Status = $status; Detail = $detail })
     }
 
     return $results
@@ -729,15 +762,27 @@ function Write-Report {
         $lines.Add("")
     }
 
-    $lines.Add("## Claim Boundary")
-    $lines.Add("")
-    $lines.Add('A passing `Full` run supports only this claim:')
-    $lines.Add("")
-    $lines.Add('```text')
-    $lines.Add("No visible regression was found in the ordinary unified SDL exe / in-process main path compared with the fixed pre-MVC baseline covered by these scenes.")
-    $lines.Add('```')
-    $lines.Add("")
-    $lines.Add("It does not prove exhaustive Celestia feature parity, pixel-perfect rendering, or Qt/Win32 frontend parity.")
+    if ($RunMode -eq "Step18") {
+        $lines.Add("## Step18 Claim Boundary")
+        $lines.Add("")
+        $lines.Add('A passing `Step18` run supports only this claim:')
+        $lines.Add("")
+        $lines.Add('```text')
+        $lines.Add("Step18 found no failure in the current SDL screenshot matrix or in the strengthened multi-process View3D runtime smoke checks covered by this report.")
+        $lines.Add('```')
+        $lines.Add("")
+        $lines.Add("It does not prove complete historical renderer parity, exhaustive Celestia feature parity, pixel-perfect rendering, or Qt/Win32 frontend parity.")
+    } else {
+        $lines.Add("## Claim Boundary")
+        $lines.Add("")
+        $lines.Add('A passing `Full` run supports only this claim:')
+        $lines.Add("")
+        $lines.Add('```text')
+        $lines.Add("No visible regression was found in the ordinary unified SDL exe / in-process main path compared with the fixed pre-MVC baseline covered by these scenes.")
+        $lines.Add('```')
+        $lines.Add("")
+        $lines.Add("It does not prove exhaustive Celestia feature parity, pixel-perfect rendering, or Qt/Win32 frontend parity.")
+    }
 
     $reportPath = Join-Path $Context.RunRoot "machine-report.md"
     $lines | Out-File -FilePath $reportPath -Encoding utf8
@@ -752,6 +797,33 @@ function Write-Report {
     }
 
     return $reportPath
+}
+
+function Get-RuntimeSmokeStatus {
+    param([object[]] $RuntimeSmoke)
+
+    if (@($RuntimeSmoke | Where-Object { $_.Status -eq "fail" }).Count -gt 0) {
+        return "fail"
+    }
+    if (@($RuntimeSmoke | Where-Object { $_.Status -eq "warn" }).Count -gt 0) {
+        return "warn"
+    }
+    return "pass"
+}
+
+function Copy-Step18ReportToDocs {
+    param(
+        [object] $Context,
+        [string] $ReportPath
+    )
+
+    $testDocDir = "06_" + (New-UnicodeText @(0x6D4B, 0x8BD5, 0x6587, 0x6863))
+    $machineRecordDir = "03_" + (New-UnicodeText @(0x673A, 0x6D4B, 0x8BB0, 0x5F55))
+    $docReportRoot = Join-Path (Join-Path (Join-Path $repoRoot "DOC\CODEX_DOC") $testDocDir) $machineRecordDir
+    New-Directory $docReportRoot
+    $docReport = Join-Path $docReportRoot ($Context.Timestamp + "-Celestia-Step18-machine-report.md")
+    Copy-Item -LiteralPath $ReportPath -Destination $docReport -Force
+    return $docReport
 }
 
 function Ensure-BaselineWorktree {
@@ -877,6 +949,30 @@ function Invoke-Full {
     Write-Step "full report: $report"
 }
 
+function Invoke-Step18 {
+    $context = New-RunContext "Step18"
+    if (-not $SkipBuild) {
+        Invoke-CMakeAndCTest -SourceRoot $repoRoot -BuildDir $CurrentBuildDir -LogRoot (Join-Path $context.LogRoot "current-build")
+    }
+
+    Invoke-MvcScans -LogRoot (Join-Path $context.LogRoot "mvc-scans")
+    $runtimeSmoke = Invoke-RuntimeSmoke -BuildDir $CurrentBuildDir -RunRoot $context.RunRoot -RequireRuntimeDetails
+    $screens = Invoke-ScreenshotSet -Label "current" -BuildDir $CurrentBuildDir -RunRoot $context.RunRoot
+    Assert-NoResidualProcesses
+
+    $status = Get-RuntimeSmokeStatus $runtimeSmoke
+    if (@($screens | Where-Object { $_.Status -eq "fail" }).Count -gt 0) {
+        $status = "fail"
+    } elseif ($status -eq "pass" -and @($screens | Where-Object { $_.Status -eq "warn" }).Count -gt 0) {
+        $status = "warn"
+    }
+
+    $report = Write-Report -Context $context -RunMode "Step18" -CurrentScreens $screens -RuntimeSmoke $runtimeSmoke -ExtraStatus $status
+    $docReport = Copy-Step18ReportToDocs -Context $context -ReportPath $report
+    Write-Step "step18 report: $report"
+    Write-Step "step18 doc report: $docReport"
+}
+
 Resolve-RegressionDefaults
 New-Directory $ArtifactsRoot
 
@@ -892,5 +988,8 @@ switch ($Mode) {
     }
     "Full" {
         Invoke-Full
+    }
+    "Step18" {
+        Invoke-Step18
     }
 }

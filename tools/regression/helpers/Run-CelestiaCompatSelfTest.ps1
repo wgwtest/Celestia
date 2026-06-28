@@ -21,6 +21,26 @@ function Assert-Exists {
 Assert-Exists (Join-Path $regressionRoot "run_celestia_compat_regression.ps1") "Missing regression runner"
 Assert-Exists (Join-Path $scriptRoot "image_metrics.py") "Missing image metrics helper"
 
+$runnerText = Get-Content -LiteralPath (Join-Path $regressionRoot "run_celestia_compat_regression.ps1") -Raw
+if ($runnerText -notmatch 'ValidateSet\("SelfTest", "InitBaseline", "Quick", "Full", "Step18"\)') {
+    throw "Regression runner does not expose Step18 mode"
+}
+foreach ($required in @("Invoke-Step18", "Copy-Step18ReportToDocs", "Get-RuntimeSmokeStatus")) {
+    if ($runnerText -notmatch $required) {
+        throw "Regression runner is missing Step18 helper: $required"
+    }
+}
+foreach ($required in @("ReadToEndAsync")) {
+    if ($runnerText -notmatch $required) {
+        throw "Regression runner does not drain redirected process output asynchronously: $required"
+    }
+}
+foreach ($required in @("Step18 Claim Boundary", "does not prove complete historical renderer parity")) {
+    if ($runnerText -notmatch [regex]::Escape($required)) {
+        throw "Step18 report boundary text is missing: $required"
+    }
+}
+
 $scenarioRoot = Join-Path $regressionRoot "scenarios"
 Assert-Exists $scenarioRoot "Missing scenario directory"
 

@@ -121,6 +121,48 @@ TEST_CASE("RuntimeAssemblyConfig loads a runtime config file")
     std::filesystem::remove(configPath);
 }
 
+TEST_CASE("RuntimeAssemblyConfig loads a UTF-8 BOM runtime config file")
+{
+    const auto configPath = std::filesystem::temp_directory_path() /
+        "celestia-step10-runtime-config-bom.yaml";
+    {
+        std::ofstream output(configPath, std::ios::binary);
+        constexpr unsigned char bom[] = { 0xef, 0xbb, 0xbf };
+        output.write(reinterpret_cast<const char*>(bom), sizeof(bom));
+        output <<
+            "session:\n"
+            "  id: step10-file-config-bom\n"
+            "  durationMs: 6000\n"
+            "  tickMs: 125\n"
+            "resources:\n"
+            "  contentRoot: .\n"
+            "transport:\n"
+            "  control:\n"
+            "    kind: local-socket\n"
+            "view:\n"
+            "  id: celestia.view2d.debug\n"
+            "  switchAfterMs: 2000\n"
+            "  switchView: celestia.view3d.opengl\n";
+    }
+
+    std::string error;
+    const auto config = celestia::runtime::assembly::loadRuntimeAssemblyConfig(
+        configPath,
+        buildRoot() / "src" / "celruntime",
+        buildRoot(),
+        &error);
+
+    REQUIRE_MESSAGE(config.has_value(), error);
+    CHECK(config->session.id == "step10-file-config-bom");
+    CHECK(config->session.durationMilliseconds == 6000);
+    CHECK(config->session.tickMilliseconds == 125);
+    CHECK(config->view.id == std::string(celestia::runtime::RuntimeConfig::Debug2DViewId));
+    CHECK(config->view.switchAfterMilliseconds == 2000);
+    CHECK(config->view.switchViewId == std::string(celestia::runtime::RuntimeConfig::DefaultViewId));
+
+    std::filesystem::remove(configPath);
+}
+
 TEST_CASE("RuntimeConfig accepts runtime config file arguments")
 {
     celestia::runtime::RuntimeConfig runtimeConfig;
