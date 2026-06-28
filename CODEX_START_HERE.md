@@ -138,7 +138,7 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step17 - ResourceRef and DataPlane stabilization
+Step18 - View3D fidelity report boundary and visual evidence expansion
 ```
 
 Formal execution plan:
@@ -201,6 +201,7 @@ Latest focused verification:
 Step17 completion boundary:
 - ResourceRef safety, cache key, resolution state, missing/invalid reporting, DataPlaneRef bridge, and real Model resource stability are complete on this branch.
 - Model-facing ResourceRef and resource projection outputs are now treated as frozen unless a later bug fix includes focused tests and compatibility regression evidence.
+```
 
 Continue with Step18:
 - View3D visual fidelity work.
@@ -211,6 +212,35 @@ Detailed Step18 plan:
 ```text
 DOC\CODEX_DOC\04_研制计划\35-WBS-0.35-Celestia标准MVC解耦-Step18保真验证与发布硬化方案.md
 ```
+
+Current Step18 implementation status:
+
+```text
+Task 1 complete locally:
+- Step18 regression mode exists in tools/regression/run_celestia_compat_regression.ps1.
+- Step18 copies its machine report into DOC/CODEX_DOC/06_测试文档/03_机测记录/.
+- Runtime smoke detail checks require all hosts stopped plus View3D frameRendered payload/count fields.
+- Runtime config YAML parser accepts UTF-8 BOM files so session id/duration are not silently dropped.
+- Regression process helper drains redirected stdout/stderr asynchronously to avoid View3D payload pipe deadlocks.
+
+Task 2 complete locally:
+- Step18 machine reports now use a Step18-specific Claim Boundary.
+- Full mode retains the ordinary unified SDL compatibility claim boundary.
+- Step18 conclusion skeleton exists under DOC/CODEX_DOC/06_测试文档/04_结论报告/.
+
+Latest Step18 verification:
+- SelfTest passed.
+- UTF-8 BOM runtime config unit: 1/1 test case, 7/7 assertions passed.
+- Step18 full mode passed after build and ctest.
+- Current SDL screenshots: 8/8 pass.
+- Runtime smoke configs: 6/6 pass.
+- Latest Step18 artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-100207-a4aadbd-step18\machine-report.md
+- Latest Step18 doc report: DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-28-100207-Celestia-Step18-machine-report.md
+
+Continue with Step18 Task 3:
+- Expand visual scenario coverage only where it adds meaningful confidence.
+- Keep new scenarios tied to concrete user-visible capability claims.
+- Keep the boundary explicit: no claim of complete historical View3D renderer parity.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:
