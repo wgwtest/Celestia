@@ -8,7 +8,8 @@ This outline validates Step18 evidence only. It does not declare complete histor
 
 ```text
 Step18 regression mode passes.
-Current SDL screenshot matrix passes.
+Current SDL screenshot matrix has at least 10 scenarios and passes.
+The matrix includes selection/follow/goto and resource fallback coverage scenes.
 Multi-process View3D runtime smoke logs contain view.frameRendered count and payload.
 Runtime smoke logs contain bodyCount and resourceCount for 3D configs.
 No residual Celestia runtime processes remain after the run.

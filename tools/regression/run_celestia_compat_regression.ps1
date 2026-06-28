@@ -439,8 +439,8 @@ function Get-Scenarios {
     }
 
     $scenarios = @(Get-ChildItem -LiteralPath $scenarioRoot -Filter "*.cel" -File | Sort-Object Name)
-    if ($scenarios.Count -ne 8) {
-        throw "Expected 8 scenarios, found $($scenarios.Count)"
+    if ($scenarios.Count -lt 10) {
+        throw "Expected at least 10 scenarios for Step18, found $($scenarios.Count)"
     }
 
     return $scenarios

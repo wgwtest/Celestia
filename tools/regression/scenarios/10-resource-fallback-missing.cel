@@ -1,0 +1,15 @@
+{
+    timerate { rate 0 }
+    time { jd 2451545.0 }
+    labels { set "planets" clear "minorplanets|stars|constellations" }
+    renderflags { set "stars|planets|orbits" clear "constellations|cloudmaps|galaxies" }
+
+    select { object "Sol/Mars" }
+    goto { time 0.0 distance 8 up [ 0 1 0 ] upframe "equatorial" }
+    center { time 0.2 }
+    print { text "Celestia compatibility regression: resource fallback coverage scene" origin "bottomleft" row -4 column 2 duration 5 }
+    wait { duration 1.5 }
+
+    capture { filename "$CAPTURE_FILE$" type "png" }
+    exit {}
+}

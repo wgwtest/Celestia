@@ -45,8 +45,8 @@ $scenarioRoot = Join-Path $regressionRoot "scenarios"
 Assert-Exists $scenarioRoot "Missing scenario directory"
 
 $scenarios = @(Get-ChildItem -LiteralPath $scenarioRoot -Filter "*.cel" -File | Sort-Object Name)
-if ($scenarios.Count -ne 8) {
-    throw "Expected 8 CEL scenarios, found $($scenarios.Count)"
+if ($scenarios.Count -lt 10) {
+    throw "Expected at least 10 CEL scenarios for Step18, found $($scenarios.Count)"
 }
 
 foreach ($scenario in $scenarios) {
