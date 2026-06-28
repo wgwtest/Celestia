@@ -176,23 +176,35 @@ Task 4 complete locally:
 - Real Model resource ids and resolver cache keys are stable across sampled frames.
 - No production-code stabilization was required for RealModelBackend or SceneExtractor.
 
+Task 5 complete locally:
+- Step17 focused verification passed.
+- Step12-17 broad verification passed.
+- celestia-sdl build passed.
+- Quick screenshot/runtime regression passed.
+
 Latest focused verification:
 - Step17 ResourceRef resolver: 1/1 passed.
 - Step17 View3DHost missing/invalid resources: 1/1 passed.
 - Step17 DataPlane bridge: 3/3 passed.
 - Step17 real Model resource stability guard: 1/1 passed.
+- Step17/ResourceRef/DataPlane final focused check: 11/11 passed.
 - Step15 View3D plus Step17 spot check: 8/8 passed.
 - Step12-17 protocol/runtime broad check: 50/50 passed.
 - MVC dependency scan passed.
 - MVC CMake target scan passed.
 - Forbidden terminology scan passed.
 - git diff --check reported CRLF warnings only.
+- celestia-sdl build passed.
+- Quick compatibility regression passed: 8/8 screenshots, 6/6 runtime smoke.
+- Quick report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-092415-58952eb-quick\machine-report.md
 
-Continue with Step17 Task 5:
-- Run final Step17 focused verification.
-- Run broad Step12-17 verification.
-- Build celestia-sdl.
-- Run Quick screenshot/runtime regression.
+Step17 completion boundary:
+- ResourceRef safety, cache key, resolution state, missing/invalid reporting, DataPlaneRef bridge, and real Model resource stability are complete on this branch.
+- Model-facing ResourceRef and resource projection outputs are now treated as frozen unless a later bug fix includes focused tests and compatibility regression evidence.
+
+Continue with Step18:
+- View3D visual fidelity work.
+- Do not claim historical View3D renderer parity until Step18 has direct screenshot evidence.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:
