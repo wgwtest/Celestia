@@ -166,19 +166,25 @@ Task 2 complete locally:
 - View3DHost frameRendered payload reports invalidResourceCount and dataPlaneEligibleResourceCount.
 - View3DHost emits view.resourceMissing events for required missing and invalid resources.
 
+Task 3 complete locally:
+- ResourceRef.dataPlaneKey can carry a serialized DataPlaneRef.
+- View3D resource resolver parses DataPlaneRef values.
+- DataPlane-eligible resources are counted when kind is eligible and dataPlaneKey is parseable.
+- Legacy arbitrary dataPlaneKey values remain cache keys without being counted as DataPlane-eligible.
+
 Latest focused verification:
 - Step17 ResourceRef resolver: 1/1 passed.
 - Step17 View3DHost missing/invalid resources: 1/1 passed.
-- Step15 View3D plus Step17 spot check: 5/5 passed.
-- Step12-17 protocol/runtime broad check: 46/46 passed.
+- Step17 DataPlane bridge: 3/3 passed.
+- Step15 View3D plus Step17 spot check: 8/8 passed.
+- Step12-17 protocol/runtime broad check: 49/49 passed.
 - MVC dependency scan passed.
 - MVC CMake target scan passed.
 - Forbidden terminology scan passed.
 - git diff --check reported CRLF warnings only.
 
-Continue with Step17 Task 3:
-- ResourceRef.dataPlaneKey carries serialized DataPlaneRef.
-- View3D resource resolver marks DataPlane-eligible resources and parses DataPlaneRef values.
+Continue with Step17 Task 4:
+- Real Model resources keep stable ids and cache keys across frames.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:

@@ -47,6 +47,9 @@ buildView3DSceneState(const protocol::SceneFrame& frame,
             ++state.missingRequiredResourceCount;
         else if (resource.status == View3DResourceStatus::Invalid)
             ++state.invalidResourceCount;
+
+        if (resource.dataPlaneEligible)
+            ++state.dataPlaneEligibleResourceCount;
     }
 
     return state;

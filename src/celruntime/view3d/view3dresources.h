@@ -10,9 +10,12 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
+#include <celruntime/dataplane/dataplaneref.h>
 #include <celruntime/protocol/sceneprotocol.h>
 
 namespace celestia::runtime::view3d
@@ -33,7 +36,12 @@ struct View3DResolvedResource
     bool exists{ false };
     View3DResourceStatus status{ View3DResourceStatus::MissingOptional };
     std::string cacheKey;
+    bool dataPlaneEligible{ false };
+    std::optional<dataplane::DataPlaneRef> dataPlaneRef;
 };
+
+std::optional<dataplane::DataPlaneRef>
+dataPlaneRefFromResource(const protocol::ResourceRef& resource);
 
 std::vector<View3DResolvedResource>
 resolveSceneResources(const protocol::SceneFrame& frame,

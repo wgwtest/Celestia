@@ -14,6 +14,8 @@
 #include <string_view>
 #include <utility>
 
+#include <celruntime/dataplane/dataplaneref.h>
+
 namespace celestia::runtime::view3d
 {
 namespace
@@ -52,7 +54,25 @@ resourceCacheKey(const protocol::ResourceRef& resource)
     return resource.package + "|" + resource.kind + "|" + resource.relativePath;
 }
 
+bool
+isDataPlaneEligibleResourceKind(std::string_view kind)
+{
+    return kind == "texture" ||
+           kind == "mesh" ||
+           kind == "catalog" ||
+           kind == "orbit-sample" ||
+           kind == "label-atlas";
+}
+
 } // end unnamed namespace
+
+std::optional<dataplane::DataPlaneRef>
+dataPlaneRefFromResource(const protocol::ResourceRef& resource)
+{
+    if (resource.dataPlaneKey.empty())
+        return std::nullopt;
+    return dataplane::deserializeDataPlaneRef(resource.dataPlaneKey);
+}
 
 std::vector<View3DResolvedResource>
 resolveSceneResources(const protocol::SceneFrame& frame,
@@ -66,6 +86,9 @@ resolveSceneResources(const protocol::SceneFrame& frame,
         View3DResolvedResource entry;
         entry.resource = resource;
         entry.cacheKey = resourceCacheKey(resource);
+        entry.dataPlaneRef = dataPlaneRefFromResource(resource);
+        entry.dataPlaneEligible = isDataPlaneEligibleResourceKind(resource.kind) &&
+                                  entry.dataPlaneRef.has_value();
 
         const std::filesystem::path relative{ resource.relativePath };
         if (!isSafeResourcePath(resource.relativePath, relative))
