@@ -10,6 +10,7 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include <celruntime/protocol/sceneprotocol.h>
@@ -17,11 +18,21 @@
 namespace celestia::runtime::view3d
 {
 
+enum class View3DResourceStatus
+{
+    Resolved,
+    MissingOptional,
+    MissingRequired,
+    Invalid,
+};
+
 struct View3DResolvedResource
 {
     protocol::ResourceRef resource;
     std::filesystem::path resolvedPath;
     bool exists{ false };
+    View3DResourceStatus status{ View3DResourceStatus::MissingOptional };
+    std::string cacheKey;
 };
 
 std::vector<View3DResolvedResource>

@@ -10,10 +10,49 @@
 #include "view3dresources.h"
 
 #include <filesystem>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace celestia::runtime::view3d
 {
+namespace
+{
+
+bool
+hasWindowsRoot(std::string_view path)
+{
+    return path.size() >= 2 && path[1] == ':';
+}
+
+bool
+isSafeResourcePath(std::string_view resourcePath, const std::filesystem::path& relative)
+{
+    if (resourcePath.empty() || relative.empty() || !relative.is_relative())
+        return false;
+    if (resourcePath.front() == '/' || resourcePath.front() == '\\' || hasWindowsRoot(resourcePath))
+        return false;
+
+    for (const auto& part : relative)
+    {
+        if (part == "..")
+            return false;
+    }
+
+    return true;
+}
+
+std::string
+resourceCacheKey(const protocol::ResourceRef& resource)
+{
+    if (!resource.dataPlaneKey.empty())
+        return resource.dataPlaneKey;
+    if (!resource.contentHash.empty())
+        return resource.contentHash;
+    return resource.package + "|" + resource.kind + "|" + resource.relativePath;
+}
+
+} // end unnamed namespace
 
 std::vector<View3DResolvedResource>
 resolveSceneResources(const protocol::SceneFrame& frame,
@@ -26,13 +65,27 @@ resolveSceneResources(const protocol::SceneFrame& frame,
     {
         View3DResolvedResource entry;
         entry.resource = resource;
+        entry.cacheKey = resourceCacheKey(resource);
 
         const std::filesystem::path relative{ resource.relativePath };
-        if (!contentRoot.empty() && !relative.empty() && relative.is_relative())
+        if (!isSafeResourcePath(resource.relativePath, relative))
+        {
+            entry.status = View3DResourceStatus::Invalid;
+            resolved.push_back(std::move(entry));
+            continue;
+        }
+
+        if (!contentRoot.empty())
         {
             entry.resolvedPath = contentRoot / relative;
             entry.exists = std::filesystem::exists(entry.resolvedPath);
         }
+
+        entry.status = entry.exists
+            ? View3DResourceStatus::Resolved
+            : (resource.required
+                   ? View3DResourceStatus::MissingRequired
+                   : View3DResourceStatus::MissingOptional);
 
         resolved.push_back(std::move(entry));
     }

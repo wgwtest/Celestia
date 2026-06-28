@@ -153,6 +153,28 @@ Detailed next Step17 plan:
 DOC\CODEX_DOC\04_研制计划\34-WBS-0.34-Celestia标准MVC解耦-Step17资源引用与DataPlane方案.md
 ```
 
+Current Step17 implementation status:
+
+```text
+Task 1 complete locally:
+- ResourceRef resolver reports Resolved, MissingRequired, and Invalid status.
+- ResourceRef resolver generates stable cache keys by dataPlaneKey, contentHash, then package|kind|relativePath.
+- ResourceRef resolver rejects absolute paths and traversal paths.
+
+Latest focused verification:
+- Step17 ResourceRef resolver: 1/1 passed.
+- Step15 View3D plus Step17 spot check: 4/4 passed.
+- Step12-17 protocol/runtime broad check: 45/45 passed.
+- MVC dependency scan passed.
+- MVC CMake target scan passed.
+- Forbidden terminology scan passed.
+- git diff --check reported CRLF warnings only.
+
+Continue with Step17 Task 2:
+- View3DSceneState invalidResourceCount and dataPlaneEligibleResourceCount.
+- View3DHost view.resourceMissing events for required missing and invalid resources.
+```
+
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:
 
 ```text

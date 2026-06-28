@@ -55,6 +55,7 @@ set(UNIT_TEST_SOURCES
   mvc_step14_real_scene_extractor_test.cpp
   mvc_step15_view3d_real_scene_test.cpp
   mvc_step16_controller_interaction_test.cpp
+  mvc_step17_resource_ref_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp
