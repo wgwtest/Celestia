@@ -216,37 +216,48 @@ DOC\CODEX_DOC\04_研制计划\35-WBS-0.35-Celestia标准MVC解耦-Step18保真�
 Current Step18 implementation status:
 
 ```text
-Task 1 complete locally:
+Task 1 complete:
 - Step18 regression mode exists in tools/regression/run_celestia_compat_regression.ps1.
 - Step18 copies its machine report into DOC/CODEX_DOC/06_测试文档/03_机测记录/.
 - Runtime smoke detail checks require all hosts stopped plus View3D frameRendered payload/count fields.
 - Runtime config YAML parser accepts UTF-8 BOM files so session id/duration are not silently dropped.
 - Regression process helper drains redirected stdout/stderr asynchronously to avoid View3D payload pipe deadlocks.
 
-Task 2 complete locally:
+Task 2 complete:
 - Step18 machine reports now use a Step18-specific Claim Boundary.
 - Full mode retains the ordinary unified SDL compatibility claim boundary.
 - Step18 conclusion skeleton exists under DOC/CODEX_DOC/06_测试文档/04_结论报告/.
 
-Task 3 complete locally:
+Task 3 complete:
 - SDL screenshot matrix now contains at least 10 scenarios.
 - Added 09-selection-follow-goto.cel.
 - Added 10-resource-fallback-missing.cel.
 - SelfTest and runner scenario-count gates now require at least 10 scenarios.
 
+Task 4 complete:
+- Final focused Step12-17 CTest gate passed: 50/50 tests.
+- Release build of celestia-sdl passed.
+- Step18 final evidence passed and was copied into the formal machine-record directory.
+- Quick regression passed after the final Step18 evidence run.
+- MVC dependency scan, MVC CMake target scan, terminology scan, and git diff whitespace check passed.
+
 Latest Step18 verification:
 - SelfTest passed.
 - UTF-8 BOM runtime config unit: 1/1 test case, 7/7 assertions passed.
-- Step18 full mode passed after build and ctest.
+- Step12-17 focused CTest: 50/50 pass.
+- celestia-sdl Release build passed.
+- Step18 final mode passed.
+- Quick mode passed.
 - Current SDL screenshots: 10/10 pass.
 - Runtime smoke configs: 6/6 pass.
-- Latest Step18 artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101051-a03ce27-step18\machine-report.md
-- Latest Step18 doc report: DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-28-101051-Celestia-Step18-machine-report.md
+- Latest Step18 artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101621-7b81fca-step18\machine-report.md
+- Latest Step18 doc report: DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-06-28-101621-Celestia-Step18-machine-report.md
+- Latest Quick artifact report: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101820-7b81fca-quick\machine-report.md
 
-Continue with Step18 Task 4:
-- Run final focused Step18 verification summary.
-- Update the Step18 conclusion with final status.
-- Keep the boundary explicit: no claim of complete historical View3D renderer parity.
+Step18 completion boundary:
+- Step18 proves the current evidence gate and expanded scenario matrix.
+- Step18 does not claim complete historical View3D renderer parity.
+- Next MVC work should decide the next implementation phase for deeper cross-process View3D behavior.
 ```
 
 Detailed completed Step13/Step14/Step15/Step16 interaction-loop plans:

@@ -2,12 +2,19 @@
 
 ## Status
 
-Step18 Task 1 has established a machine-verifiable evidence gate for current SDL screenshots and multi-process View3D runtime-smoke output.
+Step18 is complete for the current evidence-gate scope. It establishes a machine-verifiable check path for the current SDL screenshot matrix and multi-process View3D runtime-smoke output.
 
 Latest machine report:
 
 ```text
-DOC/CODEX_DOC/06_测试文档/03_机测记录/2026-06-28-101051-Celestia-Step18-machine-report.md
+DOC/CODEX_DOC/06_测试文档/03_机测记录/2026-06-28-101621-Celestia-Step18-machine-report.md
+```
+
+Latest artifact reports:
+
+```text
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101621-7b81fca-step18\machine-report.md
+D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101820-7b81fca-quick\machine-report.md
 ```
 
 ## Covered Evidence
@@ -20,6 +27,10 @@ Multi-process View3D runtime smoke logs contain view.frameRendered count and pay
 Runtime smoke logs contain bodyCount and resourceCount for 3D configs.
 UTF-8 BOM runtime config loading is covered by unit test.
 Redirected process stdout/stderr async draining is covered by self-test and Step18 runtime output.
+Step12-17 focused CTest gate passes with 50/50 tests.
+Release build of celestia-sdl passes.
+Quick regression passes after the final Step18 run.
+MVC dependency and CMake target scans pass.
 ```
 
 ## Claim Boundary
@@ -38,9 +49,10 @@ Qt or Win32 frontend parity has been proven.
 Every Celestia visual feature is covered.
 ```
 
-## Remaining Step18 Work
+## Final Step18 Boundary
 
 ```text
 Task 3 visual scenario expansion is complete.
-Task 4 can produce the final Step18 verification summary after all selected scenarios and checks pass.
+Task 4 final verification is complete.
+The remaining work is a later MVC phase for deeper cross-process View3D implementation, not additional Step18 evidence-gate work.
 ```
