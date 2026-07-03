@@ -102,15 +102,17 @@
 
 ### 3.1 章节顺序原则
 
-本文章节顺序按“启动编排 -> 运行会话根对象 -> Model 聚合入口 -> 关键运行状态 -> 对象目录和对象族 -> 横切管理器 -> View/Runtime 消费侧”展开。
+本文章节顺序是一种源码分析视角，不是已经确认的目标架构。它用于把当前源码事实讲清楚，后续是否按这些视角抽象正式架构层，需要另行设计和验证。
 
-因此:
+本文暂按“启动编排视角 -> 运行会话根对象 -> Model 聚合入口 -> 关键运行状态 -> 对象目录和对象族 -> 横切管理器 -> View/Runtime 消费侧”展开。
 
-- 先讲启动编排层，因为 `Universe`、`StarDatabase`、`DSODatabase`、`SolarSystemCatalog`、`Simulation` 的创建和移交都发生在这里。
-- 再讲 `Simulation`，因为初始化完成后它是运行会话根对象。
-- 再讲 `Universe`，因为它是被 `Simulation` 持有的 Model 聚合入口。
-- `Observer`、`Timeline`、`ReferenceFrame` 分开讲，避免把 Controller 状态和 Model 计算能力混成一个笼统章节。
-- `BodyFeaturesManager` 不放在核心所有权对象图中，它是横切管理器，单独成章。
+采用这个顺序的原因是:
+
+- 先讲启动编排视角，因为 `Universe`、`StarDatabase`、`DSODatabase`、`SolarSystemCatalog`、`Simulation` 的创建和移交都发生在这条流程中；但这不表示当前源码已经有一个独立的启动编排层。
+- 再讲 `Simulation`，因为初始化完成后它是运行会话根对象，尤其负责时间推进、观察者、选择和运行控制。
+- 再讲 `Universe`，因为它是被 `Simulation` 持有的 Model 聚合入口，负责对象目录和查找。
+- `Observer`、`Timeline`、`ReferenceFrame` 分开讲，避免把 Controller 状态、对象时间规则和坐标计算能力混成一个笼统章节。
+- `BodyFeaturesManager` 不放在核心所有权对象图中，它是以 `Body*` 为 key 的横切管理器，单独成章。
 
 ### 3.2 核心对象章节统一模板
 
@@ -350,11 +352,36 @@ sequenceDiagram
 | `selection` | `Selection` | 当前选择引用 |
 | `activeObserver` | `Observer*` | 当前观察者 |
 | `observers` | `std::vector<Observer*>` | 观察者列表 |
-| `realTime` / `timeScale` | `double` | 当前时间和时间缩放 |
+| `realTime` | `double` | Simulation 对象创建后经过的真实秒数 |
+| `timeScale` | `double` | 仿真时间相对真实时间的缩放 |
+| `storedTimeScale` | `double` | 暂停前保存的时间缩放 |
+| `syncTime` | `bool` | 设置时间时是否同步所有 observer |
 | `pauseState` | `bool` | 暂停状态 |
+| `faintestVisible` | `float` | 最暗可见星等阈值 |
 | `closestSolarSystem` | `optional<SolarSystem*>` | 最近太阳系缓存，非拥有引用 |
 
-### 6.6 所有权和生命周期
+### 6.6 仿真时间管理
+
+`Simulation` 管理的是运行会话的时间推进入口，但当前源码中“当前儒略日时间”实际保存在 observer 侧。
+
+源码事实:
+
+- `Simulation::getTime()` 返回 `activeObserver->getTime()`。
+- `Simulation::setTime(jd)` 在 `syncTime` 为 true 时给所有 observers 设置同一个 Julian date，否则只设置 active observer。
+- `Simulation::update(dt)` 先推进自己的 `realTime`，再对每个 observer 调用 `observer->update(dt, timeScale)`。
+- `Observer::update(dt, timeScale)` 推进 `Observer::realTime`，并用 `(dt / 86400.0) * timeScale` 推进 `Observer::simTime`。
+
+因此，必须区分三种时间概念:
+
+| 概念 | 当前源码位置 | 含义 |
+| --- | --- | --- |
+| `Simulation::realTime` | `Simulation` | 当前仿真会话对象存在以来经过的真实秒数 |
+| `Observer::realTime` | `Observer` | 当前观察者内部旅行动画、速度变化等使用的真实时间 |
+| `Observer::simTime` | `Observer` | 当前仿真时刻，Julian date / TDB，`Simulation::getTime()` 从这里取得 |
+
+`Timeline` 不是全局时间管理器。`Timeline` 是某个 `Body` 的时间阶段规则集合。渲染或导航时，会用当前仿真时刻去查询某个 `Body` 的 `TimelinePhase`。
+
+### 6.7 所有权和生命周期
 
 | 对象 | 所有权 |
 | --- | --- |
@@ -363,7 +390,7 @@ sequenceDiagram
 | `Selection` | 值成员，保存当前选择引用 |
 | `SolarSystem*` 缓存 | 非拥有引用 |
 
-### 6.7 主要调用者/消费者
+### 6.8 主要调用者/消费者
 
 | 调用者/消费者 | 使用方式 |
 | --- | --- |
@@ -373,7 +400,7 @@ sequenceDiagram
 | Runtime Model 后端 | 更新仿真并抽取场景状态 |
 | Controller host | 多进程控制路径下驱动会话状态 |
 
-### 6.8 当前 MVC 归属判断
+### 6.9 当前 MVC 归属判断
 
 `Simulation` 应暂定为 Controller 运行核心，但它是当前拆分中的高风险混合点:
 
@@ -459,6 +486,10 @@ sequenceDiagram
 
 `TimelinePhase` 描述某个时间段内的父对象、轨道、参考系、自转模型和 frame tree 关系。它决定一个 `Body` 在给定时间如何定位和定向。
 
+不是每个 Celestia 对象都有 `Timeline`。当前明确看到的是 `Body` 持有 `unique_ptr<Timeline>`；`Star`、`DeepSkyObject` 不是通过同一套 `Body::Timeline` 管理。
+
+`Timeline` 也不是全局仿真时钟。全局当前仿真时刻由 `Simulation` 通过 active `Observer` 获取和推进；`Timeline` 接收这个时间值，回答“这个 Body 在这个时间处于哪个阶段”。
+
 ### 8.2 源码映射
 
 | 项 | 路径 |
@@ -492,13 +523,31 @@ sequenceDiagram
 
 ### 8.5 所有权和生命周期
 
-【每个对象都有自己独立的 timeline 吗？那么总的时间这个对象在哪管理呢？比如仿真推演的时候，时间在哪儿呢？假设每个天体都有自己的 timeline，那么有没有统一管理的概念呢？】
-
 | 对象 | 所有权 |
 | --- | --- |
 | `Timeline` | `Body` 通过 `unique_ptr<Timeline>` 拥有 |
 | `TimelinePhase` | `Timeline` 通过 `unique_ptr` 列表拥有 |
 | `FrameTree` | phase 与 frame tree 建立关系，具体所有权需结合 `TimelinePhase` / `FrameTree` 源码继续细化 |
+
+运行时关系:
+
+```mermaid
+flowchart LR
+  Sim["Simulation"]
+  Observer["active Observer"]
+  SimTime["simTime\nJulian date / TDB"]
+  Body["Body"]
+  Timeline["Timeline"]
+  Phase["TimelinePhase"]
+
+  Sim -->|"getTime / update"| Observer
+  Observer -->|"owns current"| SimTime
+  Body -->|"owns"| Timeline
+  SimTime -->|"query time"| Timeline
+  Timeline -->|"findPhase(t)"| Phase
+```
+
+这里的统一管理概念是 `Simulation/Observer` 管当前仿真时刻，`Body::Timeline` 管对象自己的时间阶段规则。二者不是同一类对象。
 
 ### 8.6 主要调用者/消费者
 
@@ -519,11 +568,22 @@ sequenceDiagram
 
 ### 9.1 定义与系统定位
 
-`ReferenceFrame` 是模型层参考系抽象。`BodyFixedFrame`、`BodyMeanEquatorFrame` 等类继承或实现该抽象，用于计算某个对象在给定时间的坐标和姿态转换。
+`ReferenceFrame` 是模型层参考系抽象类，不是一个简单枚举，也不是只代表“某个坐标系名称”。它表示一套可以在给定时间计算方向、角速度和惯性性质的坐标系对象。
 
 `FrameTree` 管理参考系层级，用于把对象、阶段和参考系组织成可计算的树。
 
 `ObserverFrame` 是 Controller 侧对 `ReferenceFrame` 的受限包装。它不是 `ReferenceFrame` 的替代品。
+
+从源码实现看，`ReferenceFrame` 至少包含以下关键接口:
+
+| 接口 | 含义 |
+| --- | --- |
+| `getOrientation(double tjd)` | 给定时间，返回该参考系相对基准方向的姿态 |
+| `getAngularVelocity(double tdb)` | 给定时间，返回角速度 |
+| `isInertial()` | 判断是否惯性参考系 |
+| `visitChildren(FrameVisitor&)` | 遍历该参考系依赖的对象或子参考系 |
+
+因此，它既是类，也是运行时可创建和共享的对象。不同具体参考系通过不同派生类或 key 创建。
 
 ### 9.2 源码映射
 
@@ -532,10 +592,24 @@ sequenceDiagram
 | `ReferenceFrame` | `src/celengine/model/frame.h`, `src/celengine/model/frame.cpp` |
 | `BodyFixedFrame` | `src/celengine/model/frame.h`, `src/celengine/model/frame.cpp` |
 | `BodyMeanEquatorFrame` | `src/celengine/model/frame.h`, `src/celengine/model/frame.cpp` |
+| `TwoVectorFrame` | `src/celengine/model/frame.h`, `src/celengine/model/frame.cpp` |
+| `FrameCache` / `FrameKey` | `src/celengine/model/frame.h`, `src/celengine/model/frame.cpp` |
 | `FrameTree` | `src/celengine/model/frametree.h`, `src/celengine/model/frametree.cpp` |
 | 使用者 | `TimelinePhase`、`Body`、`ObserverFrame`、View3D |
 
-### 9.3 运行关系图
+### 9.3 具体参考系类型
+
+| 类型 | 源码身份 | 含义 |
+| --- | --- | --- |
+| `BodyFixedFrame` | `ReferenceFrame` 派生类 | 跟随目标天体自转的体固参考系，接近“地固系/体固系”概念 |
+| `BodyMeanEquatorFrame` | `ReferenceFrame` 派生类 | 目标天体平均赤道相关参考系，可用于赤道/惯性判断 |
+| `TwoVectorFrame` | `CachingFrame` 派生类 | 由两组向量定义参考系，例如相对位置、相对速度方向 |
+| `SimpleFrameKey::J2000Ecliptic` / `J2000Equator` | frame key | 基础 J2000 黄道/赤道参考系 |
+| `FrameCache` | 缓存/创建器 | 根据 `FrameKey` 创建并缓存 `ReferenceFrame` 实例 |
+
+`ObserverFrame::CoordinateSystem` 是另一层概念。它位于 Controller，用于表达观察者当前使用哪种受限坐标系统，例如 `Universal`、`Ecliptical`、`Equatorial`、`BodyFixed`、`PhaseLock`、`Chase`。其中某些模式会临时创建或使用 `BodyFixedFrame`、`BodyMeanEquatorFrame`、`TwoVectorFrame` 等 Model 侧参考系。
+
+### 9.4 运行关系图
 
 ```mermaid
 flowchart TD
@@ -555,13 +629,7 @@ flowchart TD
   Observer -->|"owns current"| ObserverFrame
 ```
 
-### 9.4 所有权和生命周期
-
-【我觉得 time 和 reference frame 这两个你都没有讲得特别清楚。没有讲清楚的地方主要在于，我现在还没有搞清楚：
-
-所谓的 body，它 owns timeline，然后 timeline phase又引用使用了 reference frame。那么，它使用的到底是坐标系下的一个位置运算（调用坐标系功能），还是它有一套完整的坐标系对象？
-
-这个 reference frame 到底是个什么东西啊？它是个类吗？是个对象吗？那它是怎么实现的？我都看不明白。你讲得太简单了，我需要了解一下这个东西具体是怎么实现的，它还跟不同类型坐标系的运算（地固系，地惯系）有啥关系啊？】
+### 9.5 所有权和生命周期
 
 | 对象 | 所有权 |
 | --- | --- |
@@ -569,7 +637,9 @@ flowchart TD
 | `FrameTree` | 可由 `SolarSystem` 或 `Body` 持有 |
 | `ObserverFrame` | Controller 侧保存当前观察者参考系状态 |
 
-### 9.5 主要调用者/消费者
+`TimelinePhase` 使用 `ReferenceFrame` 不是只调用一个坐标系工具函数，而是关联一套参考系对象或 frame id，用它来计算某个时间点下的位置、姿态、角速度和坐标转换。`Body` 的位置/姿态接口会经由 `Timeline` 和 `TimelinePhase` 找到对应参考系。
+
+### 9.6 主要调用者/消费者
 
 | 调用者/消费者 | 使用方式 |
 | --- | --- |
@@ -578,7 +648,7 @@ flowchart TD
 | `ObserverFrame` | 把观察者坐标系统限制在可表示的一组参考系中 |
 | View3D | 渲染时使用坐标转换结果 |
 
-### 9.6 当前 MVC 归属判断
+### 9.7 当前 MVC 归属判断
 
 `ReferenceFrame` 和 `FrameTree` 属于 Model 计算能力。它们与 `Selection`、`ObserverFrame` 有接口连接，说明边界需要复审，但不能因为被 Controller 使用就归到 Controller。
 
@@ -686,7 +756,18 @@ sequenceDiagram
 
 ### 11.1 定义与系统定位
 
-`Selection` 是源码类。它是对象引用包装器，不是天体对象，不是地点所有者，也不是全局对象管理器。【是否可以把它理解为一个数据管理器，或者是个数据索引？我想找什么东西都要从这里边找。那它跟 Universe 对于数据的管理有什么区别？是不是可以理解为，Universe 可以管理实体，但它不止管理实体，还会把一些比如“观察者视角”这些东西也放进去？我需要跟你确认一下，是这个意思吗？】
+`Selection` 是源码类。它是对象引用包装器，可以理解为 typed handle，不是天体对象，不是地点所有者，不是数据管理器，也不是数据索引。
+
+`Selection` 自身不提供“从全局对象集合中查找对象”的能力。查找能力主要在 `Universe`、`StarDatabase`、`DSODatabase`、`SolarSystemCatalog`、`PlanetarySystem` 等对象和目录中。`Selection` 表示的是查找或拾取之后得到的“某个对象引用”。
+
+`Universe` 和 `Selection` 的区别:
+
+| 对象 | 管什么 | 不管什么 |
+| --- | --- | --- |
+| `Universe` | 对象目录、对象图、跨对象查找、补全、标记、URL 查询 | 当前观察者视角、当前导航状态、当前选择的运行控制 |
+| `Selection` | 一个已知对象的类型和指针引用 | 对象生命周期、对象目录、全局查找索引、观察者视角 |
+
+观察者视角不放在 `Universe` 里，而是在 `Simulation`、`Observer`、`ObserverFrame` 中。`Universe` 管实体对象图，`Simulation/Observer` 管当前怎么看、看向哪里、以什么时间和参考系观察。
 
 它可以包装:
 
@@ -1026,13 +1107,23 @@ flowchart TD
 
 ## 15. BodyFeaturesManager
 
-本章定义 `BodyFeaturesManager` 管理的扩展特征，并说明为什么它不应放进核心所有权对象图。【你讲完之后，我依然没有看明白这是干嘛的。这是数据渲染跟模型层之间的一个关联吗】
+本章定义 `BodyFeaturesManager` 管理的扩展特征，并说明它为什么是 Model 对象和渲染输入之间的耦合点。
 
 ### 15.1 定义与系统定位
 
 `BodyFeaturesManager` 是源码类，通过全局函数返回进程内全局实例。它不是每个 `Body` 内部的一个字段，也不是 `Universe -> Body` 核心所有权树的一部分。
 
 它是横切管理器: 以 `Body*` 为 key，为 `Body` 关联可选扩展特征。
+
+可以把它理解为 `Body` 的 side table。`Body` 自身保存名称、分类、半径、质量、时间线、frame tree 等核心字段；`BodyFeaturesManager` 在 `Body` 外部保存一些可选特征或显示相关补充数据。
+
+它确实位于模型数据和渲染输入之间:
+
+- atmosphere、rings 既像天体属性，也会被 View3D 直接用于渲染。
+- locations 参与对象查找、信息显示和地表位置显示。
+- reference marks、orbit color、comet tail color 明显接近显示/标注。
+
+所以它不是纯粹的数据层对象，也不是纯粹渲染器对象，而是当前源码里 Model 与 View3D 没有完全分开的证据之一。
 
 ### 15.2 源码映射
 
@@ -1042,6 +1133,15 @@ flowchart TD
 | 实现 | `src/celengine/model/body.cpp` |
 | 获取入口 | `GetBodyFeaturesManager()` |
 | 主要消费者 | `solarsys.cpp`、`universe.cpp`、`render.cpp`、UI 信息面板、拾取/投影相关类 |
+
+需要和 `BodyRenderAssets` 区分:
+
+| 对象 | 位置 | 主要内容 |
+| --- | --- | --- |
+| `BodyFeaturesManager` | `src/celengine/model/body.*` | atmosphere、rings、locations、reference marks、颜色等可选特征 |
+| `BodyRenderAssets` | `src/celengine/adapter/bodyrenderassets.*` | geometry handle、surface、alternate surface、ring texture、geometry orientation/scale 等渲染资源绑定 |
+
+两者都以 `Body` 或其关联对象为 key，都被 View3D 读取，因此共同构成 `Body` 到渲染层之间的耦合区。
 
 ### 15.3 内存形态和关键成员
 
@@ -1132,11 +1232,18 @@ flowchart TD
 
 ## 17. 原 View3D
 
-本章定义当前原 View3D 为什么不是一个已经平权的模板 View。【你这个分析得太过于敷衍了，啥都没有。我想跟你确认，为什么它要分散在不同的组件里边？原因是什么？】
+本章定义当前原 View3D 为什么不是一个已经平权的模板 View，并解释它为什么分散在多个目录和组件中。
 
 ### 17.1 定义与系统定位
 
 原 View3D 是当前单 exe 渲染体验的主要实现路径，但它不是一个已经封装好的独立 View 组件。它分散在 `src/celengine/view3d`、`src/celrender/view3d`、部分 `adapter`、部分 `legacy` 和应用层调用中。
+
+它分散的主要原因不是“目标设计上应该分散”，而是当前源码历史形态和职责混合造成的:
+
+1. 原 Celestia 是单体式应用演化出来的，View3D 很早就直接读取 `Simulation`、`Universe`、`Observer`、`Body`、`StarDatabase`、`DSODatabase` 等对象。
+2. 后来的 CMake 目标拆分把代码分成 `celestia_model`、`celestia_controller`、`celestia_view_adapter`、`celestia_view3d`、`celrender` 等对象目标，但这主要是编译组织拆分，不等于运行职责已经完全归位。
+3. View3D 不是只有 OpenGL draw call。它还需要纹理、网格、星点/深空对象渲染策略、body geometry、surface、ring texture、picking、location projection、reference marks、UI 状态等辅助能力。这些能力分别落在 view3d、celrender、adapter、legacy、celestia 应用层中。
+4. `BodyFeaturesManager` 和 `BodyRenderAssets` 这类对象把 `Body` 的模型属性、扩展特征和渲染资源绑定在一起，使 View3D 不能简单被看成“只消费一份场景输出”的独立前端。
 
 ### 17.2 源码映射
 
@@ -1147,6 +1254,17 @@ flowchart TD
 | `src/celengine/adapter` | 部分资源绑定、拾取、投影、渲染策略 |
 | `src/celengine/legacy` | 部分仍参与对象和渲染的旧结构 |
 | `src/celestia` | 应用层直接驱动渲染和 UI 状态 |
+
+更细地看:
+
+| 位置 | 更具体的职责 |
+| --- | --- |
+| `src/celengine/view3d` | mesh/texture manager、render context、render list、star/dso/body 渲染辅助、选择命中相关基础 |
+| `src/celrender/view3d` | 渲染器实现和 OpenGL 相关绘制逻辑 |
+| `src/celengine/adapter/bodyrenderassets.*` | 将 `Body` 关联到 geometry、surface、alternate surface、ring texture 等渲染资源 |
+| `src/celengine/adapter/*picker*` / `*projector*` | 把模型对象转换成可拾取或可投影的 View 几何信息 |
+| `src/celestia/celestiacore.*` | 应用层持有 `Simulation`，处理输入、UI、渲染驱动、reference marks 切换等 |
+| `src/celengine/legacy` | 保留部分仍被对象体系和渲染读取的旧类型 |
 
 ### 17.3 当前对象消费方式
 
@@ -1182,6 +1300,14 @@ flowchart TD
 ### 17.5 当前 MVC 归属判断
 
 当前原 View3D 大量直接消费 Model 和 Controller 对象，并没有完全通过一份独立场景数据输入。因此后续“模板 View”工作不能从视觉效果反推，而要从这些真实依赖链开始整理。
+
+后续 View3D 深入分析至少要回答:
+
+1. 哪些文件是 View3D 私有能力，可以进入未来 `view3d_legacy` 模板 View。
+2. 哪些能力应成为多个 View 共用的 provider 或 adapter。
+3. 哪些能力其实是 Model 计算或数据构建，不应被移动到 View。
+4. `BodyFeaturesManager`、`BodyRenderAssets`、Texture/Mesh managers 分别怎样把模型对象和渲染资源连接起来。
+5. 原 View3D 当前从 `Simulation`、`Universe`、`Observer`、`Body`、`StarDatabase`、`DSODatabase` 读取哪些数据，未来这些数据应通过什么输入规范交给 View。
 
 ## 18. Runtime 服务层
 
