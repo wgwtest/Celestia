@@ -21,13 +21,14 @@ The latest pushed master is:
 origin/master = 9983a96
 ```
 
-The only remaining auxiliary worktree is the fixed pre-MVC compatibility baseline:
+Auxiliary baseline worktrees:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-baseline-44ec265
+D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-step18-baseline-a3a5975
 ```
 
-Do not remove it unless the compatibility regression baseline is intentionally regenerated or relocated.
+Do not remove them unless the compatibility regression baseline or Step18 intermediate baseline is intentionally regenerated or relocated.
 
 ## Remote Model
 
@@ -68,7 +69,7 @@ Compatibility regression harness for original unified exe capability checks
 Active development branch:
 
 ```text
-Step14 real SceneExtractor projection
+Step19 original View3D template View white-box migration strategy
 branch: codex/celestia-mvc-step13-real-model-backend
 ```
 
@@ -120,6 +121,9 @@ The View3D host can now consume real scene.frame body/star/orbit/resource fields
 The first Step16 Controller loops are implemented: View3D Space pauses the Model, View3D L changes time scale, View3D MouseWheel changes scene camera FOV, View3D Ctrl+Backspace clears scene selection, View3D H selects Sol, View3D C centers the camera output on the current selection, View3D Left orbits the camera yaw output, View3D G navigates the camera output to the current selection, and View3D F follows the current selection in observer output state; the next scene.frame reports those output changes.
 Debug2D and OpenGL3D are available through the same runtime assembly path.
 The ordinary SDL unified exe / in-process path is still the main original-capability path.
+The branch was reset back to Step18 final evidence after the rejected Step19-Step86 route.
+The next accepted View work must start from original View3D source analysis and template View white-box migration, not from weak parallel View3D effects.
+The Step18 baseline is not a full Model-lock point: original core capability remains, but Model/Controller/View source boundaries still require Step19.0 audit and cleanup before View3D migration.
 ```
 
 It is not correct to say yet:
@@ -138,16 +142,56 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step18 - View3D fidelity report boundary and visual evidence expansion
+Step19 - original View3D template View white-box migration strategy
 ```
 
 Formal execution plan:
 
 ```text
+DOC\CODEX_DOC\04_研制计划\36-WBS-0.36-Celestia标准MVC解耦-Step19原View3D模板View白盒迁移策略.md
+```
+
+Historical Step12-18 execution plan:
+
+```text
 DOC\CODEX_DOC\04_研制计划\28-WBS-0.28-Celestia标准MVC解耦-Step12-18真实场景投影与View3D保真执行计划.md
 ```
 
-Detailed next Step17 plan:
+Current Step19 working strategy:
+
+```text
+1. Treat the original View3D source as the business truth.
+2. Do not continue the old weak runtime View3D visual-plan route.
+3. Build view3d_legacy as the first equal-status template View.
+4. Migrate original View3D private capabilities by white-box adaptation, not mechanical file moves or copy-shadowing.
+5. After each moved slice, build and run focused tests plus Quick compatibility regression.
+6. Leave reusable common code only where other View implementations can actually consume it.
+```
+
+Current reset boundary:
+
+```text
+Current branch HEAD is Step18 final:
+a3a5975 docs: record final Step18 verification
+
+Step19-Step86 work from the rejected route has been removed from the branch and should not guide future work.
+The first new Step19 task is Model/Controller/View boundary review, not code movement.
+Current Step19.0 audit path:
+DOC\CODEX_DOC\04_研制计划\37-WBS-0.37-Celestia标准MVC解耦-Step19.0模型控制视图边界复审.md
+
+Current Step19.0A boundary debt scanner:
+tools\mvc\scan_mvc_boundary_debt.ps1
+
+Current Step19.0A self-test:
+test\scripts\test_mvc_boundary_debt_scan.ps1
+
+The scanner defaults to report mode and currently reports 88 boundary findings. This is expected for the Step18 intermediate baseline and should not be treated as a new regression.
+
+After Step19.0, the next source ownership matrix should include both original View3D paths and boundary objects discovered by the audit.
+The first code-movement task must classify the source, choose whole-file move, split extraction, shared-module extraction, or adapted migration, and prove the old path no longer owns a duplicate View-private implementation.
+```
+
+Historical Step17 plan:
 
 ```text
 DOC\CODEX_DOC\04_研制计划\34-WBS-0.34-Celestia标准MVC解耦-Step17资源引用与DataPlane方案.md
@@ -203,17 +247,17 @@ Step17 completion boundary:
 - Model-facing ResourceRef and resource projection outputs are now treated as frozen unless a later bug fix includes focused tests and compatibility regression evidence.
 ```
 
-Continue with Step18:
+Historical Step18 continuation note:
 - View3D visual fidelity work.
 - Do not claim historical View3D renderer parity until Step18 has direct screenshot evidence.
 
-Detailed Step18 plan:
+Historical Step18 plan:
 
 ```text
 DOC\CODEX_DOC\04_研制计划\35-WBS-0.35-Celestia标准MVC解耦-Step18保真验证与发布硬化方案.md
 ```
 
-Current Step18 implementation status:
+Historical Step18 implementation status:
 
 ```text
 Task 1 complete:
