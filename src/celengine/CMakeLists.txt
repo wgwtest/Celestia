@@ -47,6 +47,8 @@ set(CELESTIA_MODEL_SOURCES
   model/rotationmanager.cpp
   model/rotationmanager.h
   model/shared.h
+  model/solarsystem.cpp
+  model/solarsystem.h
   model/star.cpp
   model/star.h
   model/stardb.cpp

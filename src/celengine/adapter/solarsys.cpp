@@ -1865,28 +1865,3 @@ SolarSystemsBuilder::finish() const
         location->setPosition(location->getParentBody()->geodeticToCartesian(longLat).cast<float>());
     }
 }
-
-SolarSystem::SolarSystem(Star* _star) :
-    star(_star)
-{
-    planets = std::make_unique<PlanetarySystem>(star);
-    frameTree = std::make_unique<FrameTree>(star);
-}
-
-SolarSystem::~SolarSystem() = default;
-
-
-Star* SolarSystem::getStar() const
-{
-    return star;
-}
-
-PlanetarySystem* SolarSystem::getPlanets() const
-{
-    return planets.get();
-}
-
-FrameTree* SolarSystem::getFrameTree() const
-{
-    return frameTree.get();
-}

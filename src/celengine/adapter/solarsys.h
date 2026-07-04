@@ -14,14 +14,13 @@
 #include <iosfwd>
 #include <memory>
 #include <tuple>
-#include <unordered_map>
 
 #include <Eigen/Core>
 
 #include <celutil/associativearray.h>
 #include <celutil/blockarray.h>
-#include <celengine/model/astroobj.h>
 #include <celengine/model/parseobject.h>
+#include <celengine/model/solarsystem.h>
 
 class FrameCache;
 class FrameTree;
@@ -39,24 +38,6 @@ class GeometryPaths;
 class TexturePaths;
 class UrlManager;
 }
-
-class SolarSystem
-{
-public:
-    SolarSystem(Star*);
-    ~SolarSystem();
-
-    Star* getStar() const;
-    PlanetarySystem* getPlanets() const;
-    FrameTree* getFrameTree() const;
-
-private:
-    Star* star;
-    std::unique_ptr<PlanetarySystem> planets;
-    std::unique_ptr<FrameTree> frameTree;
-};
-
-using SolarSystemCatalog = std::unordered_map<AstroCatalog::IndexNumber, std::unique_ptr<SolarSystem>>;
 
 class SolarSystemsBuilder
 {

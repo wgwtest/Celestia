@@ -4,6 +4,7 @@
 
 #include "runtimeassemblyrunner.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -98,6 +99,11 @@ RuntimeAssemblyRunner::run() const
     options.contentRoot = options.dataRoot.empty()
         ? config_.resources.contentRoot
         : options.dataRoot;
+    if (!options.dataRoot.empty())
+    {
+        options.hostReadyTimeoutMilliseconds = std::max(options.hostReadyTimeoutMilliseconds, 8000);
+        options.shutdownTimeoutMilliseconds = std::max(options.shutdownTimeoutMilliseconds, 5000);
+    }
 
     process::RuntimeSession session(options);
     auto result = session.run();

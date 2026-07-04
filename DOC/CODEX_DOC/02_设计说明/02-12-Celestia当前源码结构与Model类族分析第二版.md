@@ -276,6 +276,58 @@ flowchart TD
 
 结论: 下一阶段不能只移动 `solarsys.h`。应先拆清 `SolarSystem` / `SolarSystemCatalog` 数据结构、`SolarSystemsBuilder` 加载逻辑、`BodyRenderAssets` 渲染资源绑定三者。
 
+### 8.5 Star / DSO / SolarSystem 三类 catalog 横向审计
+
+本节用于防止把 `model->adapter` 扫描结果误读为“整个 Model 解耦只剩一个问题”。当前更准确的判断是: `SolarSystem` 是唯一仍造成 `src/celengine/model` 直接 include `src/celengine/adapter` 的 catalog 类族；但 `Star` 和 DSO 类族也没有达到理想的完全解耦。
+
+源码审计结果:
+
+| 类族 | 核心对象位置 | Builder 位置 | RenderAssets 位置 | Model 是否直接 include Adapter | 当前判断 |
+| --- | --- | --- | --- | --- | --- |
+| Star | `src/celengine/model/stardb.*`, `src/celengine/model/star.*` | `src/celengine/adapter/stardbbuilder.*` | `src/celengine/adapter/starrenderassets.*` | 没有直接 include；存在 `friend class StarDatabaseBuilder` | 基本分层，但未完全解耦 |
+| DSO | `src/celengine/model/dsodb.*`, `src/celengine/model/deepskyobj.*`, `src/celengine/model/nebula.*` | `src/celengine/adapter/dsodbbuilder.*` | `src/celengine/adapter/nebularenderassets.*` | 没有直接 include；存在 `friend class DSODatabaseBuilder` | 基本分层，但未完全解耦 |
+| SolarSystem | `SolarSystem` / `SolarSystemCatalog` 仍定义在 `src/celengine/adapter/solarsys.h` | `SolarSystemsBuilder` 同在 `src/celengine/adapter/solarsys.h/.cpp` | `src/celengine/adapter/bodyrenderassets.*`，并在 `solarsys.cpp` 中直接触碰 geometry / texture 路径 | 有，`Universe` 直接 include `adapter/solarsys.h` | 核心对象还未从 Adapter 中拆出 |
+
+Star 类族仍存在的非理想点:
+
+```text
+Star / StarDatabase 对 StarDatabaseBuilder 有 friend 关系。
+StarDatabaseBuilder 仍位于 adapter。
+StarDatabaseBuilder 仍处理 TexturePaths / StarRenderAssets。
+StarRenderAssets 仍 include view3d/meshmanager.h。
+StarDetails 中仍保留 KnowTexture 这类历史混合痕迹。
+```
+
+DSO 类族仍存在的非理想点:
+
+```text
+DSODatabase 对 DSODatabaseBuilder 有 friend 关系。
+DSODatabaseBuilder 仍位于 adapter。
+NebulaRenderAssets 仍 include view3d/meshmanager.h。
+NebulaRenderAssetLoader 仍是 adapter/view 资源加载路径。
+```
+
+SolarSystem 类族与 Star/DSO 的关键差异:
+
+```text
+StarDatabase / DSODatabase 的核心 catalog 类型已经在 model 目录。
+SolarSystem / SolarSystemCatalog 的核心 catalog 类型仍定义在 adapter/solarsys.h。
+```
+
+因此，`SolarSystem` 可以作为下一步的特殊切片处理，但这不是因为其他 catalog 已经完美解耦，而是因为它当前留下了最硬、最直接、最可定位的 Model 反向依赖:
+
+```text
+src/celengine/model/universe.h
+  -> #include <celengine/adapter/solarsys.h>
+```
+
+Step21A 必须先产出三类 catalog 对照审计和 `solarsys.*` 内部职责拆分表，至少回答:
+
+1. 哪些实体已经按 Model / Builder / RenderAssets 基本分层。
+2. 哪些只是目录上看起来分层，实际上仍有 friend、texture、render assets、builder 混合债务。
+3. 为什么本轮只把 `SolarSystem` / `SolarSystemCatalog` 作为硬依赖治理对象。
+4. 哪些 Star/DSO/Builder/RenderAssets 债务明确留给后续 loading 和 render-assets 阶段处理。
+
 ## 9. Model 计算类族
 
 ### 9.1 Timeline / TimelinePhase
@@ -525,13 +577,14 @@ MVC boundary debt scan report: 64 finding(s)
 | 编号 | 问题 | 当前状态 | 下一步入口 |
 | --- | --- | --- | --- |
 | V2-B1 | `Universe -> adapter/solarsys.h` | 未解决 | 拆 `SolarSystem` / `SolarSystemCatalog` 与 `SolarSystemsBuilder` |
-| V2-B2 | Adapter 内加载构建和渲染资产绑定混合 | 未解决 | 先按 builder / render assets / picker / projector / policy 分类 |
+| V2-B2 | Adapter 内加载构建和渲染资产绑定混合 | 未解决 | 先按 builder / render assets / picker / projector / policy 分类，并把 Star / DSO / SolarSystem 三类 catalog 横向对照 |
 | V2-B3 | `SceneViewModel` 位于 adapter 但输出 runtime `ViewFrame` | 未解决 | 移入 runtime projection 或独立 projection 层 |
 | V2-B4 | `RealModelBackend` 依赖应用层加载入口 | 未解决 | 抽中立加载编排模块 |
 | V2-B5 | `RealModelBackend` 依赖 View3D mesh/texture manager | 未解决 | 抽资源事实引用和 render resource binding |
 | V2-B6 | `ViewFrame` 不是纯 ModelSnapshot | 未解决，已说明 | 后续逐字段归类 ModelSnapshot / SceneProjection / SceneFrame |
 | V2-B7 | 原 View3D 直接读 Model/Controller 对象 | 未解决 | 模板 View 迁移前反查读取链 |
 | V2-B8 | `BodyFeaturesManager` 字段仍混合 | 部分解决 | 继续字段级治理，尤其是显示参数和资源引用 |
+| V2-B9 | Star / DSO catalog 已基本分层但仍有 builder/render-assets 债务 | 未解决，当前不形成 `model->adapter` 硬 include | 后续 loading/render-assets 阶段处理 friend、TexturePaths、RenderAssets 关系 |
 
 ## 17. 当前可以确认的结论
 
@@ -543,6 +596,7 @@ MVC boundary debt scan report: 64 finding(s)
 Step20B-D 用源码治理验证了部分归属判断。
 02-11 明确了 Runtime Model 输出仍是历史投影结构。
 第二版现在可以把 Model 类族分得比第一版更清楚。
+SolarSystem 是当前唯一仍造成 model->adapter 硬 include 的 catalog 类族。
 ```
 
 不能确认:
@@ -553,13 +607,15 @@ Model 层已经完全锁死，后续不再修改。
 ViewFrame 已经是最终 ModelSnapshot。
 原 View3D 已经可以作为普通模板 View 直接搬迁。
 Adapter 可以整体删除或整体归入 View。
+StarDatabase / DSODatabase 类族已经完全解耦。
+SolarSystem 是 Model 架构层剩下的唯一问题。
 ```
 
 ## 18. 后续文档和工程建议
 
 第二版之后，建议不要再继续堆叠泛化分析文档，而应进入两类更具体的产物:
 
-1. `SolarSystem` / `SolarSystemCatalog` 拆分设计说明: 专门处理 `Universe -> adapter/solarsys.h`。
+1. `SolarSystem` / `SolarSystemCatalog` 拆分设计说明: 专门处理 `Universe -> adapter/solarsys.h`，并把 Star / DSO / SolarSystem 三类 catalog 作为对照背景，避免把 SolarSystem 误判为唯一架构问题。
 2. `ViewFrame` 字段归属表: 把现有 runtime 输出逐字段归入 ModelSnapshot、SceneProjection、SceneFrame。
 
 只有这两件事进一步明确后，才建议继续推进原 View3D 模板化迁移。否则模板迁移很容易再次变成“按视觉效果补功能”，而不是从现有源码业务层切开。

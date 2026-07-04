@@ -196,6 +196,9 @@ function Invoke-MvcScans {
 
     $cmakeScanLog = Join-Path $LogRoot "scan_cmake_targets.log"
     Invoke-External -FilePath "powershell" -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", (Join-Path $repoRoot "tools\mvc\scan_cmake_targets.ps1")) -LogPath $cmakeScanLog | Out-Null
+
+    $modelAdapterBoundaryLog = Join-Path $LogRoot "test_mvc_model_adapter_boundary_clean.log"
+    Invoke-External -FilePath "powershell" -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", (Join-Path $repoRoot "test\scripts\test_mvc_model_adapter_boundary_clean.ps1")) -LogPath $modelAdapterBoundaryLog | Out-Null
 }
 
 function Get-SdlExecutable {

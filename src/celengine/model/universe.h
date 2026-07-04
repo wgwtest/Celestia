@@ -20,9 +20,9 @@
 #include <celengine/model/univcoord.h>
 #include <celengine/model/stardb.h>
 #include <celengine/model/dsodb.h>
-#include <celengine/adapter/solarsys.h>
 #include <celengine/model/deepskyobj.h>
 #include <celengine/model/marker.h>
+#include <celengine/model/solarsystem.h>
 #include <celengine/controller/selection.h>
 #include <celengine/model/asterism.h>
 #include <celutil/array_view.h>
