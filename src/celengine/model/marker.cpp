@@ -8,8 +8,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include <celengine/legacy/marker.h>
-#include <celengine/view3d/render.h>
+#include <celengine/model/marker.h>
 
 
 using namespace std;
@@ -69,12 +68,6 @@ void Marker::setSizing(MarkerSizing sizing)
 }
 
 
-void Marker::render(Renderer& r, float size, const Matrices &m) const
-{
-    m_representation.render(r, m_sizing == DistanceBasedSize ? size : m_representation.size(), m);
-}
-
-
 void MarkerRepresentation::setColor(Color color)
 {
     m_color = color;
@@ -90,13 +83,4 @@ void MarkerRepresentation::setSize(float size)
 void MarkerRepresentation::setLabel(std::string label)
 {
     m_label = std::move(label);
-}
-
-
-/*! Render the marker symbol at the specified size. The size is
- *  the diameter of the marker in pixels.
- */
-void MarkerRepresentation::render(Renderer &r, float size, const Matrices &m) const
-{
-    r.renderMarker(m_symbol, size, m_color, m);
 }

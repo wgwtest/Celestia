@@ -22,7 +22,7 @@
 #include <celengine/model/dsodb.h>
 #include <celengine/adapter/solarsys.h>
 #include <celengine/model/deepskyobj.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/selection.h>
 #include <celengine/model/asterism.h>
 #include <celutil/array_view.h>

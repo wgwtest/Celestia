@@ -13,7 +13,7 @@
 #include <unordered_map>
 
 #include <celengine/model/body.h>
-#include <celengine/adapter/bodylifecycle.h>
+#include <celengine/model/bodylifecycle.h>
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;

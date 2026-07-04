@@ -10,39 +10,32 @@
 
 #pragma once
 
+#include <vector>
+
 #include <Eigen/Core>
 #include <celephem/orbit.h>
-#include <celengine/view3d/curveplot.h>
+
+struct OrbitSample
+{
+    Eigen::Vector3d position;
+    double t{ 0.0 };
+    Eigen::Vector3d velocity;
+    double boundingRadius{ 0.0 };
+};
 
 class OrbitSampler : public celestia::ephem::OrbitSampleProc
 {
 public:
-    std::vector<CurvePlotSample> samples;
+    std::vector<OrbitSample> samples;
 
     OrbitSampler() = default;
 
     void sample(double t, const Eigen::Vector3d& position, const Eigen::Vector3d& velocity)
     {
-        CurvePlotSample samp;
+        OrbitSample samp;
         samp.t = t;
         samp.position = position;
         samp.velocity = velocity;
         samples.push_back(samp);
-    }
-
-    void insertForward(CurvePlot* plot)
-    {
-        for (const auto& sample : samples)
-        {
-            plot->addSample(sample);
-        }
-    }
-
-    void insertBackward(CurvePlot* plot)
-    {
-        for (auto iter = samples.rbegin(); iter != samples.rend(); ++iter)
-        {
-            plot->addSample(*iter);
-        }
     }
 };

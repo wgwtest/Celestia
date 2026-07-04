@@ -24,7 +24,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/observer.h>
 #include <celengine/view3d/renderflags.h>
 #include <celengine/view3d/texmanager.h>

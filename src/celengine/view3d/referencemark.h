@@ -12,9 +12,9 @@
 
 #pragma once
 
-#include <string>
-#include <string_view>
 #include <Eigen/Core>
+
+#include <celengine/model/bodyreferencemark.h>
 
 struct Matrices;
 
@@ -34,11 +34,11 @@ class ReferenceMarkRenderer;
  *  subclass draws translucent geometry but doesn't override isOpaque to
  *  return false, the translucent parts may not be properly depth sorted.
  */
-class ReferenceMark
+class ReferenceMark : public BodyReferenceMark
 {
  public:
-    ReferenceMark() {};
-    virtual ~ReferenceMark() {};
+    ReferenceMark() = default;
+    ~ReferenceMark() override = default;
 
     /*! Draw the reference mark geometry at the specified time.
      */
@@ -48,35 +48,9 @@ class ReferenceMark
                         double tdb,
                         const Matrices& m) const = 0;
 
-    /*! Return the radius of a bounding sphere (in kilometers) large enough
-     *  to contain the reference mark geometry.
-     */
-    virtual float boundingSphereRadius() const = 0;
-
     /*! Return true if the reference mark contains no translucent geometry.
      *  The default implementation always returns true (i.e. completely
      *  opaque geometry is assumed.)
      */
     virtual bool isOpaque() const { return true; }
-
-    void setTag(std::string_view tag)
-    {
-        if (tag.empty() || tag == defaultTag())
-            m_tag = std::string{};
-        else
-            m_tag = tag;
-    }
-
-    std::string_view getTag() const
-    {
-        if (m_tag.empty())
-            return defaultTag();
-        return m_tag;
-    }
-
-protected:
-    virtual std::string_view defaultTag() const = 0;
-
-private:
-    std::string m_tag;
 };

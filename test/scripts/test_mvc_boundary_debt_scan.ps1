@@ -18,7 +18,7 @@ try {
 
     Set-Content -LiteralPath (Join-Path $modelDir "body.cpp") -Value @'
 #include <celengine/view3d/referencemark.h>
-#include <celengine/adapter/bodylifecycle.h>
+#include <celengine/adapter/solarsys.h>
 void f() {}
 '@ -Encoding UTF8
 

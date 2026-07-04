@@ -19,7 +19,7 @@
 #include <celrender/view3d/gl/buffer.h>
 #include <celrender/view3d/gl/vertexobject.h>
 #include <celrender/view3d/linerenderer.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/observer.h>
 #include <celengine/view3d/render.h>
 

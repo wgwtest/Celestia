@@ -48,7 +48,7 @@
 #include <celastro/astro.h>
 #include <celengine/model/deepskyobj.h>
 #include <celengine/model/dsodb.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/selection.h>
 #include <celengine/controller/simulation.h>
 #include <celengine/model/universe.h>

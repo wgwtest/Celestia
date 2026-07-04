@@ -33,7 +33,7 @@
 #include <QVBoxLayout>
 
 #include <celengine/model/body.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/selection.h>
 #include <celengine/controller/simulation.h>
 #include <celengine/adapter/solarsys.h>

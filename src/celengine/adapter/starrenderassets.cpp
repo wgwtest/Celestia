@@ -12,7 +12,7 @@
 #include <unordered_map>
 
 #include <celengine/model/star.h>
-#include <celengine/adapter/stardetailslifecycle.h>
+#include <celengine/model/stardetailslifecycle.h>
 
 namespace engine = celestia::engine;
 namespace util = celestia::util;

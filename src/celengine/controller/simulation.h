@@ -19,7 +19,6 @@
 #include <Eigen/Geometry>
 
 #include <celengine/model/completion.h>
-#include <celengine/view3d/texture.h>
 #include <celengine/model/universe.h>
 #include <celengine/legacy/galaxy.h>
 #include <celengine/legacy/globular.h>

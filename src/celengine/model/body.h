@@ -33,7 +33,7 @@ class BodyLocationGeometryProjector;
 class FrameTree;
 class Location;
 class ReferenceFrame;
-class ReferenceMark;
+class BodyReferenceMark;
 class Star;
 class StarDatabase;
 class Timeline;
@@ -397,9 +397,9 @@ public:
     void setRings(Body*, std::unique_ptr<RingSystem>&&);
     void scaleRings(Body*, float);
 
-    void addReferenceMark(Body*, std::unique_ptr<ReferenceMark>&&);
+    void addReferenceMark(Body*, std::unique_ptr<BodyReferenceMark>&&);
     bool removeReferenceMark(Body*, std::string_view tag);
-    const ReferenceMark* findReferenceMark(const Body*, std::string_view tag) const;
+    const BodyReferenceMark* findReferenceMark(const Body*, std::string_view tag) const;
 
     template<typename F>
     void processReferenceMarks(const Body* body, F&& processor) const
@@ -449,7 +449,7 @@ private:
     std::unordered_map<const Body*, BodyLocations> locations;
     std::unordered_map<const Body*, Color> orbitColors;
     std::unordered_map<const Body*, Color> cometTailColors;
-    std::unordered_multimap<const Body*, std::unique_ptr<ReferenceMark>> referenceMarks;
+    std::unordered_multimap<const Body*, std::unique_ptr<BodyReferenceMark>> referenceMarks;
 };
 
 BodyFeaturesManager* GetBodyFeaturesManager();

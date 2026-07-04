@@ -6,6 +6,9 @@ set(CELESTIA_MODEL_SOURCES
   model/atmosphere.h
   model/body.cpp
   model/body.h
+  model/bodylifecycle.cpp
+  model/bodylifecycle.h
+  model/bodyreferencemark.h
   model/boundaries.cpp
   model/boundaries.h
   model/category.cpp
@@ -26,10 +29,14 @@ set(CELESTIA_MODEL_SOURCES
   model/frametree.h
   model/location.cpp
   model/location.h
+  model/marker.cpp
+  model/marker.h
   model/name.cpp
   model/name.h
   model/nebula.cpp
   model/nebula.h
+  model/nebulalifecycle.cpp
+  model/nebulalifecycle.h
   model/octree.h
   model/octreebuilder.h
   model/opencluster.cpp
@@ -44,6 +51,8 @@ set(CELESTIA_MODEL_SOURCES
   model/star.h
   model/stardb.cpp
   model/stardb.h
+  model/stardetailslifecycle.cpp
+  model/stardetailslifecycle.h
   model/starname.cpp
   model/starname.h
   model/staroctree.cpp
@@ -74,8 +83,6 @@ set(CELESTIA_CONTROLLER_SOURCES
 )
 
 set(CELESTIA_VIEW_ADAPTER_SOURCES
-  adapter/bodylifecycle.cpp
-  adapter/bodylifecycle.h
   adapter/bodylocationgeometryprojector.cpp
   adapter/bodylocationgeometryprojector.h
   adapter/bodyrenderassets.cpp
@@ -86,8 +93,6 @@ set(CELESTIA_VIEW_ADAPTER_SOURCES
   adapter/deepskyobjectpicker.h
   adapter/deepskyobjectrenderpolicy.cpp
   adapter/deepskyobjectrenderpolicy.h
-  adapter/nebulalifecycle.cpp
-  adapter/nebulalifecycle.h
   adapter/nebularenderassetloader.cpp
   adapter/nebularenderassetloader.h
   adapter/nebularenderassets.cpp
@@ -99,8 +104,6 @@ set(CELESTIA_VIEW_ADAPTER_SOURCES
   adapter/selectionpicker.h
   adapter/solarsys.cpp
   adapter/solarsys.h
-  adapter/stardetailslifecycle.cpp
-  adapter/stardetailslifecycle.h
   adapter/starrenderassets.cpp
   adapter/starrenderassets.h
   adapter/stardbbuilder.cpp
@@ -195,8 +198,6 @@ set(CELESTIA_LEGACY_ENGINE_SOURCES
   legacy/galaxyform.h
   legacy/globular.cpp
   legacy/globular.h
-  legacy/marker.cpp
-  legacy/marker.h
   legacy/starbrowser.cpp
   legacy/starbrowser.h
 )

@@ -23,7 +23,7 @@
 #include <celastro/date.h>
 #include <celephem/orbit.h>
 #include <celephem/rotation.h>
-#include <celengine/adapter/stardetailslifecycle.h>
+#include <celengine/model/stardetailslifecycle.h>
 #include <celengine/model/univcoord.h>
 
 using namespace std::string_view_literals;

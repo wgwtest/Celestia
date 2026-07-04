@@ -14,7 +14,7 @@
 #include <celutil/stringutils.h>
 #include <fmt/format.h>
 #include <celengine/model/nebula.h>
-#include <celengine/adapter/nebulalifecycle.h>
+#include <celengine/model/nebulalifecycle.h>
 
 namespace util = celestia::util;
 

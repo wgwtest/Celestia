@@ -45,7 +45,7 @@
 
 #include <celastro/date.h>
 #include <celengine/model/astroobj.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/controller/selection.h>
 #include <celengine/controller/simulation.h>
 #include <celengine/adapter/solarsys.h>

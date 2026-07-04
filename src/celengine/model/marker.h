@@ -9,13 +9,11 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
-#include <celutil/color.h>
-#include <celengine/controller/selection.h>
+#include <vector>
 
-class Renderer;
-struct Matrices;
+#include <celengine/controller/selection.h>
+#include <celutil/color.h>
 
 namespace celestia
 {
@@ -58,8 +56,6 @@ public:
     const std::string& label() const { return m_label; }
     void setLabel(std::string);
 
-    void render(Renderer &r, float size, const Matrices &m) const;
-
 private:
     Symbol m_symbol;
     float m_size;
@@ -101,8 +97,6 @@ class Marker
     const MarkerRepresentation& representation() const { return m_representation; }
     MarkerRepresentation& representation() { return m_representation; }
     void setRepresentation(const MarkerRepresentation& rep);
-
-    void render(Renderer &r, float size, const Matrices &m) const;
 
  private:
     Selection m_object;

@@ -29,7 +29,7 @@
 #include <celengine/model/body.h>
 #include <celengine/adapter/bodyrenderassets.h>
 #include <celengine/view3d/glsupport.h>
-#include <celengine/legacy/marker.h>
+#include <celengine/model/marker.h>
 #include <celengine/view3d/render.h>
 #include <celengine/controller/simulation.h>
 #include <celengine/model/universe.h>

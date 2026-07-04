@@ -116,7 +116,6 @@ TEST_CASE("CMake source buckets keep model and controller free of view resources
         "solarsys.cpp",
         "galaxy.cpp",
         "globular.cpp",
-        "marker.cpp",
     };
 
     constexpr std::string_view forbiddenControllerTokens[] = {

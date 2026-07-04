@@ -963,6 +963,28 @@ Vector4f renderOrbitColor(const Body *body, bool selected, float opacity,
     return Vector4f(orbitColor.red(), orbitColor.green(), orbitColor.blue(), opacity * orbitColor.alpha());
 }
 
+CurvePlotSample curvePlotSampleFromOrbitSample(const OrbitSample& sample)
+{
+    CurvePlotSample curveSample;
+    curveSample.t = sample.t;
+    curveSample.position = sample.position;
+    curveSample.velocity = sample.velocity;
+    curveSample.boundingRadius = sample.boundingRadius;
+    return curveSample;
+}
+
+void insertOrbitSamplesForward(CurvePlot& plot, const OrbitSampler& sampler)
+{
+    for (const auto& sample : sampler.samples)
+        plot.addSample(curvePlotSampleFromOrbitSample(sample));
+}
+
+void insertOrbitSamplesBackward(CurvePlot& plot, const OrbitSampler& sampler)
+{
+    for (auto iter = sampler.samples.rbegin(); iter != sampler.samples.rend(); ++iter)
+        plot.addSample(curvePlotSampleFromOrbitSample(*iter));
+}
+
 void Renderer::renderOrbit(const OrbitPathListEntry& orbitPath,
                            double t,
                            const Quaterniond& cameraOrientation,
@@ -1012,7 +1034,7 @@ void Renderer::renderOrbit(const OrbitPathListEntry& orbitPath,
         orbit->sample(startTime,
                       startTime + orbit->getPeriod(),
                       sampler);
-        sampler.insertForward(cachedOrbit);
+        insertOrbitSamplesForward(*cachedOrbit, sampler);
 
         // If the orbit cache is full, first try and eliminate some old orbits
         // Check for old orbits at most once per frame
@@ -1082,7 +1104,7 @@ void Renderer::renderOrbit(const OrbitPathListEntry& orbitPath,
             // Add the new samples
             OrbitSampler sampler;
             orbit->sample(newWindowStart, min(currentWindowStart, newWindowEnd), sampler);
-            sampler.insertBackward(cachedOrbit);
+            insertOrbitSamplesBackward(*cachedOrbit, sampler);
 #if DEBUG_ORBIT_CACHE
             clog << "new sample count: " << cachedOrbit->sampleCount() << endl;
 #endif
@@ -1098,7 +1120,7 @@ void Renderer::renderOrbit(const OrbitPathListEntry& orbitPath,
             // Add the new samples
             OrbitSampler sampler;
             orbit->sample(max(currentWindowEnd, newWindowStart), newWindowEnd, sampler);
-            sampler.insertForward(cachedOrbit);
+            insertOrbitSamplesForward(*cachedOrbit, sampler);
 #if DEBUG_ORBIT_CACHE
             clog << "new sample count: " << cachedOrbit->sampleCount() << endl;
 #endif
@@ -3428,8 +3450,12 @@ void Renderer::addRenderListEntries(RenderListEntry& rle,
     }
 
     bodyFeaturesManager->processReferenceMarks(&body,
-                                               [this, &rle](const ReferenceMark* rm)
+                                               [this, &rle](const BodyReferenceMark* bodyReferenceMark)
                                                {
+                                                   const auto* rm = dynamic_cast<const ReferenceMark*>(bodyReferenceMark);
+                                                   if (rm == nullptr)
+                                                       return;
+
                                                    rle.renderableType = RenderListEntry::RenderableReferenceMark;
                                                    rle.refMark = rm;
                                                    rle.isOpaque = rm->isOpaque();
@@ -4326,7 +4352,7 @@ Renderer::renderAnnotationMarker(const Annotation &a,
     if (markerRep.symbol() == celestia::MarkerRepresentation::Crosshair)
         renderCrosshair(size, realTime, a.color, mm);
     else
-        markerRep.render(*this, size, mm);
+        renderMarker(markerRep.symbol(), size, markerRep.color(), mm);
 
     if (!markerRep.label().empty())
     {

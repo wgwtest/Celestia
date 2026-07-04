@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include <celengine/adapter/bodylifecycle.h>
+#include <celengine/model/bodylifecycle.h>
 
 #include <utility>
 #include <vector>

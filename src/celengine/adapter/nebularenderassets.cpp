@@ -12,7 +12,7 @@
 #include <unordered_map>
 
 #include <celengine/model/nebula.h>
-#include <celengine/adapter/nebulalifecycle.h>
+#include <celengine/model/nebulalifecycle.h>
 
 namespace engine = celestia::engine;
 

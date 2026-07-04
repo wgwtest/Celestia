@@ -21,11 +21,11 @@
 #include <celmath/mathlib.h>
 #include <celutil/gettext.h>
 #include <celengine/model/atmosphere.h>
-#include <celengine/adapter/bodylifecycle.h>
+#include <celengine/model/bodylifecycle.h>
+#include <celengine/model/bodyreferencemark.h>
 #include <celengine/model/frame.h>
 #include <celengine/model/frametree.h>
 #include <celengine/model/location.h>
-#include <celengine/view3d/referencemark.h>
 #include <celengine/controller/selection.h>
 #include <celengine/model/star.h>
 #include <celengine/model/stardb.h>
@@ -945,7 +945,7 @@ Body::recomputeCullingRadius()
         r = std::max(r, rings->outerRadius);
 
     manager->processReferenceMarks(this,
-                                   [&r](const ReferenceMark* rm)
+                                   [&r](const BodyReferenceMark* rm)
                                    {
                                        r = std::max(r, rm->boundingSphereRadius());
                                    });
@@ -1195,7 +1195,7 @@ BodyFeaturesManager::setAtmosphere(Body* body, std::unique_ptr<Atmosphere>&& atm
 /*! Add a new reference mark.
  */
 void
-BodyFeaturesManager::addReferenceMark(Body* body, std::unique_ptr<ReferenceMark>&& refMark)
+BodyFeaturesManager::addReferenceMark(Body* body, std::unique_ptr<BodyReferenceMark>&& refMark)
 {
     assert(refMark != nullptr);
     referenceMarks.emplace(body, std::move(refMark));
@@ -1234,7 +1234,7 @@ BodyFeaturesManager::removeReferenceMark(Body* body, std::string_view tag)
  *  no reference marks with the specified tag, this method will return
  *  nullptr.
  */
-const ReferenceMark*
+const BodyReferenceMark*
 BodyFeaturesManager::findReferenceMark(const Body* body, std::string_view tag) const
 {
     if (!util::is_set(body->features, BodyFeatures::ReferenceMarks))

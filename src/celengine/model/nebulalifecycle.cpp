@@ -7,7 +7,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-#include <celengine/adapter/nebulalifecycle.h>
+#include <celengine/model/nebulalifecycle.h>
 
 #include <utility>
 #include <vector>

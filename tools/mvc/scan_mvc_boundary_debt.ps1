@@ -92,7 +92,7 @@ Scan-LineRule "src\celengine\model" `
 
 Scan-LineRule "src\celengine\model" `
     "model-view-symbol" `
-    '\b(ReferenceMark|MarkerRepresentation|MarkerList|CurvePlot|CurvePlotSample)\b' `
+    '\b(ReferenceMark|CurvePlot|CurvePlotSample)\b' `
     "model source mentions view-facing symbol"
 
 Scan-LineRule "src\celengine\controller" `
