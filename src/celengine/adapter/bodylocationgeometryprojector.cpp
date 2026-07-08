@@ -16,9 +16,10 @@
 #include <celmath/ray.h>
 #include <celengine/model/body.h>
 #include <celengine/adapter/bodyrenderassets.h>
+#include <celengine/resource/geometrypaths.h>
 #include <celengine/view3d/geometry.h>
-#include <celengine/model/location.h>
 #include <celengine/view3d/meshmanager.h>
+#include <celengine/model/location.h>
 
 namespace engine = celestia::engine;
 namespace math = celestia::math;

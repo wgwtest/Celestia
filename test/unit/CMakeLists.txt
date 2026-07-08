@@ -57,6 +57,7 @@ set(UNIT_TEST_SOURCES
   mvc_step16_controller_interaction_test.cpp
   mvc_step17_resource_ref_test.cpp
   mvc_step17_dataplane_test.cpp
+  mvc_step23_resource_boundary_test.cpp
   ranges_test.cpp
   stellarclass_test.cpp
   strnatcmp_test.cpp

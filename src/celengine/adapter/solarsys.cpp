@@ -43,12 +43,12 @@
 #include <celengine/model/frame.h>
 #include <celengine/model/frametree.h>
 #include <celengine/model/location.h>
-#include <celengine/view3d/meshmanager.h>
 #include <celengine/model/parseobject.h>
+#include <celengine/resource/geometrypaths.h>
+#include <celengine/resource/texturepaths.h>
 #include <celengine/controller/selection.h>
 #include <celengine/adapter/solarsys.h>
 #include <celengine/model/surface.h>
-#include <celengine/view3d/texmanager.h>
 #include <celengine/model/timeline.h>
 #include <celengine/model/timelinephase.h>
 #include <celengine/model/universe.h>

@@ -80,6 +80,7 @@ set(CELESTIA_CORE_LIBS $<TARGET_OBJECTS:cel3ds>
                        $<TARGET_OBJECTS:celastro>
                        $<TARGET_OBJECTS:celestia_model>
                        $<TARGET_OBJECTS:celestia_controller>
+                       $<TARGET_OBJECTS:celestia_resource>
                        $<TARGET_OBJECTS:celestia_view_adapter>
                        $<TARGET_OBJECTS:celestia_view3d>
                        $<TARGET_OBJECTS:celestia_runtime>
@@ -103,6 +104,7 @@ set(CELESTIA_HEADLESS_MODEL_BACKEND_LIBS
   $<TARGET_OBJECTS:celastro>
   $<TARGET_OBJECTS:celestia_model>
   $<TARGET_OBJECTS:celestia_controller>
+  $<TARGET_OBJECTS:celestia_resource>
   $<TARGET_OBJECTS:celestia_view_adapter>
   $<TARGET_OBJECTS:celestia_view3d>
   $<TARGET_OBJECTS:celengine>

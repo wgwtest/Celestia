@@ -17,7 +17,7 @@
 #include <Eigen/Geometry>
 
 #include <celutil/texhandle.h>
-#include <celengine/view3d/meshmanager.h>
+#include <celengine/resource/geometrypaths.h>
 #include <celengine/model/surface.h>
 
 class Body;

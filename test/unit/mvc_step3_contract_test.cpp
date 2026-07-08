@@ -70,6 +70,7 @@ TEST_CASE("celengine CMake defines MVC source ownership buckets")
 
     checkContains(cmake, "CELESTIA_MODEL_SOURCES");
     checkContains(cmake, "CELESTIA_CONTROLLER_SOURCES");
+    checkContains(cmake, "CELESTIA_RESOURCE_SOURCES");
     checkContains(cmake, "CELESTIA_VIEW_ADAPTER_SOURCES");
     checkContains(cmake, "CELESTIA_VIEW3D_SOURCES");
     checkContains(cmake, "CELESTIA_LEGACY_ENGINE_SOURCES");
@@ -82,11 +83,13 @@ TEST_CASE("CMake defines physical MVC targets")
 
     checkContains(celengine, "add_library(celestia_model OBJECT");
     checkContains(celengine, "add_library(celestia_controller OBJECT");
+    checkContains(celengine, "add_library(celestia_resource OBJECT");
     checkContains(celengine, "add_library(celestia_view_adapter OBJECT");
     checkContains(celengine, "add_library(celestia_view3d OBJECT");
 
     checkContains(celestia, "$<TARGET_OBJECTS:celestia_model>");
     checkContains(celestia, "$<TARGET_OBJECTS:celestia_controller>");
+    checkContains(celestia, "$<TARGET_OBJECTS:celestia_resource>");
     checkContains(celestia, "$<TARGET_OBJECTS:celestia_view_adapter>");
     checkContains(celestia, "$<TARGET_OBJECTS:celestia_view3d>");
 }
@@ -143,8 +146,8 @@ TEST_CASE("CMake declares MVC target dependency direction")
 
     checkNoToken(cmake, "target_link_libraries(celestia_model");
     checkContains(cmake, "target_link_libraries(celestia_controller PRIVATE celestia_model)");
-    checkContains(cmake, "target_link_libraries(celestia_view_adapter PRIVATE celestia_model celestia_controller)");
-    checkContains(cmake, "target_link_libraries(celestia_view3d PRIVATE celestia_model celestia_controller celestia_view_adapter)");
+    checkContains(cmake, "target_link_libraries(celestia_view_adapter PRIVATE celestia_model celestia_controller celestia_resource)");
+    checkContains(cmake, "target_link_libraries(celestia_view3d PRIVATE celestia_model celestia_controller celestia_view_adapter celestia_resource)");
 }
 
 TEST_CASE("model implementation files do not depend on view adapter or 3D view")

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <celengine/view3d/meshmanager.h>
+#include <celengine/resource/geometrypaths.h>
 
 class Nebula;
 

@@ -422,6 +422,41 @@ Step23 不宜直接大规模移动 Builder 文件。先定义资源引用和资�
 | 6 | 替换 `ViewFrame` 输出链路 | 建立真正的 `ModelSnapshot -> SceneProjection -> SceneFrame` |
 | 7 | 重新启动 View 模板平权迁移 | 在 Model 输出稳定后再迁移 View 形态 |
 
+### 13.3 Step23 实施结果
+
+截至 2026-07-08，Step23 已经按“资源引用与资源索引边界”计划完成首轮代码落地。完成内容如下：
+
+1. 新增 `src/celengine/resource/texturepaths.h`、`src/celengine/resource/texturepaths.cpp`，把 `TextureResolution`、`TextureFlags`、`TextureInfo`、`TexturePaths` 从 View3D 纹理管理器头文件中剥离。
+2. 新增 `src/celengine/resource/geometrypaths.h`、`src/celengine/resource/geometrypaths.cpp`，把 `GeometryHandle`、`GeometryInfo`、`GeometryPaths` 从 View3D 网格管理器头文件中剥离。
+3. `src/celengine/view3d/texmanager.*` 和 `src/celengine/view3d/meshmanager.*` 继续保留真实纹理、网格和渲染几何加载职责，但通过中立资源头文件复用路径索引类型。
+4. `src/celruntime/model/realmodelbackend.cpp` 已从 `view3d/meshmanager.h`、`view3d/texmanager.h` 改为 include `celengine/resource/geometrypaths.h`、`celengine/resource/texturepaths.h`。
+5. `BodyRenderAssets`、`StarRenderAssets`、`NebulaRenderAssets` 以及 Builder 相关调用点改用中立资源头文件提供资源句柄和路径索引类型。
+6. CMake 增加 `CELESTIA_RESOURCE_SOURCES` 和 `celestia_resource` object library，并把资源 object 纳入统一 exe 与 headless model backend 所需对象集合。
+7. 新增 `test/unit/mvc_step23_resource_boundary_test.cpp`，固化资源目录、View3D manager include、`RealModelBackend` include、CMake object library 四个边界检查。
+
+本轮也明确保留了一类真实 View3D 依赖：`src/celengine/adapter/bodylocationgeometryprojector.cpp` 仍调用 `GeometryManager::find()`，因此它继续 include `view3d/meshmanager.h`。这不是资源索引依赖，而是 Adapter 内部对真实几何管理器的使用，后续应在 Adapter/View 边界治理中单独处理，不能在 Step23 中为了清扫描项而移除。
+
+Step23 后的边界扫描结果：
+
+| 扫描类别 | Step23 前 | Step23 后 | 说明 |
+|---|---:|---:|---|
+| 总发现数 | 63 | 53 | 本轮只处理资源路径索引直接依赖 |
+| `runtime-model->view` | 2 | 0 | `RealModelBackend` 不再直接 include View3D 资源管理器头 |
+| `adapter->view` | 12 | 4 | 剩余为真实 Adapter/View 依赖，不在 Step23 强行清理 |
+| `runtime-model->app` | 4 | 4 | 仍来自 `configfile`、`loadstars`、`loaddso`、`loadsso` 入口 |
+| `runtime-model-projection` | 44 | 44 | 运行时输出仍以 `ViewFrame` / `SceneFrame` 投影结构为过渡形态 |
+| `adapter->runtime` | 1 | 1 | `SceneViewModel` 仍引用 runtime `ViewFrame` |
+
+Step23 的验证结果：
+
+1. `unit`、`celestia-model-host`、`celestia-sdl` 构建通过。
+2. Step13、Step17、Step23、MVC 装配和 runtime session 相关 32 个 CTest 用例全部通过。
+3. `tools/mvc/scan_mvc_boundary_debt.ps1` 显示 `runtime-model->view` 已清零。
+4. `test/scripts/test_mvc_model_adapter_boundary_clean.ps1` 通过。
+5. `tools/regression/run_celestia_compat_regression.ps1 -Mode Quick` 通过，生成 10 个统一 SDL exe 截图场景和 6 个 runtime smoke 场景记录。
+
+因此，Step23 的完成含义应严格限定为：资源路径索引已经从 View3D manager 头文件中剥离出来，并解除 `RealModelBackend` 对 View3D 资源路径类型的直接依赖。它不表示 Builder 家族已经拆分完成，不表示 `Surface` / `Atmosphere` 资源字段已经完成重构，也不表示运行时输出已经脱离 `ViewFrame` 过渡形态。
+
 ## 14. 风险判断
 
 ### 14.1 最大风险

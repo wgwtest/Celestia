@@ -25,8 +25,8 @@
 #include <celengine/model/stardb.h>
 #include <celengine/model/universe.h>
 #include <celengine/model/urlmanager.h>
-#include <celengine/view3d/meshmanager.h>
-#include <celengine/view3d/texmanager.h>
+#include <celengine/resource/geometrypaths.h>
+#include <celengine/resource/texturepaths.h>
 #include <celestia/configfile.h>
 #include <celestia/loaddso.h>
 #include <celestia/loadsso.h>

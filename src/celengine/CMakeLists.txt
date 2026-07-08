@@ -84,6 +84,13 @@ set(CELESTIA_CONTROLLER_SOURCES
   controller/simulation.h
 )
 
+set(CELESTIA_RESOURCE_SOURCES
+  resource/geometrypaths.cpp
+  resource/geometrypaths.h
+  resource/texturepaths.cpp
+  resource/texturepaths.h
+)
+
 set(CELESTIA_VIEW_ADAPTER_SOURCES
   adapter/bodylocationgeometryprojector.cpp
   adapter/bodylocationgeometryprojector.h
@@ -217,13 +224,14 @@ set(CELENGINE_SOURCES
 
 add_library(celestia_model OBJECT ${CELESTIA_MODEL_SOURCES})
 add_library(celestia_controller OBJECT ${CELESTIA_CONTROLLER_SOURCES})
+add_library(celestia_resource OBJECT ${CELESTIA_RESOURCE_SOURCES})
 add_library(celestia_view_adapter OBJECT ${CELESTIA_VIEW_ADAPTER_SOURCES})
 add_library(celestia_view3d OBJECT ${CELESTIA_VIEW3D_SOURCES})
 add_library(celengine OBJECT ${CELENGINE_SOURCES})
 
 target_link_libraries(celestia_controller PRIVATE celestia_model)
-target_link_libraries(celestia_view_adapter PRIVATE celestia_model celestia_controller)
-target_link_libraries(celestia_view3d PRIVATE celestia_model celestia_controller celestia_view_adapter)
+target_link_libraries(celestia_view_adapter PRIVATE celestia_model celestia_controller celestia_resource)
+target_link_libraries(celestia_view3d PRIVATE celestia_model celestia_controller celestia_view_adapter celestia_resource)
 target_link_libraries(celengine PRIVATE celestia_model)
 
 gperf_add_table(celestia_model model/location.gperf model/location.cpp 4)

@@ -12,7 +12,7 @@
 #include <celutil/associativearray.h>
 #include <celutil/fsutils.h>
 #include <celutil/logger.h>
-#include <celengine/view3d/meshmanager.h>
+#include <celengine/resource/geometrypaths.h>
 #include <celengine/model/nebula.h>
 #include <celengine/adapter/nebularenderassets.h>
 

@@ -9,95 +9,15 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <filesystem>
 #include <memory>
 #include <unordered_map>
-#include <vector>
 
-#include <Eigen/Core>
-
-#include <celutil/classops.h>
-#include <celutil/fsutils.h>
+#include <celengine/resource/geometrypaths.h>
 #include <celengine/view3d/geometry.h>
 #include <celengine/view3d/texmanager.h>
 
 namespace celestia::engine
 {
-
-enum class GeometryHandle : std::uint32_t
-{
-    Invalid = ~UINT32_C(0),
-    Empty = Invalid - UINT32_C(1),
-};
-
-struct GeometryInfo
-{
-    std::filesystem::path path;
-    std::filesystem::path directory;
-    Eigen::Vector3f center{ Eigen::Vector3f::Zero() };
-    bool isNormalized{ true };
-};
-
-class GeometryPaths : private util::NoCopy
-{
-public:
-    GeometryHandle getHandle(const std::filesystem::path& filename,
-                             const std::filesystem::path& directory,
-                             const Eigen::Vector3f& center = Eigen::Vector3f::Zero(),
-                             bool isNormalized = true);
-    bool getInfo(GeometryHandle, GeometryInfo&) const;
-
-private:
-    enum class PathIndex : std::uint32_t
-    {
-        Root = 0,
-        Invalid = ~UINT32_C(0),
-    };
-
-    struct Info
-    {
-        Info(PathIndex, PathIndex, const Eigen::Vector3f&, bool);
-
-        PathIndex pathIndex;
-        PathIndex directoryPathIndex;
-        Eigen::Vector3f center;
-        bool isNormalized;
-    };
-
-    struct Key
-    {
-        Key(PathIndex, const Eigen::Vector3f&, bool);
-
-        PathIndex pathIndex;
-        Eigen::Vector3f center;
-        bool isNormalized;
-    };
-
-    struct KeyHash
-    {
-        std::size_t operator()(const Key&) const;
-    };
-
-    struct KeyEqual
-    {
-        bool operator()(const Key&, const Key&) const;
-    };
-
-    using DirectoryPaths = std::unordered_map<std::filesystem::path, PathIndex, util::PathHasher>;
-
-    PathIndex getFileIndex(PathIndex&, const std::filesystem::path&);
-    bool checkPath(PathIndex, const std::filesystem::path&, PathIndex&);
-    PathIndex getPathIndex(const std::filesystem::path&);
-
-    std::vector<std::filesystem::path> m_paths{ std::filesystem::path{} };
-    std::vector<Info> m_info;
-
-    std::unordered_map<std::filesystem::path, PathIndex, util::PathHasher> m_pathMap{ { std::filesystem::path{}, PathIndex::Root } };
-    std::unordered_map<PathIndex, DirectoryPaths> m_dirPaths;
-    std::unordered_map<Key, GeometryHandle, KeyHash, KeyEqual> m_handles;
-};
 
 class GeometryManager
 {

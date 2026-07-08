@@ -39,7 +39,8 @@
 #include <celutil/parser.h>
 #include <celutil/timer.h>
 #include <celutil/tokenizer.h>
-#include <celengine/view3d/meshmanager.h>
+#include <celengine/resource/geometrypaths.h>
+#include <celengine/resource/texturepaths.h>
 #include <celengine/model/octreebuilder.h>
 #include <celengine/model/stardb.h>
 #include <celengine/adapter/starrenderassets.h>

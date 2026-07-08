@@ -11,9 +11,10 @@
 
 #include <Eigen/Geometry>
 
-#include <celengine/view3d/meshmanager.h>
+#include <celengine/resource/geometrypaths.h>
 
 class Body;
+class Geometry;
 
 class SelectionGeometryProvider
 {
