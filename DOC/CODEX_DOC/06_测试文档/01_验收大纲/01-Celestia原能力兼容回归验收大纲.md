@@ -1,24 +1,18 @@
 # Celestia 原能力兼容回归验收大纲
 
-日期：2026-06-27
+日期：2026-07-15
 
 ## 1. 目标与边界
 
-本验收机制用于回答一个明确问题：
+本验收用于回答：
 
 ```text
-Celestia 在 MVC 解耦和多进程 runtime 演进后，普通统一 exe / in-process 主路径是否仍保留改造前 Celestia 的主要可见能力。
+Celestia 在 MVC 解耦和多进程 Runtime 演进后，普通 SDL 统一 exe / in-process 主路径在当前验证矩阵覆盖范围内，是否出现相对改造前固定基线的可见能力退化。
 ```
 
-验收重点不是证明新的 M / C / V 多进程路径能力，而是防止解耦修改破坏原有未解耦系统的用户能力。多进程 runtime 仍作为补充回归项保留，但不能替代原 in-process 兼容性验证。
+统一 exe 基线对照是原能力兼容性的主要证据。多进程 Runtime checkpoint 是补充证据，不能替代原始画面比较。
 
-第一版覆盖 SDL 统一 exe：
-
-```text
-build-*/src/celestia/sdl/celestia-sdl.exe
-```
-
-当前本地构建未启用 Win32 / Qt 前端 exe，因此 Win32 / Qt 的脚本启动、URL 启动和菜单级交互验证列为后续扩展，不纳入第一版门禁。
+当前不覆盖 Qt/Win32 前端、全部菜单交互、像素级等价、任意第三方 add-on 或全部 Celestia 功能。
 
 ## 2. 固定基线
 
@@ -28,186 +22,77 @@ build-*/src/celestia/sdl/celestia-sdl.exe
 44ec265659d2aa666cbf7546e36e4dde471d54ba
 ```
 
-含义：
+基线使用独立 worktree 和独立构建目录，不在当前 checkout 上切换提交。有效基线必须同时具有：
 
-```text
-14062ca refactor: decouple Celestia MVC boundaries 的父提交，
-即本轮 MVC 代码级解耦开始前的本地 Celestia 能力基线。
-```
+1. 与固定提交一致的 `baseline-manifest.json`；
+2. 与验证矩阵精确一致的场景/checkpoint/image 集合；
+3. 与磁盘文件一致的 SHA-256；
+4. 可读取且满足健康阈值的 PNG。
 
-后续每次回归应将当前提交与该基线构建产物进行对照，而不是只对当前分支做自测。
+`Full` 只能读取和校验基线。创建或刷新基线必须显式运行 `InitBaseline`。
 
-## 3. 推荐入口
-
-计划新增统一入口：
+## 3. 统一入口
 
 ```powershell
-tools\regression\run_celestia_compat_regression.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\helpers\Run-CelestiaCompatFaultInjection.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
 ```
 
-支持三种运行模式：
+调用方必须读取 `$LASTEXITCODE`：`pass=0`、`fail=1`、`warn=2`、`error=3`。required 检查被跳过时至少为 `warn=2`。
 
-```powershell
-# 第一次或基线失效时重新生成基线构建和基线截图
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
+## 4. 场景注入
 
-# 日常提交前快速门禁
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+SDL 前端通过临时数据根注入场景，不为回归测试修改程序入口：
 
-# 阶段收口或大范围修改后的完整对照
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
-```
+1. 从构建产物准备临时数据根；
+2. 写入临时 `celestia.cfg`；
+3. 将 `InitScript` 指向矩阵登记的 `.cel`；
+4. 用 `CELESTIA_DATA_DIR` 启动 `celestia-sdl.exe`；
+5. 由 Celestia 自身执行 `capture` 和 `exit`。
 
-## 4. 产物目录
+这样避免桌面截图受窗口焦点、DPI、遮挡和标题匹配影响。
 
-大体积构建、截图和对比图不进入仓库，统一放在仓库外工作区：
+## 5. 当前统一 exe 矩阵
+
+场景和 checkpoint 数量由 `tools/regression/verification-matrix.json` 决定；当前统一 exe 组为十个场景、每场一个 `final` image checkpoint，因此 `Full` 当前产生十张 baseline、十张 current 和一张 contact sheet。
+
+| 场景 ID | 主要覆盖 |
+|---|---|
+| `01-earth-default` | Earth、时间、选择、导航、表面、策略和可见性 |
+| `02-earth-clouds-orbits-labels` | 云层、轨道、标签和开关组合后的最终画面 |
+| `03-moon-close` | Moon 近景、选择、导航和表面 |
+| `04-saturn-rings` | Saturn、本体、环、资源和背景 |
+| `05-asteroid-or-spacecraft` | Eros、小天体表面、资源和标注 |
+| `06-starfield-constellations` | 恒星、星表、星座线和标注 |
+| `07-galaxy-deepsky` | Milky Way、深空目录和资源 |
+| `08-script-overlay-hud` | CEL 脚本、反馈和 HUD 文本 |
+| `09-selection-follow-goto` | 选择、goto/follow 命令触发、轨道和反馈 |
+| `10-resource-fallback-missing` | 资源相关正常路径、表面、轨道和反馈 |
+
+场景名称不能扩大其证据含义：`09` 不回读持续 follow 状态；`10` 没有制造资源缺失，因此不证明 missing/fallback。
+
+## 6. Runtime 矩阵
+
+六个 Runtime 场景按矩阵逐项执行 config、process、stdout/trace 和必要的 3D checkpoint：
 
 ```text
-D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\
-  baselines\44ec265\
-  runs\<timestamp>-<current-commit>\
+runtime-2d-stdio
+runtime-2d-local-socket
+runtime-3d-stdio
+runtime-3d-local-socket
+runtime-switch-2d-to-3d-local-socket
+runtime-switch-3d-to-2d-local-socket
 ```
 
-仓库内只保留可复用脚本、场景脚本和文档：
+2D 场景不要求 3D payload。3D 和 switch 场景要求正数 frame count 和 synthetic Earth/Sol 身份。当前 Runtime 数据仍是 synthetic fixture，没有原业务图片，不能用于宣称原 View3D 画面已恢复。
 
-```text
-tools/regression/
-  run_celestia_compat_regression.ps1
-  scenarios/*.cel
-  helpers/*.ps1
-  helpers/*.py
+## 7. 图像判定
 
-DOC/CODEX_DOC/06_测试文档/
-  01_验收大纲/
-  02_验收入口/
-  03_机测记录/
-  05_验收结论/
-```
-
-每次 `Full` 运行应生成一份机器测试记录，放入：
-
-```text
-DOC/CODEX_DOC/06_测试文档/03_机测记录/
-```
-
-文件名采用时间戳前缀：
-
-```text
-YYYY-MM-DD-HHMMSS-Celestia原能力兼容回归-机测记录.md
-```
-
-## 5. 构建策略
-
-脚本不应在主 checkout 上来回切换提交。基线使用独立 worktree：
-
-```text
-D:\WorkSpace\Codex\CeleNew\.worktrees\celestia-compat-baseline-44ec265
-```
-
-当前版本使用当前 checkout：
-
-```text
-D:\WorkSpace\Codex\CeleNew\Celestia
-```
-
-两边使用相同的 Visual Studio CMake / CTest 路径：
-
-```powershell
-$vsdev = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat'
-$cmake = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe'
-$ctest = 'C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\ctest.exe'
-```
-
-第一版以 Release SDL 构建为主：
-
-```text
-ENABLE_SDL=ON
-ENABLE_QT6=OFF
-ENABLE_WIN=OFF
-```
-
-如果后续启用 Qt / Win32 前端，应新增前端专属矩阵，不混入 SDL 第一版门禁。
-
-## 6. 场景注入机制
-
-SDL 前端当前不是通过 `--url` 或 `--script` 选择启动场景。第一版不得为了测试修改程序入口。
-
-推荐做法：
-
-1. 为每个测试场景创建临时数据根。
-2. 从构建产物的完整数据目录复制或镜像基础数据。
-3. 在临时数据根写入临时 `celestia.cfg`。
-4. 将 `InitScript` 指向对应的回归场景 `.cel`。
-5. 设置 `CELESTIA_DATA_DIR` 指向临时数据根后启动 `celestia-sdl.exe`。
-
-场景脚本负责稳定画面、截图和退出：
-
-```text
-wait { duration ... }
-capture { filename "..." type "png" }
-exit {}
-```
-
-截图由 Celestia 自身 `capture` 命令产生，避免外部窗口截图在焦点、DPI、遮挡、标题匹配上的不稳定。
-
-## 7. 多场景截图矩阵
-
-第一版至少包含以下 8 个 in-process SDL 视觉场景。
-
-| 场景 ID | 覆盖能力 | 关键观察点 |
-| --- | --- | --- |
-| `earth-default` | 默认启动、Earth、星空、HUD、基础纹理 | 地球可见、HUD 文本可见、非黑屏 |
-| `earth-clouds-orbits-labels` | 云图、轨道线、行星标签、render flags | 云图、轨道、标签同时出现 |
-| `moon-close` | 月球纹理、近距离天体、选择 / goto / follow | 月球表面纹理、选择状态 |
-| `saturn-rings` | 土星环、远距离太阳系对象、多卫星 | 环结构、行星本体、背景星空 |
-| `asteroid-or-spacecraft` | 不规则模型或 extras-standard 模型资源 | Eros / ISS / Mir 等模型不缺失 |
-| `starfield-constellations` | 星表、星名、星座线、星座名 | 恒星、星座线、标签显示 |
-| `galaxy-deepsky` | 深空对象、银河 / 星系 / 星团渲染 | 深空对象可见且非纯黑 |
-| `script-overlay-hud` | CEL 脚本、print 文本、overlay、字体 | 脚本文本和 overlay 正常 |
-
-每个场景都要对基线版本和当前版本各产出一张截图。`Full` 模式至少生成 16 张原始截图，并生成汇总对照图。
-
-后续可以扩展为多时间点截图，例如：
-
-```text
-earth-default/t+3s
-earth-default/t+8s
-saturn-rings/t+5s
-saturn-rings/t+12s
-```
-
-但第一版优先保证场景数量和稳定性。
-
-## 8. 非视觉回归矩阵
-
-`Quick` 模式至少运行：
-
-```powershell
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-baseline-rel --config Release --target unit && `"$ctest`" --test-dir build-mvc-baseline-rel -C Release --output-on-failure"
-
-cmd.exe /c "call `"$vsdev`" -arch=x64 -host_arch=x64 >NUL && `"$cmake`" --build build-mvc-sdl-rel --config Release --target unit celestia-sdl && `"$ctest`" --test-dir build-mvc-sdl-rel -C Release --output-on-failure"
-
-powershell -ExecutionPolicy Bypass -File tools\mvc\scan_mvc_dependencies.ps1
-
-powershell -ExecutionPolicy Bypass -File tools\mvc\scan_cmake_targets.ps1
-```
-
-并运行当前版本的 runtime smoke：
-
-```powershell
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-2d-stdio.yaml
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-3d-stdio.yaml
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-2d-local-socket.yaml
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-3d-local-socket.yaml
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-switch-2d-to-3d-local-socket.yaml
-build-mvc-sdl-rel\src\celestia\sdl\celestia-sdl.exe --runtime-config DOC\CODEX_DOC\examples\runtime-switch-3d-to-2d-local-socket.yaml
-```
-
-## 9. 图像判定规则
-
-不使用逐像素完全一致作为通过标准。OpenGL 驱动、字体、时间和硬件差异会导致稳定但无害的像素差异。
-
-每张截图至少计算：
+不使用逐像素完全一致。每张图片至少检查：
 
 ```text
 width / height
@@ -216,112 +101,65 @@ brightPixelRatio
 colorfulPixelRatio
 edgeDensity
 averageColor
-perceptualHash
+dHash
 ```
 
-机器判定分为三层：
+判定层次：
 
-1. 健康阈值：当前截图不能黑屏、不能极端单色、不能尺寸异常。
-2. 场景阈值：每个场景有自己的最小亮度、彩色像素、边缘密度要求。
-3. 相似阈值：当前截图与基线截图的 perceptual hash 距离或 SSIM 不能超过场景上限。
+1. 图片必须存在且可由 Pillow 读取；
+2. 当前阈值要求至少 160x120，`nonBlackRatio >= 0.002`；
+3. baseline/current 尺寸必须一致；
+4. `dHashHamming > 30` 或 `averageColorDistance > 80` 产生 `warn=2`；
+5. 人工复核 contact sheet，不能用人工判断覆盖机器 `fail/error`。
 
-机器判定只负责拦截明显退化。视觉等价仍需要人工复核汇总图：
+## 8. 非视觉检查
+
+正式门禁还包括：
+
+1. configure、build 和 CTest；
+2. `scan_mvc_dependencies.ps1`；
+3. `scan_cmake_targets.ps1`；
+4. `test_mvc_model_adapter_boundary_clean.ps1`；
+5. 六个 Runtime 场景；
+6. Celestia/Host 残留进程检查。
+
+每项形成独立 CheckResult。依赖阶段失败后，后续 required 项登记为 skipped，不能消失在报告中。
+
+## 9. 报告
+
+每次正式运行在独立 run 目录生成：
 
 ```text
-baseline | current | diff
+machine-report.json
+machine-report.md
 ```
 
-## 10. 报告内容
+JSON 是机器状态源。Markdown 从同一 RunSummary 生成。两者必须具有相同的 runId、mode、status、exitCode 和 check count。
 
-每次 `Full` 报告至少包含：
+报告必须能区分 build/test/scan/process/checkpoint/image/comparison/baseline/harness failure，并保留对应日志或 artifact 路径。
 
-```text
-baseline commit
-current commit
-build commands and exit codes
-ctest summaries
-MVC scan results
-runtime smoke stdout/stderr
-per-scene screenshot paths
-per-scene image metrics
-per-scene pass/warn/fail
-residual process check
-known exclusions
-manual review checklist
-```
+## 10. 自动化排除项
 
-如果出现 fail，报告必须明确区分：
-
-```text
-build failure
-test failure
-startup failure
-script failure
-screenshot missing
-visual health failure
-baseline/current visual drift
-manual-review-required warning
-```
-
-## 11. 第一版不承诺自动覆盖
-
-以下能力第一版不作为自动通过 / 失败门禁：
+当前不作为自动通过条件：
 
 ```text
 任意菜单和对话框完整交互
 任意键鼠导航组合
 精确 FPS 性能等价
-视频录制 / FFmpeg capture
+视频录制和 FFmpeg capture
 第三方任意 add-on
-全部 Celestia URL 启动路径
-Qt / Win32 前端专项能力
+全部 Celestia URL
+Qt/Win32 前端专项能力
 天文数值精度全量校验
+多进程原 View3D 业务画面
 ```
 
-这些项目应作为后续专项验收扩展。
+## 11. 通过口径
 
-## 12. 推进顺序
-
-建议按以下顺序落地：
-
-1. 创建 `tools/regression/scenarios/` 并写 8 个稳定 `.cel` 场景。
-2. 创建临时数据根生成逻辑，保证 `InitScript` 可切换。
-3. 创建当前版本单侧截图 runner。
-4. 创建图片指标统计 helper。
-5. 创建 baseline worktree / baseline build 管理。
-6. 创建 baseline-current 对照和汇总报告。
-7. 接入 `Quick` / `Full` 两级门禁。
-8. 将最新验收入口写入 `CODEX_START_HERE.md`。
-
-## 13. 通过口径
-
-`Quick` 通过条件：
+只有 `Full` 返回 0、基线 manifest 有效、所有 required 检查通过，并完成人工 contact sheet 复核后，才能表述：
 
 ```text
-当前版本 build-mvc-baseline-rel / build-mvc-sdl-rel 构建通过
-当前版本全量 CTest 通过
-MVC dependency scan 通过
-MVC CMake target scan 通过
-当前版本 in-process SDL 多场景截图健康检查通过
-当前版本 multi-process runtime smoke 通过
-无残留 celestia host 进程
-```
-
-`Full` 通过条件：
-
-```text
-基线版本和当前版本均可构建
-基线版本和当前版本均可完成同一套 in-process SDL 场景截图
-所有场景当前截图满足健康阈值
-所有场景 baseline-current 相似度在阈值内，或被人工记录为可接受差异
-当前版本 CTest / scan / runtime smoke 均通过
-报告产物完整
-```
-
-只有 `Full` 通过后，才能在阶段收口文档中表述：
-
-```text
-本阶段未发现普通统一 exe / in-process 主路径相对 MVC 改造前基线的可见能力退化。
+本次运行未发现普通 SDL 统一 exe / in-process 主路径在当前矩阵覆盖范围内相对固定基线的可见能力退化。
 ```
 
 不能表述为：
@@ -329,5 +167,13 @@ MVC CMake target scan 通过
 ```text
 所有 Celestia 功能均已自动验证。
 所有视觉效果与原版逐像素一致。
-Qt / Win32 前端也已完成同等验证。
+Qt/Win32 前端已完成同等验证。
+Model 已完全解耦。
+新 View3D 已完成迁移或视觉等价。
+```
+
+Step25 对验证工具本身的进一步要求见：
+
+```text
+DOC/CODEX_DOC/06_测试文档/01_验收大纲/03-Celestia-Step25验证机制加固验收大纲.md
 ```

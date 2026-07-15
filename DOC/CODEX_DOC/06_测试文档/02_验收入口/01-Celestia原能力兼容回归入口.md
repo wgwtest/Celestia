@@ -1,62 +1,78 @@
 # Celestia 原能力兼容回归入口
 
-日期：2026-06-27
+日期：2026-07-15
 
 ## 1. 用途
 
-本入口用于验证：
+本入口验证两类内容：
 
-```text
-MVC 解耦和多进程 runtime 演进后，普通 SDL 统一 exe / in-process 主路径没有丢失改造前 Celestia 的主要可见能力。
-```
+1. 普通 SDL 统一 exe / in-process 主路径相对固定旧提交的已覆盖可见能力；
+2. 当前六个多进程 Runtime 场景的进程、trace、clean shutdown 和矩阵 checkpoint。
 
-它不是新的多进程 View3D 视觉等价验收，也不是 Qt / Win32 前端验收。
+它不是 Qt/Win32 前端验收，不是 Model 完全解耦验收，也不是新 View3D 与原始 3D 画面的等价验收。
 
 ## 2. 固定基线
-
-固定基线提交：
 
 ```text
 44ec265659d2aa666cbf7546e36e4dde471d54ba
 ```
 
-该提交是：
+该提交是 MVC 代码级改造开始前的本地能力基线。有效基线还必须具有通过校验的 `baseline-manifest.json`；仅有 PNG 文件不能视为有效基线。
 
-```text
-14062ca refactor: decouple Celestia MVC boundaries
-```
+## 3. 命令
 
-的父提交，即本轮 MVC 代码级解耦开始前的本地 Celestia 能力基线。
-
-## 3. 验收命令
-
-脚本自检，不构建、不启动 Celestia：
+脚本和隔离 fixture 自检：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+```
+
+FI-00 至 FI-11 故障注入：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\helpers\Run-CelestiaCompatFaultInjection.ps1
+```
+
+显式构建并初始化固定基线：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
 ```
 
 当前版本快速门禁：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
 ```
 
-初始化或刷新固定基线截图：
+完整 baseline/current 对照：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
 ```
 
-完整 baseline/current 对比：
+保留 Step18 声明边界的正式入口：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
 ```
 
-## 4. 覆盖场景
+命令结束后必须读取：
 
-第一版包含 8 个 CEL 场景：
+```powershell
+$LASTEXITCODE
+```
+
+| 退出码 | 状态 | 处理 |
+|---:|---|---|
+| 0 | `pass` | 已覆盖检查通过 |
+| 1 | `fail` | 停止后续迁移并定位失败检查 |
+| 2 | `warn` | 人工复核，不得自动当作通过 |
+| 3 | `error` | 验证结果不可用，先修复工具或环境 |
+
+## 4. 当前覆盖
+
+统一 exe 场景由 `tools/regression/verification-matrix.json` 登记，当前为：
 
 ```text
 01-earth-default
@@ -67,43 +83,61 @@ powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_re
 06-starfield-constellations
 07-galaxy-deepsky
 08-script-overlay-hud
+09-selection-follow-goto
+10-resource-fallback-missing
 ```
 
-这些场景覆盖基础行星渲染、云层、轨道、标签、月球、土星环、小天体、恒星/星座、深空对象、脚本叠字和 HUD。
+当前每场一个 `final` 图片 checkpoint。`09` 不证明持续 follow；`10` 没有制造资源缺失，不证明 missing/fallback。
 
-## 5. 产物位置
+Runtime 当前为：
 
-默认产物目录：
+```text
+runtime-2d-stdio
+runtime-2d-local-socket
+runtime-3d-stdio
+runtime-3d-local-socket
+runtime-switch-2d-to-3d-local-socket
+runtime-switch-3d-to-2d-local-socket
+```
+
+3D 和 switch 场景中的 Earth/Sol 身份是 synthetic model fixture。当前真实 Runtime 场景没有原 Celestia 业务图片。
+
+## 5. 产物
+
+默认根目录：
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\
 ```
 
-其中：
+正式 run 目录包含：
 
 ```text
-baselines\44ec265\
-runs\<timestamp>-<commit>-<mode>\
+runs\<timestamp>-<commit>-<mode>\machine-report.json
+runs\<timestamp>-<commit>-<mode>\machine-report.md
 ```
 
-`Full` 模式还会把机测报告复制到：
+JSON 是机器状态源；Markdown 由同一 RunSummary 生成。报告存在不代表通过。
+
+## 6. 允许结论
+
+只有 `Full=0` 且 contact sheet 完成人工复核后，才允许写：
 
 ```text
-DOC\CODEX_DOC\06_测试文档\03_机测记录\
+本次运行未发现普通 SDL 统一 exe / in-process 主路径在当前十场景矩阵内相对固定基线的可见能力退化。
 ```
 
-## 6. 可允许的结论
-
-只有 `Full` 通过后，才允许写入阶段性结论：
+不能写：
 
 ```text
-本阶段未发现普通 SDL 统一 exe / in-process 主路径相对 MVC 改造前基线的可见能力退化。
+所有 Celestia 功能均已验证。
+多进程 View3D 已恢复原始 3D 画面。
+Model 层已经完全解耦。
+Qt / Win32 前端已完成同等验证。
 ```
 
-不能表述为：
+完整验收规则见：
 
 ```text
-所有 Celestia 功能均已自动验证。
-所有视觉效果与原版逐像素一致。
-Qt / Win32 前端也已完成同等验证。
+DOC/CODEX_DOC/06_测试文档/01_验收大纲/03-Celestia-Step25验证机制加固验收大纲.md
 ```

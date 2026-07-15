@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "unifiedExeScenarios": [
+    {
+      "id": "01-earth-default",
+      "script": "scenarios/01-earth-default.cel",
+      "capabilities": ["CAP-TIME", "CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-SURFACE", "CAP-POLICY", "CAP-VIS"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "01-earth-default.png", "required": true}
+      ],
+      "knownGaps": ["No state readback is produced.", "The final image does not prove persistent synchronous follow state."]
+    },
+    {
+      "id": "02-earth-clouds-orbits-labels",
+      "script": "scenarios/02-earth-clouds-orbits-labels.cel",
+      "capabilities": ["CAP-TIME", "CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-SURFACE", "CAP-POLICY", "CAP-VIS", "CAP-ATM", "CAP-ORBIT", "CAP-ANNOT"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "02-earth-clouds-orbits-labels.png", "required": true}
+      ],
+      "knownGaps": ["The final composite does not independently prove every rendering switch state."]
+    },
+    {
+      "id": "03-moon-close",
+      "script": "scenarios/03-moon-close.cel",
+      "capabilities": ["CAP-TIME", "CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-SURFACE", "CAP-VIS"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "03-moon-close.png", "required": true}
+      ],
+      "knownGaps": ["This scenario does not prove a complex journey or persistent tracking state."]
+    },
+    {
+      "id": "04-saturn-rings",
+      "script": "scenarios/04-saturn-rings.cel",
+      "capabilities": ["CAP-TIME", "CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-ATM", "CAP-SURFACE", "CAP-RESOURCE"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "04-saturn-rings.png", "required": true}
+      ],
+      "knownGaps": ["This scenario does not prove missing ring resources or motion at multiple times."]
+    },
+    {
+      "id": "05-asteroid-or-spacecraft",
+      "script": "scenarios/05-asteroid-or-spacecraft.cel",
+      "capabilities": ["CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-SURFACE", "CAP-ANNOT", "CAP-RESOURCE"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "05-asteroid-or-spacecraft.png", "required": true}
+      ],
+      "knownGaps": ["Only Eros is selected.", "Spacecraft, CPU picking, the location projector, and GPU cache boundaries are not proved."]
+    },
+    {
+      "id": "06-starfield-constellations",
+      "script": "scenarios/06-starfield-constellations.cel",
+      "capabilities": ["CAP-STAR", "CAP-CATALOG", "CAP-ANNOT", "CAP-POLICY", "CAP-VIS"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "06-starfield-constellations.png", "required": true}
+      ],
+      "knownGaps": ["The near-star and far-star internal paths are not proved independently."]
+    },
+    {
+      "id": "07-galaxy-deepsky",
+      "script": "scenarios/07-galaxy-deepsky.cel",
+      "capabilities": ["CAP-DSO", "CAP-CATALOG", "CAP-SEL", "CAP-NAV", "CAP-VIS", "CAP-RESOURCE"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "07-galaxy-deepsky.png", "required": true}
+      ],
+      "knownGaps": ["Only the Milky Way is covered.", "The resource and drawing paths for all four DSO categories are not proved."]
+    },
+    {
+      "id": "08-script-overlay-hud",
+      "script": "scenarios/08-script-overlay-hud.cel",
+      "capabilities": ["CAP-SCRIPT", "CAP-FEEDBACK", "CAP-POLICY", "CAP-TIME", "CAP-SEL", "CAP-NAV", "CAP-BODY", "CAP-SURFACE", "CAP-VIS"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "08-script-overlay-hud.png", "required": true}
+      ],
+      "knownGaps": ["Image and video overlays are not proved.", "Writes to a real Session and target View are not proved."]
+    },
+    {
+      "id": "09-selection-follow-goto",
+      "script": "scenarios/09-selection-follow-goto.cel",
+      "capabilities": ["CAP-SEL", "CAP-NAV", "CAP-SCRIPT", "CAP-FEEDBACK", "CAP-ORBIT", "CAP-ANNOT"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "09-selection-follow-goto.png", "required": true}
+      ],
+      "knownGaps": ["Persistent follow and the complete goto journey are not proved."]
+    },
+    {
+      "id": "10-resource-fallback-missing",
+      "script": "scenarios/10-resource-fallback-missing.cel",
+      "capabilities": ["CAP-BODY", "CAP-SURFACE", "CAP-RESOURCE", "CAP-ORBIT", "CAP-FEEDBACK"],
+      "checkpoints": [
+        {"id": "final", "kind": "image", "placeholder": "$CAPTURE_FILE$", "artifact": "10-resource-fallback-missing.png", "required": true}
+      ],
+      "knownGaps": ["No resource is deliberately missing.", "Missing-resource fallback is not proved."]
+    }
+  ],
+  "runtimeScenarios": [
+    {
+      "id": "runtime-2d-stdio",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-2d-stdio.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW2D", "CAP-STDIO"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["No original business image is produced.", "This smoke path proves lifecycle and transport only."]
+    },
+    {
+      "id": "runtime-2d-local-socket",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-2d-local-socket.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW2D", "CAP-LOCAL-SOCKET"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["No original business image is produced.", "This smoke path proves lifecycle and transport only."]
+    },
+    {
+      "id": "runtime-3d-stdio",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-3d-stdio.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW3D", "CAP-STDIO", "CAP-SYNTHETIC-MODEL"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "positive-frame-count", "kind": "stdoutRegex", "pattern": "view\\.frameRendered count=[1-9][0-9]*", "minimumMatches": 1, "required": true},
+        {"id": "synthetic-earth-identity", "kind": "stdoutRegex", "pattern": "view\\.frameRendered payload=.*observerReferenceBodyId=Sol.*selectionType=body.*selectionId=Earth", "minimumMatches": 1, "required": true},
+        {"id": "body-count", "kind": "stdoutRegex", "pattern": "bodyCount=1", "minimumMatches": 1, "required": true},
+        {"id": "star-count", "kind": "stdoutRegex", "pattern": "starCount=1", "minimumMatches": 1, "required": true},
+        {"id": "resource-count", "kind": "stdoutRegex", "pattern": "resourceCount=3", "minimumMatches": 1, "required": true},
+        {"id": "no-missing-required-resources", "kind": "stdoutRegex", "pattern": "missingRequiredResourceCount=0", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["The model payload is synthetic.", "No original 3D business scene is rendered."]
+    },
+    {
+      "id": "runtime-3d-local-socket",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-3d-local-socket.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW3D", "CAP-LOCAL-SOCKET", "CAP-SYNTHETIC-MODEL"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "positive-frame-count", "kind": "stdoutRegex", "pattern": "view\\.frameRendered count=[1-9][0-9]*", "minimumMatches": 1, "required": true},
+        {"id": "synthetic-earth-identity", "kind": "stdoutRegex", "pattern": "view\\.frameRendered payload=.*observerReferenceBodyId=Sol.*selectionType=body.*selectionId=Earth", "minimumMatches": 1, "required": true},
+        {"id": "body-count", "kind": "stdoutRegex", "pattern": "bodyCount=1", "minimumMatches": 1, "required": true},
+        {"id": "star-count", "kind": "stdoutRegex", "pattern": "starCount=1", "minimumMatches": 1, "required": true},
+        {"id": "resource-count", "kind": "stdoutRegex", "pattern": "resourceCount=3", "minimumMatches": 1, "required": true},
+        {"id": "no-missing-required-resources", "kind": "stdoutRegex", "pattern": "missingRequiredResourceCount=0", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["The model payload is synthetic.", "No original 3D business scene is rendered."]
+    },
+    {
+      "id": "runtime-switch-2d-to-3d-local-socket",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-switch-2d-to-3d-local-socket.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW-SWITCH", "CAP-LOCAL-SOCKET", "CAP-SYNTHETIC-MODEL"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "positive-3d-frame-count", "kind": "stdoutRegex", "pattern": "view\\.frameRendered count=[1-9][0-9]*", "minimumMatches": 1, "required": true},
+        {"id": "synthetic-earth-identity", "kind": "stdoutRegex", "pattern": "view\\.frameRendered payload=.*observerReferenceBodyId=Sol.*selectionType=body.*selectionId=Earth", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["The 3D payload is synthetic.", "No original business image is produced after switching."]
+    },
+    {
+      "id": "runtime-switch-3d-to-2d-local-socket",
+      "config": "../../DOC/CODEX_DOC/examples/runtime-switch-3d-to-2d-local-socket.yaml",
+      "required": true,
+      "capabilities": ["CAP-RUNTIME", "CAP-VIEW-SWITCH", "CAP-LOCAL-SOCKET", "CAP-SYNTHETIC-MODEL"],
+      "checkpoints": [
+        {"id": "clean-shutdown", "kind": "stdoutRegex", "pattern": "all hosts stopped", "minimumMatches": 1, "required": true},
+        {"id": "positive-3d-frame-count", "kind": "stdoutRegex", "pattern": "view\\.frameRendered count=[1-9][0-9]*", "minimumMatches": 1, "required": true},
+        {"id": "synthetic-earth-identity", "kind": "stdoutRegex", "pattern": "view\\.frameRendered payload=.*observerReferenceBodyId=Sol.*selectionType=body.*selectionId=Earth", "minimumMatches": 1, "required": true},
+        {"id": "trace-created", "kind": "fileExists", "path": "${TRACE_FILE}", "required": true}
+      ],
+      "imageCheckpoints": [],
+      "knownGaps": ["The 3D payload is synthetic.", "No original business image is proved before or after switching."]
+    }
+  ]
+}

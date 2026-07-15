@@ -1,5 +1,7 @@
 # Celestia Cross-Process View3D Fidelity Stage Conclusion
 
+> 2026-07-15 calibration: this document records the Step18 result at that time. The later Step25 audit established that the Runtime 3D payload is synthetic, not original Celestia real-scene output. Scenario names such as `resource-fallback-missing` do not prove the named failure behavior unless a matching checkpoint exists.
+
 ## Status
 
 Step18 is complete for the current evidence-gate scope. It establishes a machine-verifiable check path for the current SDL screenshot matrix and multi-process View3D runtime-smoke output.
@@ -22,7 +24,7 @@ D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-06-28-101820
 ```text
 Step18 regression mode passes.
 Current SDL screenshot matrix passes with 10 scenarios.
-The matrix includes selection/follow/goto and resource fallback coverage scenes.
+The matrix includes the named selection/follow/goto and resource fallback scenes; the final images do not prove persistent follow or an injected missing-resource fallback.
 Multi-process View3D runtime smoke logs contain view.frameRendered count and payload.
 Runtime smoke logs contain bodyCount and resourceCount for 3D configs.
 UTF-8 BOM runtime config loading is covered by unit test.

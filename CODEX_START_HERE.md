@@ -69,8 +69,10 @@ Compatibility regression harness for original unified exe capability checks
 Active development branch:
 
 ```text
-Step19 original View3D template View white-box migration strategy
+Step25 verification hardening complete locally; awaiting user review and commit decision
 branch: codex/celestia-mvc-step13-real-model-backend
+committed HEAD: 0f733ef603b8db5ffc02b735c153d8302bfad3ed
+worktree: dirty with Step24/Step25 documents and Step25 verification changes
 ```
 
 Current consolidated status and compatibility conclusion:
@@ -79,6 +81,31 @@ Current consolidated status and compatibility conclusion:
 DOC\CODEX_DOC\03_协议规范\03-01-Celestia-SceneFrame-vNext协议规范.md
 DOC\CODEX_DOC\02_设计说明\02-08-Celestia当前解耦现状与MVC能力盘点.md
 DOC\CODEX_DOC\06_测试文档\04_结论报告\01-Celestia统一exe原能力保真阶段结论.md
+```
+
+Current Step24/Step25 decision and evidence set:
+
+```text
+DOC\CODEX_DOC\02_设计说明\02-16-Celestia原业务链与MVC责任归属基线.md
+DOC\CODEX_DOC\04_研制计划\43-WBS-0.43-Celestia标准MVC解耦-Step25验证机制加固实施计划.md
+DOC\CODEX_DOC\06_测试文档\01_验收大纲\03-Celestia-Step25验证机制加固验收大纲.md
+DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-07-15-201136-Celestia-Step25验证机制加固-机测记录.md
+DOC\CODEX_DOC\07_过程文档\01_会话交接\2026-07-15-201136-Celestia-Step25验证机制加固-handoff.md
+```
+
+Step25 verified local state:
+
+```text
+SelfTest passed with exit 0.
+FI-00..FI-11 matched all 12 expected statuses and exit codes.
+Quick passed with exit 0: 60 checks, 0 non-pass.
+Full passed with exit 0: 96 checks, 0 non-pass.
+Step18 passed with exit 0: 60 checks, 0 non-pass.
+Full ran 200 CTest cases, 6 Runtime processes, 28 Runtime checkpoints, 10 current images, 10 baseline images, and 10 comparisons without a non-pass result.
+The 20-entry contact sheet was manually reviewed.
+The fixed baseline manifest contains exactly 10 SHA256-verified images for commit 44ec265659d2aa666cbf7546e36e4dde471d54ba.
+No source, unit-test, or root CMake file was changed by Step25.
+These results are local and uncommitted.
 ```
 
 ## Runtime Capabilities
@@ -142,10 +169,18 @@ Qt and Win32 frontend capability parity has been validated by the SDL regression
 Suggested next phase name:
 
 ```text
-Step19 - original View3D template View white-box migration strategy
+C-01 - time and pause authoritative-state implementation plan
 ```
 
 Formal execution plan:
+
+```text
+No C-01 implementation plan exists yet. The next activity is plan authoring and user review, not code modification.
+```
+
+Do not start C-01 implementation, View3D migration, merge, or push without user confirmation. Step25 proves the verification gate behavior; it does not close `VG-01..VG-16`, prove Model `M-L1`, prove a real command loop, or prove original cross-process View3D imagery.
+
+Historical accepted View direction after the Model/Controller slices:
 
 ```text
 DOC\CODEX_DOC\04_研制计划\36-WBS-0.36-Celestia标准MVC解耦-Step19原View3D模板View白盒迁移策略.md
@@ -171,11 +206,13 @@ Current Step19 working strategy:
 Current reset boundary:
 
 ```text
-Current branch HEAD is Step18 final:
-a3a5975 docs: record final Step18 verification
+Current committed branch HEAD is:
+0f733ef refactor: separate resource path indexes from View3D
 
 Step19-Step86 work from the rejected route has been removed from the branch and should not guide future work.
-The first new Step19 task is Model/Controller/View boundary review, not code movement.
+Step20-Step23 Model/resource boundary work is committed through 0f733ef.
+Step24 analysis and Step25 verification hardening are present in the dirty worktree and are not yet committed.
+The next implementation candidate is C-01, but only after a separate plan is written and reviewed.
 Current Step19.0 audit path:
 DOC\CODEX_DOC\04_研制计划\37-WBS-0.37-Celestia标准MVC解耦-Step19.0模型控制视图边界复审.md
 
@@ -185,7 +222,7 @@ tools\mvc\scan_mvc_boundary_debt.ps1
 Current Step19.0A self-test:
 test\scripts\test_mvc_boundary_debt_scan.ps1
 
-The scanner defaults to report mode and currently reports 88 boundary findings. This is expected for the Step18 intermediate baseline and should not be treated as a new regression.
+The latest Step24 architecture checkpoint reported 53 boundary findings. Treat that as analysis input, not as sufficient evidence that MVC decoupling is complete.
 
 After Step19.0, the next source ownership matrix should include both original View3D paths and boundary objects discovered by the audit.
 The first code-movement task must classify the source, choose whole-file move, split extraction, shared-module extraction, or adapted migration, and prove the old path no longer owns a duplicate View-private implementation.
@@ -347,6 +384,11 @@ For a new session, read in this order:
 
 ```text
 CODEX_START_HERE.md
+DOC\CODEX_DOC\02_设计说明\02-16-Celestia原业务链与MVC责任归属基线.md
+DOC\CODEX_DOC\04_研制计划\43-WBS-0.43-Celestia标准MVC解耦-Step25验证机制加固实施计划.md
+DOC\CODEX_DOC\06_测试文档\01_验收大纲\03-Celestia-Step25验证机制加固验收大纲.md
+DOC\CODEX_DOC\06_测试文档\03_机测记录\2026-07-15-201136-Celestia-Step25验证机制加固-机测记录.md
+DOC\CODEX_DOC\07_过程文档\01_会话交接\2026-07-15-201136-Celestia-Step25验证机制加固-handoff.md
 DOC\CODEX_DOC\04_研制计划\33-WBS-0.33-Celestia标准MVC解耦-Step16真实交互闭环方案.md
 DOC\CODEX_DOC\04_研制计划\32-WBS-0.32-Celestia标准MVC解耦-Step15真实View3D消费方案.md
 DOC\CODEX_DOC\04_研制计划\31-WBS-0.31-Celestia标准MVC解耦-Step14真实SceneExtractor方案.md
@@ -443,6 +485,25 @@ powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_re
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
 powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
+powershell -ExecutionPolicy Bypass -File tools\regression\helpers\Run-CelestiaCompatFaultInjection.ps1
+```
+
+Current verification matrix:
+
+```text
+tools\regression\verification-matrix.json
+10 unified exe scenarios
+6 Runtime scenarios
+28 Runtime checkpoints
+```
+
+Latest Step25 reports:
+
+```text
+Quick:  D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-07-15-193233-0f733ef-quick\machine-report.json
+Full:   D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-07-15-193548-0f733ef-full\machine-report.json
+Step18: D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\runs\2026-07-15-200722-0f733ef-step18\machine-report.json
 ```
 
 Step12 focused verification:

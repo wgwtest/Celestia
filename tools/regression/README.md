@@ -1,40 +1,44 @@
 # Celestia Compatibility Regression Harness
 
-This directory contains the regression harness for checking that the ordinary SDL unified exe / in-process path still covers the major visible capabilities of the fixed pre-MVC baseline.
+This harness verifies the covered unified SDL executable behavior against the fixed pre-MVC baseline and runs the current multi-process Runtime checkpoints. Scenario identity and checkpoints come from `verification-matrix.json`.
 
 ## Commands
 
-Fast script and helper validation, no build and no Celestia launch:
+Run from the repository root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode SelfTest
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\helpers\Run-CelestiaCompatFaultInjection.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
 ```
 
-Current checkout gate:
+PowerShell callers must inspect `$LASTEXITCODE`:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Quick
-```
+| Status | Exit code | Meaning |
+|---|---:|---|
+| `pass` | 0 | All executed required checks passed |
+| `fail` | 1 | A target, artifact, or known verification check failed |
+| `warn` | 2 | Manual review is required; this is not an automatic pass |
+| `error` | 3 | The harness, matrix, dependency, or environment is unusable |
 
-Create or refresh the fixed pre-MVC screenshot baseline:
+The existence of `machine-report.json` or `machine-report.md` does not mean the run passed.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode InitBaseline
-```
+## Baseline
 
-Full baseline/current comparison:
+The baseline commit is `44ec265659d2aa666cbf7546e36e4dde471d54ba`. `InitBaseline` is the only mode allowed to create or replace baseline images and `baseline-manifest.json`.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Full
-```
+`Full` validates the manifest commit, exact scenario/checkpoint/image set, SHA-256 values, disk PNG set, and image health. An invalid baseline causes `Full` to return 1 with an explicit `InitBaseline` instruction; `Full` never repairs the baseline automatically.
 
-Step18 cross-process View3D evidence gate:
+## Current Matrix
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_regression.ps1 -Mode Step18
-```
+The unified executable group currently contains ten `.cel` scenarios, each with one final image checkpoint. A current `Full` therefore creates ten baseline/current comparisons and one contact sheet. Do not hard-code this count in new logic; the JSON matrix remains the source.
 
-`Step18` runs the current SDL screenshot matrix and strengthens multi-process View3D runtime-smoke log assertions. It writes a machine report under the artifact root and copies the report into `DOC/CODEX_DOC/06_测试文档/03_机测记录/`. The runtime-smoke path also covers UTF-8 BOM config loading and async stdout/stderr draining, because View3D frame payload logs are large enough to expose pipe deadlocks.
+The Runtime group contains six scenarios. It verifies process exit, trace creation, clean shutdown, transport-specific lifecycle, positive 3D frames, and synthetic Earth/Sol identity where applicable. The current Runtime View3D data is synthetic and these six scenarios do not produce an original Celestia business image.
+
+The SelfTest uses two generated PNG files to prove the Runtime multi-image checkpoint framework. That fixture capability must not be described as real Runtime visual parity.
 
 ## Useful Options
 
@@ -47,24 +51,24 @@ powershell -ExecutionPolicy Bypass -File tools\regression\run_celestia_compat_re
 -KeepTemp
 ```
 
-`-SkipBuild` is useful when a compatible `build-mvc-sdl-rel` already exists. The build directory must still contain `src\celestia\sdl\celestia-sdl.exe` and a runtime content root, normally `run-full\celestia.cfg`.
+Skipping a required check produces at least `warn=2`. `-SkipBuild` and `-SkipRuntimeSmoke` are diagnostic conveniences, not evidence for an automatic pass.
 
-## Artifact Layout
+## Artifacts
 
-Generated builds, screenshots, metrics, logs, and contact sheets stay outside the repository by default:
+Generated builds, screenshots, metrics, logs, reports, and contact sheets stay outside the repository by default:
 
 ```text
 D:\WorkSpace\Codex\CeleNew\.regression-artifacts\Celestia\
   baselines\44ec265\
+    baseline-manifest.json
+    screenshots\baseline\
   runs\<timestamp>-<commit>-<mode>\
+    machine-report.json
+    machine-report.md
 ```
 
-`Full` also copies a Markdown machine report into:
+Fault injection fixtures are isolated under `%TEMP%\CelestiaCompatFaultInjection\FI-xx\` and never modify formal scenarios, YAML files, source code, or the formal baseline.
 
-```text
-DOC\CODEX_DOC\06_测试文档\03_机测记录\
-```
+## Claim Boundary
 
-## Scope
-
-This harness intentionally focuses on SDL unified exe / in-process visual compatibility. It does not prove exhaustive Celestia feature parity, pixel-perfect rendering, or Qt/Win32 frontend parity.
+A passing `Full` supports only the claim that no covered visible regression was found in the unified SDL path relative to the fixed baseline. It does not prove exhaustive Celestia feature parity, pixel-perfect equivalence, Qt/Win32 frontend parity, Model decoupling completion, or View3D migration completion.
